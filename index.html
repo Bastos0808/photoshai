@@ -1,0 +1,3390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Criador de Artes por IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Montserrat:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700&family=Roboto:wght@300;400;700&family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;700&family=Plus+Jakarta+Sans:wght@300;400;700;800&family=Raleway:wght@300;400;700;900&family=Lato:wght@300;400;700&family=Nunito:wght@300;400;700;900&family=Oswald:wght@400;600;700&family=Bebas+Neue&family=Anton&family=Black+Han+Sans&family=Archivo+Black&family=Barlow:wght@400;600;700;900&family=Barlow+Condensed:wght@400;600;700;900&family=Fraunces:wght@300;400;700;900&family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Serif+Display&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;600;700&family=Crimson+Pro:wght@300;400;700&family=Space+Grotesk:wght@300;400;700&family=Syne:wght@400;700;800&family=Outfit:wght@300;400;700;900&family=Manrope:wght@300;400;700;800&family=Cabinet+Grotesk:wght@400;700;900&family=Clash+Display:wght@400;600;700&family=Unbounded:wght@400;700;900&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Permanent+Marker&family=Pacifico&family=Lobster&family=Abril+Fatface&family=Righteous&family=Familjen+Grotesk:wght@400;600;700&family=Spline+Sans:wght@300;400;700&family=Spline+Sans+Mono:wght@400;700&family=Recursive:wght@300;400;700;900&family=Anek+Latin:wght@300;400;700;800&family=Radio+Canada:wght@300;400;600;700&family=Big+Shoulders+Display:wght@400;700;900&family=Big+Shoulders+Text:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0a;
+      --card:      #141414;
+      --input-bg:  #1a1a1a;
+      --border:    #2a2a2a;
+      --gold:      #C9A84C;
+      --gold-h:    #E5C76B;
+      --gold-dark: #9a7a35;
+      --white:     #f0f0f0;
+      --muted:     #888888;
+      --success:   #4CAF50;
+      --danger:    #e05050;
+      --radius:    10px;
+      --shadow:    0 4px 24px rgba(0,0,0,.5);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--card); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+    /* ─── HEADER ─────────────────────────────────── */
+    .header {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1510 100%);
+      border-bottom: 1px solid #2a2010;
+      padding: 40px 24px 36px;
+      text-align: center;
+      position: relative;
+    }
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--white);
+    }
+    .header h1 span {
+      background: linear-gradient(90deg, var(--gold), var(--gold-h));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header p {
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 8px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn-new {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: .8rem;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-new:hover {
+      border-color: var(--gold-dark);
+      color: var(--gold);
+    }
+
+    /* ─── MAIN LAYOUT ────────────────────────────── */
+    .main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* ─── SECTION HEADERS ────────────────────────── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .section-label .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #0a0a0a;
+      font-weight: 700;
+      font-size: .8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-label h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .section-label p {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .section-block {
+      margin-bottom: 32px;
+    }
+
+    /* ─── FADE-IN ANIMATION ──────────────────────── */
+    .fade-in {
+      animation: fadeIn .35s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── FORMAT GRID ────────────────────────────── */
+    .format-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .format-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 14px 16px;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+      position: relative;
+      user-select: none;
+    }
+    .format-card:hover {
+      border-color: var(--gold-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(201,168,76,.12);
+    }
+    .format-card.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.2), 0 6px 20px rgba(201,168,76,.15);
+      background: #1a1505;
+    }
+    .format-card .check {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      color: var(--gold);
+      font-size: .75rem;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .format-card.selected .check { opacity: 1; }
+    .format-card .icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+    .format-card .name {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--white);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .format-card .dims {
+      font-size: .7rem;
+      color: var(--gold);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .format-card .desc {
+      font-size: .68rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ─── CARD BASE ──────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    /* ─── FORM ELEMENTS ──────────────────────────── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+    @media (max-width: 600px) {
+      .form-row, .form-row.triple { grid-template-columns: 1fr; }
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .field input, .field select, .field textarea {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-size: .85rem;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--gold-dark);
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field select { cursor: pointer; }
+    .field select option { background: #1a1a1a; }
+    .field .hint {
+      font-size: .7rem;
+      color: var(--muted);
+    }
+
+    /* ─── PALETTE SWATCHES ───────────────────────── */
+    .palette-swatches {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .swatch {
+      cursor: pointer;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      overflow: hidden;
+      transition: all .2s;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .swatch:hover { transform: scale(1.1); }
+    .swatch.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(201,168,76,.35);
+    }
+    .swatch-preview {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .swatch-preview .sp-top { flex: 2; }
+    .swatch-preview .sp-bot { flex: 1; }
+    .swatch-label {
+      font-size: .65rem;
+      color: var(--muted);
+      margin-top: 4px;
+      text-align: center;
+      max-width: 60px;
+      line-height: 1.2;
+    }
+    .swatch-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .custom-colors {
+      display: none;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .custom-colors.visible { display: grid; }
+    .color-picker-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .color-picker-group label {
+      font-size: .72rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .color-picker-group input[type="color"] {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--input-bg);
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    /* ─── LANG TOGGLE ────────────────────────────── */
+    .lang-toggle {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      width: fit-content;
+    }
+    .lang-btn {
+      background: var(--input-bg);
+      border: none;
+      color: var(--muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: .82rem;
+      padding: 9px 18px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .lang-btn.active {
+      background: var(--gold);
+      color: #0a0a0a;
+      font-weight: 600;
+    }
+
+    /* ─── SLIDE BUILDER ──────────────────────────── */
+    .slides-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .slide-count-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .slide-count-control label {
+      font-size: .8rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .slide-count-control .count-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-count {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--white);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+    .btn-count:hover { border-color: var(--gold-dark); color: var(--gold); }
+    .count-display {
+      min-width: 28px;
+      text-align: center;
+      font-weight: 700;
+      font-size: .9rem;
+      color: var(--gold);
+    }
+    .slide-dims-note {
+      font-size: .75rem;
+      color: var(--muted);
+    }
+    .slide-dims-note span { color: var(--gold); font-weight: 600; }
+
+    .slides-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .slide-card {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .slide-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #161616;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .slide-card-header .slide-num {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .slide-card-header .slide-type-badge {
+      font-size: .7rem;
+      background: rgba(201,168,76,.15);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+    .slide-card-header .toggle-icon {
+      color: var(--muted);
+      font-size: .8rem;
+      transition: transform .2s;
+    }
+    .slide-card.collapsed .toggle-icon { transform: rotate(-90deg); }
+    .slide-card-body {
+      padding: 16px;
+    }
+    .slide-card.collapsed .slide-card-body { display: none; }
+
+    /* ─── PREVIEW ────────────────────────────────── */
+    .preview-container {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .preview-inner {
+      display: flex;
+      gap: 0;
+      width: fit-content;
+      min-width: 100%;
+      justify-content: center;
+    }
+    .preview-single {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .preview-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .preview-slide {
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .preview-slide + .preview-slide {
+      border-left: 2px solid rgba(201,168,76,.3);
+    }
+    .preview-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 10%;
+      text-align: center;
+    }
+    .preview-slide-type {
+      font-size: clamp(.4rem, .8vw, .6rem);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: .6;
+      margin-bottom: 6px;
+    }
+    .preview-headline {
+      font-size: clamp(.55rem, 1.2vw, .9rem);
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .preview-sub {
+      font-size: clamp(.42rem, .8vw, .62rem);
+      opacity: .75;
+      line-height: 1.35;
+    }
+    .preview-num {
+      position: absolute;
+      bottom: 6px;
+      right: 8px;
+      font-size: clamp(.4rem, .7vw, .55rem);
+      opacity: .45;
+    }
+    .preview-label {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    .preview-label span { color: var(--gold); font-weight: 600; }
+
+    /* ─── PROMPT OUTPUT ──────────────────────────── */
+    .prompt-box {
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      font-size: .8rem;
+      line-height: 1.75;
+      color: #d0d0d0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 120px;
+      font-family: 'Poppins', monospace;
+      display: none;
+    }
+    .prompt-box.visible { display: block; }
+
+    .copy-btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    /* ─── IMAGE GEN ──────────────────────────────── */
+    .img-result-card {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .img-result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--gold);
+    }
+    .img-result-body {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      background: #111;
+    }
+    .img-result-body img {
+      max-width: 100%;
+      max-height: 600px;
+      object-fit: contain;
+      border-radius: 6px;
+      display: block;
+    }
+    .img-result-actions {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .slide-checkbox-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: 'Poppins', sans-serif;
+    }
+    .slide-checkbox-btn.selected {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,168,76,.1);
+    }
+    .gen-spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(201,168,76,.3);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── REF IMAGES ─────────────────────────────── */
+    .ref-thumb {
+      position: relative;
+      width: 72px; height: 72px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .ref-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ref-thumb .ref-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,.7); color: #fff;
+      font-size: 9px; text-align: center; padding: 2px 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ref-thumb .ref-remove {
+      position: absolute; top: 2px; right: 2px;
+      background: rgba(0,0,0,.7); border: none; color: #fff;
+      font-size: 10px; cursor: pointer; border-radius: 3px;
+      width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+    }
+    /* ─── REF ZONES ─────────────────────────────── */
+    .ref-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 14px 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--input-bg);
+      transition: border-color .2s, background .2s;
+      position: relative;
+      min-height: 90px;
+    }
+    .ref-zone:hover, .ref-zone-hover { border-color: var(--gold); background: rgba(201,168,76,.05); }
+    .ref-zone-icon { font-size: 1.4rem; margin-bottom: 4px; }
+    .ref-zone-title { font-size: .8rem; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+    .ref-zone-hint { font-size: .72rem; color: var(--muted); }
+    .ref-zone-preview {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      justify-content: center; margin-top: 8px;
+    }
+    .ref-zone-preview img {
+      width: 48px; height: 48px; object-fit: cover;
+      border-radius: 4px; border: 1px solid var(--border);
+    }
+    .ref-zone.has-image { border-color: var(--gold); border-style: solid; }
+    .ref-zone .ref-clear {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,.6); border: none; color: #fff;
+      font-size: 10px; cursor: pointer; border-radius: 3px;
+      padding: 2px 5px; display: none;
+    }
+    .ref-zone.has-image .ref-clear { display: block; }
+
+    /* ─── BUTTONS ────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 22px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), var(--gold-h));
+      color: #0a0a0a;
+    }
+    .btn-gold:hover {
+      background: linear-gradient(135deg, var(--gold-h), var(--gold));
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(201,168,76,.35);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-ghost:hover { border-color: var(--gold-dark); color: var(--gold); }
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: .78rem;
+    }
+
+    .generate-wrap {
+      text-align: center;
+      margin: 8px 0 20px;
+    }
+    .generate-wrap .btn-gold {
+      padding: 15px 40px;
+      font-size: 1rem;
+      letter-spacing: .3px;
+    }
+
+    /* ─── CUSTOM DIMS ────────────────────────────── */
+    .custom-dims {
+      display: none;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .custom-dims.visible { display: flex; }
+    .custom-dims input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-size: .85rem;
+      padding: 9px 12px;
+      width: 110px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .custom-dims input:focus { border-color: var(--gold-dark); }
+    .custom-dims span { color: var(--muted); font-size: .9rem; }
+
+    /* ─── TIPS PANEL ─────────────────────────────── */
+    .tips-panel {
+      margin-top: 32px;
+    }
+    .tips-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color .2s;
+    }
+    .tips-toggle:hover { border-color: var(--gold-dark); }
+    .tips-toggle .title {
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tips-toggle .arrow {
+      color: var(--muted);
+      transition: transform .25s;
+      font-size: .8rem;
+    }
+    .tips-panel.open .arrow { transform: rotate(180deg); }
+    .tips-body {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 20px;
+    }
+    .tips-panel.open .tips-body { display: block; }
+    .tip-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .tip-item:last-child { margin-bottom: 0; }
+    .tip-item .tip-icon { color: var(--gold); font-size: 1rem; flex-shrink: 0; }
+    .tip-item .tip-text { font-size: .8rem; color: #b0b0b0; line-height: 1.5; }
+    .tip-item .tip-text strong { color: var(--white); }
+
+    /* ─── DIVIDER ────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 500px) {
+      .format-grid { grid-template-columns: 1fr 1fr; }
+      .btn-new { position: static; display: block; margin: 12px auto 0; }
+      .header { padding-bottom: 20px; }
+      .copy-btns { flex-direction: column; }
+      .custom-dims { flex-direction: column; align-items: flex-start; }
+      .custom-dims input { width: 100%; }
+    }
+
+    /* ─── HIDDEN ─────────────────────────────────── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ HEADER ═══════ -->
+<header class="header">
+  <div class="header-inner">
+    <h1>Criador de <span>Artes por IA</span></h1>
+    <p>Gere prompts profissionais para qualquer formato de arte nas redes sociais</p>
+  </div>
+  <button class="btn-new" onclick="resetProject()">&#8635; Novo Projeto</button>
+</header>
+
+<!-- ═══════════════════════════════════════ MAIN ═════════ -->
+<main class="main">
+
+  <!-- STEP 1: FORMAT SELECTOR -->
+  <div class="section-block" id="step1">
+    <div class="section-label">
+      <div class="num">1</div>
+      <div>
+        <h2>Formato da Arte</h2>
+        <p>Escolha o formato para o qual deseja criar o prompt</p>
+      </div>
+    </div>
+    <div class="format-grid" id="formatGrid"></div>
+
+    <!-- Custom dimensions (only visible when custom is selected) -->
+    <div class="custom-dims" id="customDims">
+      <span style="color:var(--muted);font-size:.82rem;font-weight:600;">Largura:</span>
+      <input type="number" id="customW" placeholder="1080" min="100" max="9999" value="1080" />
+      <span style="color:var(--muted)">×</span>
+      <span style="color:var(--muted);font-size:.82rem;font-weight:600;">Altura:</span>
+      <input type="number" id="customH" placeholder="1080" min="100" max="9999" value="1080" />
+      <span style="color:var(--muted);font-size:.78rem;">px</span>
+    </div>
+  </div>
+
+  <!-- STEP 2: GENERAL SETTINGS -->
+  <div class="section-block hidden fade-in" id="step2">
+    <hr class="divider" />
+    <div class="section-label">
+      <div class="num">2</div>
+      <div>
+        <h2>Configurações Gerais</h2>
+        <p>Paleta de cores, tipografia e estilo visual</p>
+      </div>
+    </div>
+    <div class="card">
+      <!-- Palette -->
+      <div style="margin-bottom:20px;">
+        <div class="field">
+          <label>Paleta de Cores</label>
+        </div>
+        <div class="palette-swatches" id="paletteSwatches"></div>
+        <div class="custom-colors" id="customColorsRow">
+          <div class="color-picker-group">
+            <label>Fundo</label>
+            <input type="color" id="colorBg" value="#0d0d0d" oninput="updatePreview()" />
+          </div>
+          <div class="color-picker-group">
+            <label>Destaque</label>
+            <input type="color" id="colorAccent" value="#C9A84C" oninput="updatePreview()" />
+          </div>
+          <div class="color-picker-group">
+            <label>Texto</label>
+            <input type="color" id="colorText" value="#FFFFFF" oninput="updatePreview()" />
+          </div>
+        </div>
+      </div>
+
+      <!-- TIPOGRAFIA POR ELEMENTO -->
+      <div class="field" style="margin-bottom:10px;">
+        <label style="margin-bottom:8px;display:block;">Tipografia</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <div>
+            <div style="font-size:10px;opacity:0.5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Headline</div>
+            <select id="fontHeadline" onchange="updatePreview()" style="width:100%;"></select>
+          </div>
+          <div>
+            <div style="font-size:10px;opacity:0.5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Subtítulo</div>
+            <select id="fontSubtitle" onchange="updatePreview()" style="width:100%;"></select>
+          </div>
+          <div>
+            <div style="font-size:10px;opacity:0.5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Corpo</div>
+            <select id="fontBody" onchange="updatePreview()" style="width:100%;"></select>
+          </div>
+        </div>
+        <div id="fontPreviewCard" style="margin-top:10px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);display:none;"></div>
+      </div>
+
+      <div class="form-row triple">
+        <div class="field" style="display:none;">
+          <!-- legacy hidden select kept for save/load compatibility -->
+          <select id="typography" onchange="updatePreview()">
+            <option value="Poppins">Poppins</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Estilo Visual</label>
+          <select id="visualStyle" onchange="updatePreview()">
+            <option value="Quiet Luxury">Quiet Luxury</option>
+            <option value="Corporativo">Corporativo</option>
+            <option value="Minimalista">Minimalista</option>
+            <option value="Editorial">Editorial</option>
+            <option value="Vibrante/Colorido">Vibrante/Colorido</option>
+            <option value="Dark Academia">Dark Academia</option>
+            <option value="Glassmorphism">Glassmorphism</option>
+            <option value="Dark Luxury">Dark Luxury</option>
+            <option value="Bento Grid">Bento Grid</option>
+            <option value="Neo-Brutalismo">Neo-Brutalismo</option>
+            <option value="Retro-Futurismo">Retro-Futurismo</option>
+            <option value="Y2K / Nostalgia Digital">Y2K / Nostalgia Digital</option>
+            <option value="Neon Cyberpunk">Neon Cyberpunk</option>
+            <option value="Organic / Bauhaus Moderno">Organic / Bauhaus Moderno</option>
+            <option value="Zine / Collage">Zine / Collage</option>
+            <option value="3D Inflated / Claymorphism">3D Inflated / Claymorphism</option>
+          </select>
+          <div id="stylePreviewCard" style="margin-top:10px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);display:none;"></div>
+        </div>
+        <div class="field">
+          <label>Idioma do Prompt</label>
+          <div class="lang-toggle">
+            <button class="lang-btn active" id="langPT" onclick="setLang('pt')">&#x1F1E7;&#x1F1F7; PT</button>
+            <button class="lang-btn" id="langEN" onclick="setLang('en')">&#x1F1FA;&#x1F1F8; EN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: CONTENT -->
+  <div class="section-block hidden fade-in" id="step3">
+    <hr class="divider" />
+    <div class="section-label">
+      <div class="num">3</div>
+      <div>
+        <h2 id="step3Title">Conteúdo</h2>
+        <p id="step3Sub">Preencha os textos e descrição visual da arte</p>
+      </div>
+    </div>
+
+    <!-- SINGLE FORMAT CONTENT -->
+    <div id="singleContent" class="card hidden">
+      <div class="form-row">
+        <div class="field">
+          <label>Título / Headline</label>
+          <input type="text" id="singleHeadline" placeholder="Título principal da arte" oninput="updatePreview()" />
+        </div>
+        <div class="field">
+          <label>Subtítulo <span style="font-weight:400;text-transform:none;">(opcional)</span></label>
+          <input type="text" id="singleSubtitle" placeholder="Subtítulo ou complemento" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Texto de Apoio / CTA <span style="font-weight:400;text-transform:none;">(opcional)</span></label>
+          <textarea id="singleBody" placeholder="Ex: Saiba mais, Entre em contato, Link na bio..." oninput="updatePreview()"></textarea>
+        </div>
+        <div class="field">
+          <label>Elementos de Texto <span style="font-weight:400;text-transform:none;">(opcional)</span></label>
+          <input type="text" id="singleElements" placeholder="@usuario, #hashtag, URL, logo..." />
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="field">
+          <label>Descrição Visual Detalhada</label>
+          <textarea id="singleVisual" rows="4" placeholder="Descreva a cena, objetos, iluminação, ângulo, atmosfera, composição..." oninput="updatePreview()" style="min-height:100px;"></textarea>
+          <span class="hint">Quanto mais detalhe, melhor o resultado da IA</span>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="field">
+          <label>Mood / Sentimento</label>
+          <select id="singleMood">
+            <option value="Profissional">Profissional</option>
+            <option value="Inspirador">Inspirador</option>
+            <option value="Urgente">Urgente</option>
+            <option value="Luxuoso">Luxuoso</option>
+            <option value="Divertido">Divertido</option>
+            <option value="Misterioso">Misterioso</option>
+            <option value="Minimalista">Minimalista</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAROUSEL CONTENT -->
+    <div id="carouselContent" class="hidden">
+      <div class="slides-header card" style="padding:16px 20px;">
+        <div class="slide-count-control">
+          <label>Número de slides:</label>
+          <div class="count-wrap">
+            <button class="btn-count" onclick="changeSlideCount(-1)">&#8722;</button>
+            <span class="count-display" id="slideCountDisplay">5</span>
+            <button class="btn-count" onclick="changeSlideCount(1)">&#43;</button>
+          </div>
+        </div>
+        <div class="slide-dims-note">
+          Dimensão total: <span id="totalDimsNote">5400×1350px</span> &nbsp;|&nbsp;
+          Cada slide: <span>1080×1350px</span>
+        </div>
+      </div>
+      <div style="height:12px;"></div>
+      <div class="slides-list" id="slidesList"></div>
+      <div style="margin-top:14px;display:flex;gap:10px;">
+        <button class="btn btn-ghost btn-sm" onclick="changeSlideCount(1)">+ Adicionar Slide</button>
+        <button class="btn btn-ghost btn-sm" onclick="changeSlideCount(-1)">&#8722; Remover Último</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: PREVIEW -->
+  <div class="section-block hidden fade-in" id="step4">
+    <hr class="divider" />
+    <div class="section-label">
+      <div class="num">4</div>
+      <div>
+        <h2>Preview</h2>
+        <p>Visualização proporcional da arte com as cores e textos definidos</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="preview-container" id="previewContainer">
+        <div class="preview-inner" id="previewInner"></div>
+      </div>
+      <div class="preview-label" id="previewLabel"></div>
+    </div>
+  </div>
+
+  <!-- STEP 5: GENERATE PROMPT -->
+  <div class="section-block hidden fade-in" id="step5">
+    <hr class="divider" />
+    <div class="section-label">
+      <div class="num">5</div>
+      <div>
+        <h2>Gerar Prompt</h2>
+        <p>Gere o prompt otimizado para usar nas ferramentas de IA</p>
+      </div>
+    </div>
+    <div class="generate-wrap">
+      <button class="btn btn-gold" onclick="generatePrompt()">&#10024; Gerar Prompt</button>
+    </div>
+    <pre class="prompt-box" id="promptBox"></pre>
+    <div class="copy-btns hidden" id="copyBtns">
+      <button class="btn btn-ghost btn-sm" onclick="copyPrompt('plain')" id="btnCopyPlain">&#128203; Copiar Prompt</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyPrompt('gemini')">&#129302; Para Gemini</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyPrompt('chatgpt')">&#129504; Para ChatGPT</button>
+    </div>
+  </div>
+
+  <!-- IMAGE GENERATION -->
+  <div class="card" id="imageGenSection" style="display:none">
+    <div class="step-header">
+      <div class="num">6</div>
+      <div>
+        <h2>Gerar Imagem com IA</h2>
+        <p>Produza a arte diretamente via Imagen 4 + Gemini 2.5 Pro</p>
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-bottom:16px">
+      <label class="field-label">Chave de API do Gemini</label>
+      <input type="password" id="geminiApiKey" class="input" value="AIzaSyCQ1tY6yT3LeNiIYXcZEi03J4xF2q_bAqw" placeholder="Cole sua API Key aqui..." />
+      <span class="field-hint">Sua chave fica salva localmente, nunca é enviada para terceiros.</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px">
+      <div class="field-group" style="margin:0">
+        <label class="field-label">🖼 Modelo de Imagem</label>
+        <select id="imageModelSelect" class="input" onchange="saveModelPrefs()">
+          <optgroup label="── Gemini 3 ──">
+            <option value="gemini-3-pro-image-preview" selected>Gemini 3 Pro Image ⭐</option>
+            <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash Image ⚡</option>
+            <option value="gemini-3-pro-image-preview">Gemini 3 Pro Image Preview</option>
+            <option value="nano-banana-pro-preview">Nano Banana Pro Preview</option>
+          </optgroup>
+          <optgroup label="── Gemini 2.5 ──">
+            <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
+          </optgroup>
+        </select>
+        <span class="field-hint">Modelo usado para gerar as imagens.</span>
+      </div>
+      <div class="field-group" style="margin:0">
+        <label class="field-label">🧠 Modelo de Texto (Diretor)</label>
+        <select id="textModelSelect" class="input" onchange="saveModelPrefs()">
+          <optgroup label="── Gemini 3 ──">
+            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview ⭐</option>
+            <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview ⚡</option>
+            <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite</option>
+          </optgroup>
+          <optgroup label="── Gemini 2.5 ──">
+            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+          </optgroup>
+        </select>
+        <span class="field-hint">Usado para criar a direção de arte e o storyboard.</span>
+      </div>
+    </div>
+
+    <!-- Reference images upload — separated by type -->
+    <div class="field-group" style="margin-bottom:16px">
+      <label class="field-label">Elementos Visuais <span style="color:var(--muted); font-weight:400">(opcional)</span></label>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+
+        <!-- Logo / Marca -->
+        <div class="ref-zone" data-slot="logo" onclick="triggerRefInput('logo')"
+          ondragover="event.preventDefault(); this.classList.add('ref-zone-hover')"
+          ondragleave="this.classList.remove('ref-zone-hover')"
+          ondrop="handleRefDrop(event,'logo')">
+          <div class="ref-zone-icon">🏷</div>
+          <div class="ref-zone-title">Logo / Marca</div>
+          <div class="ref-zone-hint">Aparece como elemento da arte</div>
+          <div class="ref-zone-preview" id="preview-logo"></div>
+        </div>
+
+        <!-- Foto / Pessoa -->
+        <div class="ref-zone" data-slot="person" onclick="triggerRefInput('person')"
+          ondragover="event.preventDefault(); this.classList.add('ref-zone-hover')"
+          ondragleave="this.classList.remove('ref-zone-hover')"
+          ondrop="handleRefDrop(event,'person')">
+          <div class="ref-zone-icon">👤</div>
+          <div class="ref-zone-title">Foto / Pessoa</div>
+          <div class="ref-zone-hint">Foto do cliente ou modelo</div>
+          <div class="ref-zone-preview" id="preview-person"></div>
+        </div>
+
+        <!-- Fundo / Cena -->
+        <div class="ref-zone" data-slot="background" onclick="triggerRefInput('background')"
+          ondragover="event.preventDefault(); this.classList.add('ref-zone-hover')"
+          ondragleave="this.classList.remove('ref-zone-hover')"
+          ondrop="handleRefDrop(event,'background')">
+          <div class="ref-zone-icon">🌆</div>
+          <div class="ref-zone-title">Fundo / Cena</div>
+          <div class="ref-zone-hint">Imagem de fundo ou cenário</div>
+          <div class="ref-zone-preview" id="preview-background"></div>
+        </div>
+
+        <!-- Elemento Gráfico -->
+        <div class="ref-zone" data-slot="graphic" onclick="triggerRefInput('graphic')"
+          ondragover="event.preventDefault(); this.classList.add('ref-zone-hover')"
+          ondragleave="this.classList.remove('ref-zone-hover')"
+          ondrop="handleRefDrop(event,'graphic')">
+          <div class="ref-zone-icon">📊</div>
+          <div class="ref-zone-title">Elemento Gráfico</div>
+          <div class="ref-zone-hint">Gráfico, mockup, ícone, UI</div>
+          <div class="ref-zone-preview" id="preview-graphic"></div>
+        </div>
+
+        <!-- Referência de Estilo -->
+        <div class="ref-zone" data-slot="style" onclick="triggerRefInput('style')"
+          style="grid-column: 1 / -1"
+          ondragover="event.preventDefault(); this.classList.add('ref-zone-hover')"
+          ondragleave="this.classList.remove('ref-zone-hover')"
+          ondrop="handleRefDrop(event,'style')">
+          <div class="ref-zone-icon">🎨</div>
+          <div class="ref-zone-title">Referência de Estilo</div>
+          <div class="ref-zone-hint">Arte que você quer imitar — cores, layout, tipografia, mood</div>
+          <div class="ref-zone-preview" id="preview-style"></div>
+        </div>
+
+      </div>
+      <!-- hidden inputs per slot -->
+      <input type="file" id="refInput-logo"       accept="image/*" style="display:none" onchange="handleRefFile(this,'logo')" />
+      <input type="file" id="refInput-person"     accept="image/*" style="display:none" onchange="handleRefFile(this,'person')" />
+      <input type="file" id="refInput-background" accept="image/*" style="display:none" onchange="handleRefFile(this,'background')" />
+      <input type="file" id="refInput-graphic"    accept="image/*" style="display:none" onchange="handleRefFile(this,'graphic')" />
+      <input type="file" id="refInput-style"      accept="image/*" multiple style="display:none" onchange="handleRefFiles(this,'style')" />
+    </div>
+
+    <div id="carouselSlideSelector" style="display:none; margin-bottom:16px">
+      <div style="background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.2); border-radius:8px; padding:12px 16px; font-size:.85rem; color:var(--gold)">
+        🎠 O carrossel será gerado como <strong>uma imagem única</strong> na proporção correta. Basta dividir os painéis no Photoshop depois.
+      </div>
+    </div>
+
+    <button class="btn btn-gold" id="btnGenerateImage" onclick="generateImages()" style="width:100%; justify-content:center; font-size:1rem; padding:16px">
+      &#127775; Gerar Imagem
+    </button>
+
+    <div id="imageGenStatus" style="display:none; margin-top:16px; text-align:center; color:var(--muted); font-size:.9rem"></div>
+    <div id="imageGenResults" style="margin-top:20px; display:flex; flex-direction:column; gap:20px"></div>
+  </div>
+
+  <!-- TIPS PANEL -->
+  <div class="tips-panel hidden" id="tipsPanel">
+    <div class="tips-toggle" onclick="toggleTips()">
+      <span class="title">&#128161; Dicas para este formato</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="tips-body" id="tipsBody"></div>
+  </div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   GLOBALS
+═══════════════════════════════════════════════════════════ */
+const refImages = [];   // { name, mimeType, base64 }
+
+/* ═══════════════════════════════════════════════════════════
+   CONFIGURATION
+═══════════════════════════════════════════════════════════ */
+
+const FORMATS = [
+  {
+    id: 'carousel',
+    icon: '🎠',
+    name: 'Carrossel Instagram',
+    dims: '4320×1350px',
+    w: 4320, h: 1350,
+    slideW: 1080, slideH: 1350,
+    desc: 'Múltiplos slides lado a lado'
+  },
+  {
+    id: 'feed-square',
+    icon: '⬛',
+    name: 'Post Quadrado',
+    dims: '1080×1080px',
+    w: 1080, h: 1080,
+    desc: 'Post único quadrado'
+  },
+  {
+    id: 'feed-portrait',
+    icon: '🖼️',
+    name: 'Post Retrato',
+    dims: '1080×1350px',
+    w: 1080, h: 1350,
+    desc: 'Post portrait 4:5'
+  },
+  {
+    id: 'story',
+    icon: '📱',
+    name: 'Story / Reels',
+    dims: '1080×1920px',
+    w: 1080, h: 1920,
+    desc: 'Formato vertical story'
+  },
+  {
+    id: 'linkedin-banner',
+    icon: '💼',
+    name: 'Banner LinkedIn',
+    dims: '1584×396px',
+    w: 1584, h: 396,
+    desc: 'Banner de perfil LinkedIn'
+  },
+  {
+    id: 'youtube-thumb',
+    icon: '▶️',
+    name: 'Thumbnail YouTube',
+    dims: '1280×720px',
+    w: 1280, h: 720,
+    desc: 'Miniatura do YouTube'
+  },
+  {
+    id: 'twitter-header',
+    icon: '🐦',
+    name: 'Capa Twitter/X',
+    dims: '1500×500px',
+    w: 1500, h: 500,
+    desc: 'Header do Twitter/X'
+  },
+  {
+    id: 'custom',
+    icon: '⚙️',
+    name: 'Personalizado',
+    dims: 'Livre',
+    w: 1080, h: 1080,
+    desc: 'Dimensões personalizadas'
+  }
+];
+
+const PALETTES = [
+  {
+    id: 'bwd-gold',
+    label: 'Preto & Dourado',
+    bg: '#0d0d0d', accent: '#C9A84C', text: '#FFFFFF',
+    topColor: '#0d0d0d', botColor: '#C9A84C'
+  },
+  {
+    id: 'bwd-silver',
+    label: 'Preto & Prata',
+    bg: '#0d0d0d', accent: '#C0C0C0', text: '#FFFFFF',
+    topColor: '#0d0d0d', botColor: '#C0C0C0'
+  },
+  {
+    id: 'navy-gold',
+    label: 'Azul & Dourado',
+    bg: '#0a1628', accent: '#C9A84C', text: '#FFFFFF',
+    topColor: '#0a1628', botColor: '#C9A84C'
+  },
+  {
+    id: 'white-green',
+    label: 'Branco & Verde',
+    bg: '#FFFFFF', accent: '#2E7D32', text: '#1a1a1a',
+    topColor: '#FFFFFF', botColor: '#2E7D32'
+  },
+  {
+    id: 'purple-pink',
+    label: 'Roxo & Rosa',
+    bg: '#1a0a2e', accent: '#E040FB', text: '#FFFFFF',
+    topColor: '#1a0a2e', botColor: '#E040FB'
+  },
+  {
+    id: 'custom',
+    label: 'Personalizado',
+    bg: '#0d0d0d', accent: '#C9A84C', text: '#FFFFFF',
+    topColor: '#888888', botColor: '#444444'
+  }
+];
+
+const SLIDE_TYPES = [
+  { value: 'capa', label: 'Capa (Slide 1)' },
+  { value: 'introducao', label: 'Introdução' },
+  { value: 'conteudo', label: 'Conteúdo' },
+  { value: 'lista', label: 'Lista / Pontos' },
+  { value: 'citacao', label: 'Citação / Quote' },
+  { value: 'estatistica', label: 'Estatística / Dado' },
+  { value: 'conclusao', label: 'Conclusão' },
+  { value: 'cta', label: 'CTA / Chamada' }
+];
+
+const STYLE_DESCRIPTIONS = {
+  'Quiet Luxury': 'elegância discreta, materiais premium, espaço negativo generoso, tipografia refinada serif, paleta neutra com um único acento dourado ou bege',
+  'Corporativo': 'profissional, estruturado, confiável, layout limpo e formal, linhas retas, ícones flat',
+  'Minimalista': 'menos é mais, espaço em branco abundante, foco no essencial, tipografia limpa, zero decoração supérflua',
+  'Editorial': 'dinâmico, contrastante, influência de revista de moda, hierarquia tipográfica forte, mix de fontes bold e light',
+  'Vibrante/Colorido': 'cores saturadas e energéticas, gradientes ousados, apelo visual imediato, jovem e moderno',
+  'Dark Academia': 'sombrio e intelectual, texturas vintage e paper-grain, paleta sépia e verde-musgo, atmosfera de biblioteca antiga',
+  'Glassmorphism': 'efeito vidro fosco (frosted glass), painéis translúcidos com backdrop-blur, bordas sutis semi-transparentes, fundo com gradiente colorido visível através do vidro, sombras suaves e brilho nas bordas',
+  'Dark Luxury': 'fundo escuro profundo (quase preto), detalhes em dourado ou prata metálico, tipografia refinada, partículas brilhantes, sensação premium e exclusiva',
+  'Bento Grid': 'layout em grade de cards modulares de tamanhos variados (inspirado em marmita japonesa), cada card com conteúdo próprio, cantos arredondados, sombras suaves, paleta limpa e organizada',
+  'Neo-Brutalismo': 'bordas pretas espessas e sólidas, sombras offset duras (sem blur), cores chapadas e contrastantes, tipografia ousada e deslocada, sensação raw e intencional, elementos assimétricos',
+  'Retro-Futurismo': 'estética anos 80/90 imaginando o futuro: cromado, holográfico, grades de néon, perspectiva isométrica, fontes sci-fi, paleta de roxo/azul/ciano com toques metálicos',
+  'Y2K / Nostalgia Digital': 'estética Y2K e early internet: degradê metálico, elementos em 3D simples, fontes pixel ou bubblegum, stickers, estrelas e glitter, paleta rosa-choque/prata/azul céu, vibe mid-2000s',
+  'Neon Cyberpunk': 'fundo escuro, néons vibrantes (rosa, ciano, verde) com glow intenso, linhas de grade ou circuito, estética hacker/tech, tipografia monospace, chuva de partículas ou glitch',
+  'Organic / Bauhaus Moderno': 'formas orgânicas e blobby, curvas suaves, paleta terrosa e muted, tipografia geométrica inspirada em Bauhaus, composição equilibrada entre forma e função, sem excesso',
+  'Zine / Collage': 'estética de fanzine e scrapbook: recortes sobrepostos, texturas de papel rasgado, tipografia irregular e manuscrita, composição caótica intencional, grunge e raw, grain pesado',
+  '3D Inflated / Claymorphism': 'objetos e letras com aparência inflada em 3D ou clay (argila), superfícies suaves com SSS (subsurface scattering), sombras suaves e internas, paleta pastel e vibrante, sensação fofa e tátil'
+};
+
+/* ── Font catalog ── */
+const FONTS_CATALOG = [
+  // ── DISPLAY / HEADLINE (impacto visual, títulos grandes)
+  { name:'Bebas Neue',         category:'Display',  vibe:'Bold condensado, impacto máximo, muito usado em streetwear e esportes' },
+  { name:'Anton',              category:'Display',  vibe:'Pesado e chamativo, perfeito para headlines que precisam gritar' },
+  { name:'Archivo Black',      category:'Display',  vibe:'Sans-serif ultra-bold moderno, ótimo para marcas contemporâneas' },
+  { name:'Oswald',             category:'Display',  vibe:'Condensado e forte, lê-se rápido — ideal para posts de impacto' },
+  { name:'Barlow Condensed',   category:'Display',  vibe:'Condensado versátil, funciona bem em títulos e labels' },
+  { name:'Unbounded',          category:'Display',  vibe:'Geométrico futurista, tendência em tech e Web3' },
+  { name:'Clash Display',      category:'Display',  vibe:'Moderno alternativo, muito usado em branding de agências criativas' },
+  { name:'Syne',               category:'Display',  vibe:'Geométrico com personalidade, favorito de designers independentes' },
+  { name:'Righteous',          category:'Display',  vibe:'Retro-futurista arredondado, traz vibe anos 70 revisitados' },
+  { name:'Abril Fatface',      category:'Display',  vibe:'Serif display dramático de alto contraste, estética revista de luxo' },
+  { name:'Fraunces',           category:'Display',  vibe:'Serif expressivo e orgânico, mistura editorial com calor humano' },
+  { name:'DM Serif Display',   category:'Display',  vibe:'Serif elegante de alto contraste, limpo e premium' },
+  { name:'Permanent Marker',   category:'Display',  vibe:'Handwriting expressivo, traz autenticidade e energia humana' },
+  { name:'Pacifico',           category:'Display',  vibe:'Script arredondado e amigável, muito usado em food e lifestyle' },
+  { name:'Lobster',            category:'Display',  vibe:'Script bold e retro, clássico do design para marcas populares' },
+  // ── EDITORIAL / MIX (combinam bem com serifs em subtítulos)
+  { name:'Montserrat',         category:'Editorial', vibe:'Geométrico clássico — o mais versátil do Google Fonts para redes sociais' },
+  { name:'Raleway',            category:'Editorial', vibe:'Elegante e fino, ótimo para marcas premium e moda' },
+  { name:'Playfair Display',   category:'Editorial', vibe:'Serif editorial clássico, autoridade e sofisticação literária' },
+  { name:'Cormorant Garamond', category:'Editorial', vibe:'Serif ultra-fino e refinado, exclusivo para marcas de luxo' },
+  { name:'Lora',               category:'Editorial', vibe:'Serif contemporâneo de leitura fácil, caloroso e literário' },
+  { name:'Crimson Pro',        category:'Editorial', vibe:'Serif legível e elegante, perfeito para textos de artigos e posts longos' },
+  { name:'Libre Baskerville',  category:'Editorial', vibe:'Serif clássico e confiável, transmite tradição e credibilidade' },
+  // ── SANS-SERIF MODERNO (equilíbrio entre leitura e personalidade)
+  { name:'Poppins',            category:'Sans-Serif', vibe:'Geométrico redondo e amigável — o mais popular em social media no Brasil' },
+  { name:'Plus Jakarta Sans',  category:'Sans-Serif', vibe:'Moderno e técnico, favorito de startups e SaaS em 2025/2026' },
+  { name:'Outfit',             category:'Sans-Serif', vibe:'Limpo e contemporâneo, fácil de combinar com qualquer estilo' },
+  { name:'Manrope',            category:'Sans-Serif', vibe:'Humanista moderno, legível e com boa personalidade' },
+  { name:'Space Grotesk',      category:'Sans-Serif', vibe:'Geométrico com imperfeições intencionais, personalidade marcante' },
+  { name:'Inter',              category:'Sans-Serif', vibe:'Desenhado para tela — clareza máxima em qualquer tamanho' },
+  { name:'DM Sans',            category:'Sans-Serif', vibe:'Geométrico neutro e elegante, par perfeito com serifs' },
+  { name:'Barlow',             category:'Sans-Serif', vibe:'Condensado levemente, muito legível e com excelente presença' },
+  { name:'Nunito',             category:'Sans-Serif', vibe:'Arredondado e amigável, funciona bem para marcas jovens e apps' },
+  { name:'Lato',               category:'Sans-Serif', vibe:'Equilibrado e universal, nunca erra em contextos corporativos' },
+  { name:'Roboto',             category:'Sans-Serif', vibe:'O padrão do Android — familiar, legível, confiável' },
+  // ── MONOSPACE / TÉCNICO
+  { name:'Space Mono',         category:'Monospace',  vibe:'Monospace com personalidade, usado em tech, código e Cyberpunk' },
+  { name:'JetBrains Mono',     category:'Monospace',  vibe:'Monospace moderno e legível, ótimo para estética dev/hacker' },
+  // ── INKTRAP (armadilhas de tinta — detalhes únicos nas junções dos traços)
+  { name:'Familjen Grotesk',   category:'Inktrap',    vibe:'Grotesco contemporâneo com inktrap visível — personalidade única, funciona em display e corpo' },
+  { name:'Spline Sans',        category:'Inktrap',    vibe:'Geométrico moderno com inktrap sutil — legível e com caráter editorial distinto' },
+  { name:'Spline Sans Mono',   category:'Inktrap',    vibe:'Versão monospace do Spline Sans — técnico e com visual hacker refinado' },
+  { name:'Recursive',          category:'Inktrap',    vibe:'Variable font com inktrap e modo casual/linear — extremamente versátil, da seriedade ao expressivo' },
+  { name:'Anek Latin',         category:'Inktrap',    vibe:'Variable typeface com inktrap generoso — ótimo para headlines grandes e ambientações editoriais' },
+  { name:'Radio Canada',       category:'Inktrap',    vibe:'Humanista com inktrap discreto — legível em qualquer tamanho, nasceu para broadcast e UI' },
+  { name:'Big Shoulders Display', category:'Inktrap', vibe:'Condensado bold com inktrap nas junções — forte presença em títulos, vibe industrial e urbana' },
+  { name:'Big Shoulders Text', category:'Inktrap',    vibe:'Versão de corpo do Big Shoulders — condensado legível com personalidade inktrap' },
+];
+
+function buildFontOptions(selectEl, defaultFont) {
+  const categories = [...new Set(FONTS_CATALOG.map(f => f.category))];
+  selectEl.innerHTML = '';
+  categories.forEach(cat => {
+    const group = document.createElement('optgroup');
+    group.label = `── ${cat} ──`;
+    FONTS_CATALOG.filter(f => f.category === cat).forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.name;
+      opt.textContent = f.name;
+      if (f.name === defaultFont) opt.selected = true;
+      group.appendChild(opt);
+    });
+    selectEl.appendChild(group);
+  });
+}
+
+function initFontSelects() {
+  buildFontOptions(document.getElementById('fontHeadline'), 'Montserrat');
+  buildFontOptions(document.getElementById('fontSubtitle'), 'Poppins');
+  buildFontOptions(document.getElementById('fontBody'),     'Inter');
+  renderFontPreview();
+}
+
+function getTypographyConfig() {
+  return {
+    headline: document.getElementById('fontHeadline')?.value || 'Montserrat',
+    subtitle: document.getElementById('fontSubtitle')?.value || 'Poppins',
+    body:     document.getElementById('fontBody')?.value     || 'Inter',
+  };
+}
+
+function renderFontPreview() {
+  const card = document.getElementById('fontPreviewCard');
+  if (!card) return;
+  const cfg = getTypographyConfig();
+  card.style.display = 'block';
+  card.innerHTML = `
+    <div style="background:rgba(255,255,255,0.04);padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+      <div style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:10px;">
+        <div style="font-size:10px;opacity:0.4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Headline · ${cfg.headline}</div>
+        <div style="font-family:'${cfg.headline}',sans-serif;font-size:28px;font-weight:900;line-height:1.1;color:#fff;">Transforme sua marca</div>
+      </div>
+      <div style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:10px;">
+        <div style="font-size:10px;opacity:0.4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Subtítulo · ${cfg.subtitle}</div>
+        <div style="font-family:'${cfg.subtitle}',sans-serif;font-size:15px;font-weight:500;opacity:0.8;color:#fff;">Estratégia, design e resultado real</div>
+      </div>
+      <div>
+        <div style="font-size:10px;opacity:0.4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Corpo · ${cfg.body}</div>
+        <div style="font-family:'${cfg.body}',sans-serif;font-size:12px;font-weight:400;opacity:0.65;line-height:1.6;color:#fff;">Conte sua história com clareza e impacto. Cada palavra importa quando o design trabalha a favor do conteúdo.</div>
+      </div>
+      ${(()=>{
+        const hInfo = FONTS_CATALOG.find(f=>f.name===cfg.headline);
+        const bInfo = FONTS_CATALOG.find(f=>f.name===cfg.body);
+        return (hInfo||bInfo) ? `<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;display:flex;flex-direction:column;gap:3px;">
+          ${hInfo?`<div style="font-size:10px;opacity:0.5;"><span style="opacity:0.7">Headline:</span> ${hInfo.vibe}</div>`:''}
+          ${bInfo&&bInfo.name!==cfg.headline?`<div style="font-size:10px;opacity:0.5;"><span style="opacity:0.7">Corpo:</span> ${bInfo.vibe}</div>`:''}
+        </div>` : '';
+      })()}
+    </div>
+  `;
+}
+
+/* ── Style visual mini-art renderers ── */
+const STYLE_RENDERS = {
+
+  'Quiet Luxury': (c) => {
+    c.fillStyle = '#F5F0E8'; c.fillRect(0,0,320,180);
+    // subtle gold line top
+    c.strokeStyle = '#C9A96E'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(40,28); c.lineTo(280,28); c.stroke();
+    // small label
+    c.fillStyle = '#C9A96E'; c.font = '600 7px sans-serif';
+    c.letterSpacing = '3px'; c.fillText('COLLECTION 2026', 40, 22);
+    c.letterSpacing = '0px';
+    // large serif headline
+    c.fillStyle = '#2C2C2C'; c.font = '300 28px Georgia,serif';
+    c.fillText('Elegância', 40, 75);
+    c.font = '700 28px Georgia,serif'; c.fillText('Silenciosa', 40, 105);
+    // thin separator
+    c.strokeStyle = '#C9A96E'; c.lineWidth = 0.5;
+    c.beginPath(); c.moveTo(40,118); c.lineTo(160,118); c.stroke();
+    // body text lines
+    c.fillStyle = '#8a7a6a'; c.font = '300 10px Georgia,serif';
+    c.fillText('Onde menos sempre será mais.', 40, 134);
+    c.fillText('Qualidade sem ostentação.', 40, 148);
+    // bottom gold line
+    c.strokeStyle = '#C9A96E'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(40,162); c.lineTo(280,162); c.stroke();
+  },
+
+  'Corporativo': (c) => {
+    c.fillStyle = '#0A1628'; c.fillRect(0,0,320,180);
+    // top blue bar
+    c.fillStyle = '#0052CC'; c.fillRect(0,0,320,6);
+    // white card
+    c.fillStyle = '#FFFFFF'; c.roundRect(24,24,272,132,6); c.fill();
+    // header stripe
+    c.fillStyle = '#E8F0FE'; c.fillRect(24,24,272,32);
+    // title
+    c.fillStyle = '#0052CC'; c.font = '700 13px Arial,sans-serif';
+    c.fillText('RELATÓRIO DE RESULTADOS', 36, 45);
+    // data bars
+    const bars = [[60,'Q1','#0052CC'],[90,'Q2','#0052CC'],[45,'Q3','#6B9FFF'],[75,'Q4','#0052CC']];
+    bars.forEach(([h,label,color],i) => {
+      const x = 40 + i*60; const by = 140;
+      c.fillStyle = '#E8F0FE'; c.fillRect(x,by-80,30,80);
+      c.fillStyle = color; c.fillRect(x,by-h,30,h);
+      c.fillStyle = '#333'; c.font = '9px Arial'; c.fillText(label,x+8,by+12);
+    });
+    // bottom tag
+    c.fillStyle = '#0052CC'; c.font = '600 8px Arial';
+    c.fillText('EMPRESA SOLUTIONS © 2026', 36, 168);
+  },
+
+  'Minimalista': (c) => {
+    c.fillStyle = '#FAFAFA'; c.fillRect(0,0,320,180);
+    // single thin top line
+    c.strokeStyle = '#000'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(40,40); c.lineTo(60,40); c.stroke();
+    // massive headline
+    c.fillStyle = '#000'; c.font = '800 42px Arial,sans-serif';
+    c.fillText('Less.', 40, 105);
+    // tiny body
+    c.fillStyle = '#999'; c.font = '300 11px Arial,sans-serif';
+    c.fillText('É tudo que você precisa.', 40, 128);
+    // bottom dot
+    c.fillStyle = '#000'; c.beginPath(); c.arc(44,152,3,0,Math.PI*2); c.fill();
+  },
+
+  'Editorial': (c) => {
+    c.fillStyle = '#F5F5F0'; c.fillRect(0,0,320,180);
+    // big red block left
+    c.fillStyle = '#E63946'; c.fillRect(0,0,130,180);
+    // diagonal line
+    c.strokeStyle = '#FFD700'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(130,0); c.lineTo(150,180); c.stroke();
+    // white text on red
+    c.fillStyle = '#FFF'; c.font = '900 38px Arial Black,sans-serif';
+    c.fillText('THE', 14, 70);
+    c.fillText('BIG', 14, 110);
+    c.fillStyle = '#FFD700'; c.fillText('IDEA', 14, 150);
+    // right side text
+    c.fillStyle = '#111'; c.font = '700 14px Georgia,serif';
+    c.fillText('EDIÇÃO', 160, 60);
+    c.font = '300 10px Georgia,serif'; c.fillStyle = '#444';
+    c.fillText('Tendências que', 160, 80);
+    c.fillText('definem o futuro', 160, 94);
+    c.fillText('do design.', 160, 108);
+    // small tag
+    c.fillStyle = '#E63946'; c.fillRect(160,120,60,16);
+    c.fillStyle = '#FFF'; c.font = '700 8px Arial'; c.fillText('VOL. 12 · 2026', 164, 131);
+  },
+
+  'Vibrante/Colorido': (c) => {
+    // gradient background
+    const g = c.createLinearGradient(0,0,320,180);
+    g.addColorStop(0,'#FF006E'); g.addColorStop(0.4,'#8338EC'); g.addColorStop(1,'#3A86FF');
+    c.fillStyle = g; c.fillRect(0,0,320,180);
+    // yellow circle
+    c.fillStyle = '#FFBE0B'; c.beginPath(); c.arc(260,40,50,0,Math.PI*2); c.fill();
+    // white headline
+    c.fillStyle = '#FFF'; c.font = '900 30px Arial Black,sans-serif';
+    c.fillText('VIBE', 28, 80);
+    c.fillText('ON! 🔥', 28, 114);
+    // tag pill
+    c.fillStyle = 'rgba(255,255,255,0.25)'; c.roundRect(28,130,90,22,11); c.fill();
+    c.fillStyle = '#FFF'; c.font = '700 9px Arial'; c.fillText('NOVA COLEÇÃO', 36, 145);
+  },
+
+  'Dark Academia': (c) => {
+    c.fillStyle = '#1C1C14'; c.fillRect(0,0,320,180);
+    // grain texture simulation
+    for(let i=0;i<500;i++){
+      const x=Math.random()*320, y=Math.random()*180;
+      c.fillStyle=`rgba(200,185,154,${Math.random()*0.04})`;
+      c.fillRect(x,y,1,1);
+    }
+    // sepia vignette
+    const vg = c.createRadialGradient(160,90,40,160,90,160);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.6)');
+    c.fillStyle = vg; c.fillRect(0,0,320,180);
+    // top ornament line
+    c.strokeStyle = '#8B7355'; c.lineWidth = 0.8;
+    c.beginPath(); c.moveTo(50,30); c.lineTo(270,30); c.stroke();
+    c.beginPath(); c.moveTo(60,34); c.lineTo(260,34); c.stroke();
+    // serif title
+    c.fillStyle = '#C8B99A'; c.font = '300 11px Georgia,serif';
+    c.fillText('— ACADEMIA —', 100, 52);
+    c.font = '700 22px Georgia,serif'; c.fillStyle = '#E8D9B8';
+    c.fillText('A Arte do', 80, 82);
+    c.fillText('Conhecimento', 55, 108);
+    // italic body
+    c.fillStyle = '#8B7355'; c.font = 'italic 10px Georgia,serif';
+    c.fillText('"Sapientia et Virtus"', 90, 130);
+    // bottom ornament
+    c.strokeStyle = '#8B7355'; c.lineWidth = 0.8;
+    c.beginPath(); c.moveTo(50,150); c.lineTo(270,150); c.stroke();
+  },
+
+  'Glassmorphism': (c) => {
+    // vivid gradient bg
+    const g = c.createLinearGradient(0,0,320,180);
+    g.addColorStop(0,'#6C63FF'); g.addColorStop(0.5,'#FF6584'); g.addColorStop(1,'#43E97B');
+    c.fillStyle = g; c.fillRect(0,0,320,180);
+    // blurred circles bg
+    [[60,60,70,'rgba(255,255,255,0.3)'],[240,130,55,'rgba(255,200,100,0.3)'],[150,40,40,'rgba(100,255,200,0.3)']].forEach(([x,y,r,col])=>{
+      const rg = c.createRadialGradient(x,y,0,x,y,r);
+      rg.addColorStop(0,col); rg.addColorStop(1,'rgba(255,255,255,0)');
+      c.fillStyle=rg; c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+    });
+    // glass card
+    c.fillStyle = 'rgba(255,255,255,0.15)';
+    c.roundRect(50,45,220,90,16); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,0.4)'; c.lineWidth = 1;
+    c.roundRect(50,45,220,90,16); c.stroke();
+    // card content
+    c.fillStyle = 'rgba(255,255,255,0.9)'; c.font = '700 18px Arial,sans-serif';
+    c.fillText('Glassmorphism', 70, 80);
+    c.fillStyle = 'rgba(255,255,255,0.7)'; c.font = '300 11px Arial';
+    c.fillText('Transparência com profundidade', 70, 100);
+    c.fillText('e elegância moderna.', 70, 116);
+  },
+
+  'Dark Luxury': (c) => {
+    c.fillStyle = '#080808'; c.fillRect(0,0,320,180);
+    // gold radial glow
+    const glow = c.createRadialGradient(160,90,10,160,90,120);
+    glow.addColorStop(0,'rgba(201,168,76,0.15)'); glow.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle = glow; c.fillRect(0,0,320,180);
+    // gold top line ornament
+    c.strokeStyle = '#C9A84C'; c.lineWidth = 0.5;
+    c.beginPath(); c.moveTo(40,35); c.lineTo(280,35); c.stroke();
+    // diamond shape
+    c.save(); c.translate(268,90); c.rotate(Math.PI/4);
+    c.strokeStyle='#C9A84C'; c.lineWidth=0.8; c.strokeRect(-12,-12,24,24); c.restore();
+    // headline
+    c.fillStyle = '#C9A84C'; c.font = '300 11px Georgia,serif';
+    c.letterSpacing='4px'; c.fillText('MAISON', 50, 55); c.letterSpacing='0px';
+    c.fillStyle = '#F0E8D0'; c.font = '700 26px Georgia,serif';
+    c.fillText('Noir', 50, 85);
+    c.font = '300 26px Georgia,serif'; c.fillText('& Or', 50, 113);
+    // particles
+    for(let i=0;i<30;i++){
+      c.fillStyle=`rgba(201,168,76,${Math.random()*0.7+0.1})`;
+      c.beginPath(); c.arc(Math.random()*320,Math.random()*180,Math.random()*1.5,0,Math.PI*2); c.fill();
+    }
+    // bottom line
+    c.strokeStyle = '#C9A84C'; c.lineWidth = 0.5;
+    c.beginPath(); c.moveTo(40,148); c.lineTo(280,148); c.stroke();
+    c.fillStyle='#C9A84C'; c.font='300 8px Georgia'; c.letterSpacing='3px';
+    c.fillText('EST. MMXXVI', 108, 162); c.letterSpacing='0px';
+  },
+
+  'Bento Grid': (c) => {
+    c.fillStyle = '#F0EFEB'; c.fillRect(0,0,320,180);
+    const cards = [
+      {x:16,y:16,w:140,h:148,bg:'#1A1A1A',label:'Título\nPrincipal',tc:'#fff',big:true},
+      {x:168,y:16,w:136,h:68,bg:'#4CAF50',label:'Destaque',tc:'#fff',big:false},
+      {x:168,y:96,w:60,h:68,bg:'#FF9800',label:'12k',tc:'#fff',big:false},
+      {x:240,y:96,w:64,h:68,bg:'#fff',label:'Info',tc:'#333',big:false},
+    ];
+    cards.forEach(({x,y,w,h,bg,label,tc,big})=>{
+      c.fillStyle=bg; c.roundRect(x,y,w,h,10); c.fill();
+      c.fillStyle=tc; c.font = big ? '700 16px Arial' : '700 12px Arial';
+      const lines = label.split('\n');
+      lines.forEach((line,i) => c.fillText(line, x+12, y+28+i*20));
+    });
+  },
+
+  'Neo-Brutalismo': (c) => {
+    c.fillStyle = '#FFEE00'; c.fillRect(0,0,320,180);
+    // shadow offset box
+    c.fillStyle = '#1A1A1A'; c.fillRect(58,38,204,104);
+    // main box
+    c.fillStyle = '#FF3D00'; c.fillRect(50,30,204,104);
+    c.strokeStyle = '#1A1A1A'; c.lineWidth = 3; c.strokeRect(50,30,204,104);
+    // headline
+    c.fillStyle = '#FFF'; c.font = '900 28px Arial Black,sans-serif';
+    c.fillText('RAW.', 66, 74);
+    c.fillStyle = '#FFEE00'; c.font = '900 28px Arial Black,sans-serif';
+    c.fillText('BOLD.', 66, 104);
+    // bottom tag with border
+    c.fillStyle = '#1A1A1A'; c.fillRect(50,148,120,24);
+    c.strokeStyle='#1A1A1A'; c.lineWidth=2; c.strokeRect(50,148,120,24);
+    c.fillStyle='#FFEE00'; c.font='700 10px Arial'; c.fillText('NEO-BRUTALISM 2026',56,164);
+  },
+
+  'Retro-Futurismo': (c) => {
+    c.fillStyle = '#0D0221'; c.fillRect(0,0,320,180);
+    // grid lines
+    c.strokeStyle = 'rgba(188,0,221,0.3)'; c.lineWidth = 0.5;
+    for(let x=0;x<320;x+=20){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,180); c.stroke(); }
+    for(let y=0;y<180;y+=20){ c.beginPath(); c.moveTo(0,y); c.lineTo(320,y); c.stroke(); }
+    // perspective grid
+    c.strokeStyle = 'rgba(0,245,255,0.4)'; c.lineWidth = 0.7;
+    for(let i=0;i<8;i++){
+      c.beginPath(); c.moveTo(160,90); c.lineTo(i*46,180); c.stroke();
+      c.beginPath(); c.moveTo(160,90); c.lineTo(i*46,0); c.stroke();
+    }
+    // glow circle
+    const gc = c.createRadialGradient(160,70,5,160,70,50);
+    gc.addColorStop(0,'rgba(188,0,221,0.6)'); gc.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=gc; c.fillRect(0,0,320,180);
+    // chrome text
+    const tg = c.createLinearGradient(0,40,0,80);
+    tg.addColorStop(0,'#fff'); tg.addColorStop(0.5,'#00F5FF'); tg.addColorStop(1,'#BC00DD');
+    c.fillStyle=tg; c.font='900 32px Arial Black'; c.fillText('FUTURE', 55, 75);
+    c.fillStyle='rgba(0,245,255,0.8)'; c.font='300 11px monospace';
+    c.fillText('SYSTEM v2.0 // ONLINE', 50, 100);
+    // scan line
+    c.strokeStyle='rgba(0,245,255,0.2)'; c.lineWidth=1;
+    for(let y=110;y<170;y+=4){ c.beginPath(); c.moveTo(30,y); c.lineTo(290,y); c.stroke(); }
+  },
+
+  'Y2K / Nostalgia Digital': (c) => {
+    // silver gradient bg
+    const g = c.createLinearGradient(0,0,320,180);
+    g.addColorStop(0,'#E8E8FF'); g.addColorStop(0.5,'#FFB3E6'); g.addColorStop(1,'#B3D9FF');
+    c.fillStyle=g; c.fillRect(0,0,320,180);
+    // metallic circle
+    const mc = c.createRadialGradient(240,40,0,240,40,60);
+    mc.addColorStop(0,'#fff'); mc.addColorStop(0.4,'#C0C0C0'); mc.addColorStop(1,'#808080');
+    c.fillStyle=mc; c.beginPath(); c.arc(240,40,50,0,Math.PI*2); c.fill();
+    c.strokeStyle='#fff'; c.lineWidth=1.5; c.beginPath(); c.arc(240,40,50,0,Math.PI*2); c.stroke();
+    // bubbly headline
+    c.fillStyle='#FF1493'; c.font='900 30px Arial Black';
+    c.fillText('Y2K', 30, 80);
+    c.fillStyle='#4169E1'; c.font='900 30px Arial Black';
+    c.fillText('VIBES✨', 30, 112);
+    // star stickers
+    ['⭐','💫','✨'].forEach((s,i) => {
+      c.font=`${14+i*4}px serif`; c.fillText(s, 30+i*55, 145);
+    });
+    // window-style tag
+    c.fillStyle='rgba(255,255,255,0.6)'; c.roundRect(28,152,130,20,4); c.fill();
+    c.strokeStyle='#aaa'; c.lineWidth=1; c.roundRect(28,152,130,20,4); c.stroke();
+    c.fillStyle='#333'; c.font='9px Arial'; c.fillText('☆ you\'ve got mail! ☆', 40,165);
+  },
+
+  'Neon Cyberpunk': (c) => {
+    c.fillStyle = '#040408'; c.fillRect(0,0,320,180);
+    // circuit lines
+    c.strokeStyle='rgba(0,255,255,0.15)'; c.lineWidth=0.5;
+    [[20,0,20,180],[80,0,80,60],[80,60,140,60],[200,0,200,120],[200,120,320,120]].forEach(([x1,y1,x2,y2])=>{
+      c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+    });
+    // magenta glow text
+    c.shadowColor='#FF00FF'; c.shadowBlur=20;
+    c.fillStyle='#FF00FF'; c.font='900 34px Arial Black';
+    c.fillText('CYBER', 30, 80);
+    c.shadowColor='#00FFFF'; c.shadowBlur=20;
+    c.fillStyle='#00FFFF'; c.font='900 34px Arial Black';
+    c.fillText('PUNK', 30, 116);
+    c.shadowBlur=0;
+    // green status line
+    c.fillStyle='#39FF14'; c.font='10px monospace';
+    c.fillText('> SYSTEM ACTIVE...', 30, 148);
+    // glitch bars
+    c.fillStyle='rgba(255,0,255,0.15)'; c.fillRect(0,55,320,4);
+    c.fillStyle='rgba(0,255,255,0.15)'; c.fillRect(0,90,320,3);
+  },
+
+  'Organic / Bauhaus Moderno': (c) => {
+    c.fillStyle = '#F5E6D3'; c.fillRect(0,0,320,180);
+    // organic blob
+    c.fillStyle='#8FBC8F';
+    c.beginPath(); c.moveTo(200,20); c.bezierCurveTo(280,10,320,80,300,140); c.bezierCurveTo(280,200,200,180,180,130); c.bezierCurveTo(160,80,140,30,200,20); c.fill();
+    // bauhaus circle
+    c.fillStyle='#D4A574'; c.beginPath(); c.arc(80,130,45,0,Math.PI*2); c.fill();
+    // geometric square
+    c.strokeStyle='#4A4A4A'; c.lineWidth=2; c.strokeRect(200,30,60,60);
+    // headline
+    c.fillStyle='#2C2C2C'; c.font='900 22px Arial,sans-serif';
+    c.fillText('FORMA', 30, 60);
+    c.font='300 22px Arial,sans-serif'; c.fillText('& FUNÇÃO', 30, 84);
+    c.fillStyle='#6B5B45'; c.font='10px Arial'; c.fillText('Bauhaus · Organic · 2026', 30, 108);
+  },
+
+  'Zine / Collage': (c) => {
+    c.fillStyle='#F2E8D4'; c.fillRect(0,0,320,180);
+    // torn paper effect rects
+    c.fillStyle='#fff'; c.save(); c.translate(50,40); c.rotate(-0.08); c.fillRect(0,0,140,90); c.restore();
+    c.fillStyle='#CC3333'; c.save(); c.translate(130,70); c.rotate(0.05); c.fillRect(0,0,120,70); c.restore();
+    c.fillStyle='#F0C040'; c.save(); c.translate(20,90); c.rotate(0.12); c.fillRect(0,0,100,60); c.restore();
+    // grain
+    for(let i=0;i<600;i++){
+      c.fillStyle=`rgba(0,0,0,${Math.random()*0.05})`;
+      c.fillRect(Math.random()*320,Math.random()*180,1,1);
+    }
+    // cutout text style
+    c.fillStyle='#1A1A1A'; c.font='900 26px Arial Black'; c.save(); c.rotate(-0.05);
+    c.fillText('ZINE', 30, 80); c.restore();
+    c.fillStyle='#FFF'; c.font='900 20px Arial Black'; c.save(); c.translate(140,85); c.rotate(0.03);
+    c.fillText('CUT', 0, 0); c.restore();
+    c.fillStyle='#1A1A1A'; c.font='italic 10px serif'; c.save(); c.translate(30,130); c.rotate(0.04);
+    c.fillText('vol.3 · handmade · underground', 0, 0); c.restore();
+  },
+
+  '3D Inflated / Claymorphism': (c) => {
+    const g = c.createLinearGradient(0,0,320,180);
+    g.addColorStop(0,'#FFE0EC'); g.addColorStop(1,'#D0F0FF');
+    c.fillStyle=g; c.fillRect(0,0,320,180);
+    // clay blob shapes
+    [[80,90,55,'#FFB3C6'],[200,70,45,'#A8E6CF'],[240,130,35,'#FFD93D'],[100,140,30,'#B5DEFF']].forEach(([x,y,r,col])=>{
+      c.fillStyle=col;
+      c.shadowColor='rgba(0,0,0,0.15)'; c.shadowBlur=12; c.shadowOffsetY=6;
+      c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+    });
+    c.shadowBlur=0; c.shadowOffsetY=0;
+    // 3D inflated text simulation
+    c.fillStyle='rgba(255,255,255,0.4)'; c.font='900 36px Arial Black';
+    c.fillText('3D', 118, 108);
+    c.fillStyle='#FF7EB3'; c.font='900 36px Arial Black';
+    c.fillText('3D', 116, 106);
+    c.fillStyle='#FF9CC8'; c.font='900 36px Arial Black';
+    c.fillText('3D', 115, 104);
+    // tag
+    c.fillStyle='rgba(255,255,255,0.7)'; c.roundRect(90,120,140,24,12); c.fill();
+    c.fillStyle='#FF7EB3'; c.font='700 10px Arial'; c.fillText('Clay · Inflated · Cute 🍬', 100,136);
+  }
+
+};
+
+const STYLE_INFO = {
+  'Quiet Luxury':              { emoji:'🏺', vibe:'Elegância silenciosa. Menos é mais. Ouro discreto.',          tags:['Neutros & Bege','Serif refinada','Espaço negativo','Sem excessos'],          colors:['#F5F0E8','#C9A96E','#2C2C2C','#FFFDF9'], uses:['Moda premium','Imóveis de luxo','Consultoria','Clínicas estéticas'] },
+  'Corporativo':               { emoji:'💼', vibe:'Confiança e credibilidade. Linha reta, zero enrolação.',       tags:['Azul confiável','Sans-serif limpa','Grid estruturado','Formal'],              colors:['#0052CC','#FFFFFF','#1A1A2E','#E8F0FE'], uses:['Empresas B2B','LinkedIn','Relatórios','Apresentações'] },
+  'Minimalista':               { emoji:'◻️', vibe:'Silêncio visual. O conteúdo fala sozinho.',                   tags:['Branco dominante','Tipografia única','Zero decoração','Espaço'],             colors:['#FFFFFF','#000000','#F0F0F0','#888888'], uses:['Tech & SaaS','Arquitetura','Fotografia','Lifestyle'] },
+  'Editorial':                 { emoji:'📰', vibe:'Bold e ousado. Tipografia como imagem.',                      tags:['Contraste extremo','Mix de fontes','Assimétrico','Revista'],                 colors:['#1A1A1A','#F5F5F0','#E63946','#FFD700'], uses:['Moda','Cultura','Jornalismo','Portfólio'] },
+  'Vibrante/Colorido':         { emoji:'🎨', vibe:'Grita na timeline. Impossível ignorar.',                      tags:['Cores saturadas','Gradientes','Alta energia','Pop'],                        colors:['#FF006E','#FFBE0B','#3A86FF','#8338EC'], uses:['Eventos','Food','Entretenimento','Marcas jovens'] },
+  'Dark Academia':             { emoji:'📚', vibe:'Cheira a livro velho e café preto.',                          tags:['Sépia & musgo','Textura papel','Atmosfera literária','Vintage'],            colors:['#2D2416','#8B7355','#C8B99A','#1C1C14'], uses:['Educação','Literatura','Filosofia','Coaching'] },
+  'Glassmorphism':             { emoji:'🪟', vibe:'Moderno e etéreo. Como ver através de névoa colorida.',       tags:['Vidro fosco','Backdrop-blur','Transparência','Gradiente'],                   colors:['#6C63FF','#FF6584','#43E97B','#ffffff30'], uses:['Apps & Tech','NFT & Web3','Música','Portfólio'] },
+  'Dark Luxury':               { emoji:'✨', vibe:'A escuridão é o luxo. Ouro que brilha no escuro.',            tags:['Preto profundo','Dourado metálico','Partículas','Ultra premium'],            colors:['#0A0A0A','#C9A84C','#E8E8E8','#1A1200'], uses:['Joalheria','Perfumaria','Carros de luxo','Alta gastronomia'] },
+  'Bento Grid':                { emoji:'🍱', vibe:'Tudo no lugar certo. Informação com elegância.',              tags:['Cards modulares','Grid variado','Arredondado','Organizado'],                 colors:['#F7F7F5','#1A1A1A','#4CAF50','#FF9800'], uses:['Portfólios','Produto','Tech & SaaS','Apple-like'] },
+  'Neo-Brutalismo':            { emoji:'🧱', vibe:'Feio de propósito. O feio virou tendência.',                  tags:['Bordas pretas grossas','Sombra offset','Chapado','Raw'],                    colors:['#FFEE00','#FF3D00','#1A1A1A','#FFFFFF'], uses:['Startups','Arte & Design','Agências','Underground'] },
+  'Retro-Futurismo':           { emoji:'🚀', vibe:'O futuro que os anos 80 imaginavam. Synthwave na tela.',      tags:['Cromado','Grade de néon','Sci-fi 80s','Isométrico'],                        colors:['#0D0221','#BC00DD','#00F5FF','#C0C0C0'], uses:['Gaming','Tech futurista','Música eletrônica','Sci-fi'] },
+  'Y2K / Nostalgia Digital':   { emoji:'💿', vibe:'MSN, Orkut, e CD gravado. Nostalgia com ironia.',             tags:['Metálico','Fontes bubblegum','Stickers & glitter','2000s'],                  colors:['#FF69B4','#C0C0C0','#87CEEB','#FF1493'], uses:['Moda jovem','Música pop','Entretenimento','Nostalgia'] },
+  'Neon Cyberpunk':            { emoji:'🌆', vibe:'Blade Runner na sua timeline. Néon corta a escuridão.',       tags:['Néon com glow','Fundo preto','Circuito','Glitch'],                          colors:['#0A0A0A','#FF00FF','#00FFFF','#39FF14'], uses:['Gaming','Crypto & Web3','Música eletrônica','Tech'] },
+  'Organic / Bauhaus Moderno': { emoji:'🌿', vibe:'Terra, forma e equilíbrio. Design que respira.',              tags:['Formas orgânicas','Paleta terrosa','Bauhaus','Natural'],                    colors:['#D4A574','#8FBC8F','#F5E6D3','#4A4A4A'], uses:['Wellness','Sustentabilidade','Alimentação saudável','Yoga'] },
+  'Zine / Collage':            { emoji:'✂️', vibe:'Feito com tesoura e cola. Anti-perfeito é o estilo.',         tags:['Recortes sobrepostos','Grain pesado','Tipografia irregular','Caos intencional'], colors:['#F5E6C8','#2B2B2B','#CC3333','#F0C040'], uses:['Arte independente','Música indie','Moda alternativa','Cultura DIY'] },
+  '3D Inflated / Claymorphism':{ emoji:'🧸', vibe:'Macio, redondo e adorável. Quer apertar a tela.',             tags:['Objetos inflados','Superfície clay','Pastel vibrante','Fofo e tátil'],      colors:['#FFB3C6','#A8E6CF','#FFD93D','#B5DEFF'], uses:['Infantil & família','Apps & jogos','Produtos físicos','Tech amigável'] },
+};
+
+function renderStylePreview() {
+  const sel = document.getElementById('visualStyle');
+  const card = document.getElementById('stylePreviewCard');
+  if (!sel || !card) return;
+  const style = sel.value;
+  const renderer = STYLE_RENDERS[style];
+  const info = STYLE_INFO[style];
+  if (!renderer || !info) { card.style.display = 'none'; return; }
+
+  const swatches = info.colors.map(c =>
+    `<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${c};border:1px solid rgba(255,255,255,0.2);flex-shrink:0;"></span>`
+  ).join('');
+  const tags = info.tags.map(t =>
+    `<span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:20px;padding:3px 10px;font-size:11px;">${t}</span>`
+  ).join('');
+  const uses = info.uses.map(u =>
+    `<span style="background:rgba(255,255,255,0.06);border-radius:4px;padding:2px 8px;font-size:11px;">${u}</span>`
+  ).join('');
+
+  card.style.display = 'block';
+  card.innerHTML = `
+    <div style="background:rgba(0,0,0,0.3);">
+      <canvas id="styleCanvas" width="320" height="180" style="width:100%;height:auto;display:block;"></canvas>
+      <div style="padding:12px 14px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:18px;">${info.emoji}</span>
+          <span style="font-size:13px;font-weight:600;">${style}</span>
+          <div style="display:flex;gap:4px;margin-left:2px;">${swatches}</div>
+        </div>
+        <p style="font-size:12px;opacity:0.65;margin:0 0 10px;font-style:italic;">"${info.vibe}"</p>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">${tags}</div>
+        <div style="font-size:10px;opacity:0.45;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Ideal para</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${uses}</div>
+      </div>
+    </div>
+  `;
+  const canvas = document.getElementById('styleCanvas');
+  const ctx = canvas.getContext('2d');
+  try { renderer(ctx); } catch(e) { console.warn('Style preview error:', e); }
+}
+
+
+const MOOD_DESCRIPTIONS = {
+  'Profissional': 'sério, confiável, transmite credibilidade',
+  'Inspirador': 'motivacional, otimista, eleva o espírito',
+  'Urgente': 'senso de urgência, impacto imediato, ação agora',
+  'Luxuoso': 'premium, exclusivo, aspiracional',
+  'Divertido': 'leve, descontraído, acessível',
+  'Misterioso': 'intrigante, que provoca curiosidade',
+  'Minimalista': 'calmo, focado, sem distrações'
+};
+
+const FORMAT_TIPS = {
+  carousel: [
+    { icon: '🎠', text: '<strong>Slide de Capa:</strong> Use a capa para prender a atenção. Prometa o valor do conteúdo ou faça uma pergunta intrigante.' },
+    { icon: '📏', text: '<strong>Dimensões:</strong> Cada slide deve ter exatamente 1080×1350px. O canvas total varia com o número de slides.' },
+    { icon: '🔢', text: '<strong>Numeração:</strong> Inclua numeração (1/5, 2/5...) para o usuário saber quantos slides restam.' },
+    { icon: '🎨', text: '<strong>Consistência Visual:</strong> Mantenha a mesma paleta, tipografia e estilo em todos os slides.' },
+    { icon: '📱', text: '<strong>Texto Curto:</strong> Carrosseis são consumidos rapidamente. Máximo de 30-40 palavras por slide.' },
+    { icon: '↔️', text: '<strong>Continuidade:</strong> Elementos que "transbordam" entre slides criam expectativa e incentivam o swipe.' }
+  ],
+  'feed-square': [
+    { icon: '⬛', text: '<strong>1080×1080px:</strong> O formato quadrado performa bem tanto no feed quanto no explore.' },
+    { icon: '📐', text: '<strong>Zona Segura:</strong> Mantenha elementos importantes a pelo menos 60px das bordas.' },
+    { icon: '👁️', text: '<strong>Hierarquia Visual:</strong> Um elemento principal deve dominar a composição. Evite dividir atenção.' },
+    { icon: '🔤', text: '<strong>Tipografia Legível:</strong> Mínimo 40px para texto principal em 1080px de largura.' }
+  ],
+  'feed-portrait': [
+    { icon: '🖼️', text: '<strong>4:5 é ideal:</strong> O formato 1080×1350px ocupa mais espaço no feed e aumenta o alcance orgânico.' },
+    { icon: '📐', text: '<strong>Zona Segura:</strong> Mantenha conteúdo importante no centro vertical — o feed pode cortar as bordas.' },
+    { icon: '🌟', text: '<strong>Impacto Vertical:</strong> Aproveite a altura extra para criar composições dinâmicas com mais respiração.' }
+  ],
+  story: [
+    { icon: '📱', text: '<strong>9:16 Vertical:</strong> Projetado para telas de celular. Composição deve funcionar em modo vertical.' },
+    { icon: '⚠️', text: '<strong>Zona Segura:</strong> Evite elementos importantes nos 250px superiores e inferiores (área do HUD do Stories).' },
+    { icon: '⏱️', text: '<strong>Leitura Rápida:</strong> Stories são vistos por 5-15 segundos. Mensagem principal deve ser instantânea.' },
+    { icon: '🔔', text: '<strong>CTA Centralizado:</strong> Botão "Ver Mais" fica na parte inferior — posicione o CTA acima desta área.' },
+    { icon: '🎬', text: '<strong>Reels Cover:</strong> Se usar como capa de Reels, coloque título e rosto (se houver) no terço central.' }
+  ],
+  'linkedin-banner': [
+    { icon: '💼', text: '<strong>1584×396px:</strong> Proporção 4:1 exige composição horizontal bem planejada.' },
+    { icon: '👤', text: '<strong>Foto de Perfil Circular:</strong> A foto de perfil sobrepõe o canto inferior esquerdo do banner. Evite texto nessa área.' },
+    { icon: '🎯', text: '<strong>Posicionamento:</strong> Use o banner para reforçar sua proposta de valor: cargo, especialidade, resultado.' },
+    { icon: '🔤', text: '<strong>Texto Curto:</strong> Máximo de 1-2 linhas. Banner é visual — não escreva um currículo.' }
+  ],
+  'youtube-thumb': [
+    { icon: '▶️', text: '<strong>CTR é tudo:</strong> A thumbnail compete com dezenas de outras. Precisa se destacar em miniatura.' },
+    { icon: '😮', text: '<strong>Emoção Facial:</strong> Rostos expressivos (surpresa, felicidade, choque) aumentam significativamente o CTR.' },
+    { icon: '📝', text: '<strong>Texto Curto:</strong> 3-5 palavras máximo. Deve ser legível em 120×68px (tamanho de miniatura).' },
+    { icon: '🎨', text: '<strong>Contraste Alto:</strong> Use cores que contrastem com o fundo branco/cinza do YouTube.' },
+    { icon: '📐', text: '<strong>Layout em Terços:</strong> Rosto à direita + texto à esquerda (ou vice-versa) é a composição mais testada.' }
+  ],
+  'twitter-header': [
+    { icon: '🐦', text: '<strong>1500×500px:</strong> Proporção 3:1. Parte do banner pode ser cortada em diferentes dispositivos.' },
+    { icon: '👤', text: '<strong>Foto de Perfil:</strong> O avatar circular fica no canto inferior esquerdo. Deixe espaço livre nessa área.' },
+    { icon: '📱', text: '<strong>Mobile Corta Bordas:</strong> Mantenha conteúdo crítico no centro horizontal — laterais podem ser cortadas no mobile.' },
+    { icon: '🎯', text: '<strong>Simplicidade:</strong> Fundo clean com texto/elemento central funciona melhor que layout muito cheio.' }
+  ],
+  custom: [
+    { icon: '⚙️', text: '<strong>Dimensões Livres:</strong> Defina largura e altura de acordo com a plataforma ou uso final desejado.' },
+    { icon: '📐', text: '<strong>DPI:</strong> Para redes sociais, 72-96 DPI é suficiente. Para impressão, use 300 DPI.' },
+    { icon: '🎨', text: '<strong>Consistência:</strong> Mesmo com dimensões personalizadas, mantenha os princípios de hierarquia e composição.' }
+  ]
+};
+
+const PREFILLS = {
+  carousel: { slides: [] },
+  'feed-square':    { headline: '', subtitle: '', body: '', visual: '', elements: '', mood: 'Profissional' },
+  'feed-portrait':  { headline: '', subtitle: '', body: '', visual: '', elements: '', mood: 'Profissional' },
+  story:            { headline: '', subtitle: '', body: '', visual: '', elements: '', mood: 'Profissional' },
+  'linkedin-banner':{ headline: '', subtitle: '', body: '', visual: '', elements: '', mood: 'Profissional' },
+  'youtube-thumb':  { headline: '', subtitle: '', body: '', visual: '', elements: '', mood: 'Profissional' },
+  'twitter-header': { headline: '', subtitle: '', body: '', visual: '', elements: '', mood: 'Profissional' },
+  custom:           { headline: '', subtitle: '', body: '', visual: '', elements: '', mood: 'Profissional' }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let state = {
+  selectedFormat: null,
+  selectedPalette: 'bwd-gold',
+  lang: 'pt',
+  slideCount: 5,
+  slides: [],
+  customW: 1080,
+  customH: 1080,
+  generatedPrompt: ''
+};
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+function init() {
+  renderFormatGrid();
+  renderPaletteSwatches();
+  initFontSelects();
+  loadFromStorage();
+  renderStylePreview();
+}
+
+function renderFormatGrid() {
+  const grid = document.getElementById('formatGrid');
+  grid.innerHTML = FORMATS.map(f => `
+    <div class="format-card" id="fc-${f.id}" onclick="selectFormat('${f.id}')">
+      <span class="check">&#10003;</span>
+      <span class="icon">${f.icon}</span>
+      <span class="name">${f.name}</span>
+      <span class="dims">${f.dims}</span>
+      <span class="desc">${f.desc}</span>
+    </div>
+  `).join('');
+}
+
+function renderPaletteSwatches() {
+  const container = document.getElementById('paletteSwatches');
+  container.innerHTML = PALETTES.map(p => `
+    <div class="swatch-wrap">
+      <div class="swatch ${p.id === state.selectedPalette ? 'active' : ''}" id="swatch-${p.id}" onclick="selectPalette('${p.id}')">
+        <div class="swatch-preview">
+          <div class="sp-top" style="background:${p.topColor};"></div>
+          <div class="sp-bot" style="background:${p.botColor};"></div>
+        </div>
+      </div>
+      <span class="swatch-label">${p.label}</span>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORMAT SELECTION
+═══════════════════════════════════════════════════════════ */
+function selectFormat(id) {
+  if (state.selectedFormat === id) return;
+
+  // Confirm if content already filled
+  if (state.selectedFormat && hasContent()) {
+    if (!confirm('Trocar o formato vai limpar os campos preenchidos. Continuar?')) return;
+  }
+
+  state.selectedFormat = id;
+
+  // Update card UI
+  document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('fc-' + id).classList.add('selected');
+
+  // Custom dims
+  const customDims = document.getElementById('customDims');
+  if (id === 'custom') {
+    customDims.classList.add('visible');
+  } else {
+    customDims.classList.remove('visible');
+  }
+
+  // Show steps
+  ['step2', 'step3', 'step4', 'step5'].forEach(s => {
+    const el = document.getElementById(s);
+    el.classList.remove('hidden');
+    el.classList.add('fade-in');
+  });
+
+  // Setup content area
+  setupContentArea(id);
+
+  // Pre-fill example
+  prefillExample(id);
+
+  // Update preview
+  updatePreview();
+
+  // Tips
+  showTips(id);
+
+  // Save
+  saveToStorage();
+}
+
+function setupContentArea(id) {
+  const singleContent = document.getElementById('singleContent');
+  const carouselContent = document.getElementById('carouselContent');
+  const step3Title = document.getElementById('step3Title');
+  const step3Sub = document.getElementById('step3Sub');
+
+  if (id === 'carousel') {
+    singleContent.classList.add('hidden');
+    carouselContent.classList.remove('hidden');
+    step3Title.textContent = 'Slides do Carrossel';
+    step3Sub.textContent = 'Configure cada slide do carrossel';
+  } else {
+    singleContent.classList.remove('hidden');
+    carouselContent.classList.add('hidden');
+    step3Title.textContent = 'Conteúdo';
+    step3Sub.textContent = 'Preencha os textos e descrição visual da arte';
+  }
+}
+
+function prefillExample(id) {
+  const pf = PREFILLS[id] || PREFILLS['custom'];
+  if (id === 'carousel') {
+    state.slides = pf.slides.map((s, i) => ({...s}));
+    state.slideCount = pf.slides.length;
+    renderSlides();
+  } else {
+    document.getElementById('singleHeadline').value = pf.headline || '';
+    document.getElementById('singleSubtitle').value = pf.subtitle || '';
+    document.getElementById('singleBody').value = pf.body || '';
+    document.getElementById('singleVisual').value = pf.visual || '';
+    document.getElementById('singleElements').value = pf.elements || '';
+    if (pf.mood) document.getElementById('singleMood').value = pf.mood;
+  }
+}
+
+function hasContent() {
+  const hl = document.getElementById('singleHeadline');
+  if (hl && hl.value.trim()) return true;
+  if (state.slides && state.slides.some(s => s.headline)) return true;
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PALETTE
+═══════════════════════════════════════════════════════════ */
+function selectPalette(id) {
+  state.selectedPalette = id;
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  document.getElementById('swatch-' + id).classList.add('active');
+
+  const customRow = document.getElementById('customColorsRow');
+  if (id === 'custom') {
+    customRow.classList.add('visible');
+  } else {
+    customRow.classList.remove('visible');
+    // Sync color pickers to selected palette
+    const pal = PALETTES.find(p => p.id === id);
+    if (pal) {
+      document.getElementById('colorBg').value = pal.bg;
+      document.getElementById('colorAccent').value = pal.accent;
+      document.getElementById('colorText').value = pal.text;
+    }
+  }
+  updatePreview();
+  saveToStorage();
+}
+
+function getCurrentPalette() {
+  if (state.selectedPalette === 'custom') {
+    return {
+      bg: document.getElementById('colorBg').value,
+      accent: document.getElementById('colorAccent').value,
+      text: document.getElementById('colorText').value,
+      label: 'Personalizado'
+    };
+  }
+  const p = PALETTES.find(p => p.id === state.selectedPalette);
+  return p || PALETTES[0];
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LANGUAGE TOGGLE
+═══════════════════════════════════════════════════════════ */
+function setLang(lang) {
+  state.lang = lang;
+  document.getElementById('langPT').classList.toggle('active', lang === 'pt');
+  document.getElementById('langEN').classList.toggle('active', lang === 'en');
+  saveToStorage();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SLIDES
+═══════════════════════════════════════════════════════════ */
+function getSlideData(i) {
+  return {
+    type: document.getElementById(`slide-type-${i}`)?.value || 'conteudo',
+    headline: document.getElementById(`slide-hl-${i}`)?.value || '',
+    subtitle: document.getElementById(`slide-sub-${i}`)?.value || '',
+    body: document.getElementById(`slide-body-${i}`)?.value || '',
+    visual: document.getElementById(`slide-visual-${i}`)?.value || ''
+  };
+}
+
+function syncSlidesFromDOM() {
+  const count = state.slideCount;
+  const arr = [];
+  for (let i = 0; i < count; i++) {
+    arr.push(getSlideData(i));
+  }
+  state.slides = arr;
+}
+
+function renderSlides() {
+  const list = document.getElementById('slidesList');
+  const count = document.getElementById('slideCountDisplay');
+  count.textContent = state.slideCount;
+
+  // Update total dims note
+  const fmt = FORMATS.find(f => f.id === 'carousel');
+  const totalW = fmt.slideW * state.slideCount;
+  document.getElementById('totalDimsNote').textContent = `${totalW}×${fmt.slideH}px`;
+
+  // Ensure slides array length
+  while (state.slides.length < state.slideCount) {
+    state.slides.push({ type: 'conteudo', headline: '', subtitle: '', body: '', visual: '' });
+  }
+
+  list.innerHTML = '';
+  for (let i = 0; i < state.slideCount; i++) {
+    const s = state.slides[i] || {};
+    const defaultType = i === 0 ? 'capa' : (i === state.slideCount - 1 ? 'cta' : 'conteudo');
+    const slideType = s.type || defaultType;
+    const card = document.createElement('div');
+    card.className = 'slide-card';
+    card.id = `slide-card-${i}`;
+    card.innerHTML = `
+      <div class="slide-card-header" onclick="toggleSlide(${i})">
+        <span class="slide-num">Slide ${i + 1}</span>
+        <span class="slide-type-badge" id="slide-badge-${i}">${getTypeLabel(slideType)}</span>
+        <span class="toggle-icon">&#9660;</span>
+      </div>
+      <div class="slide-card-body">
+        <div class="form-row triple">
+          <div class="field">
+            <label>Tipo de Slide</label>
+            <select id="slide-type-${i}" onchange="onSlideTypeChange(${i})">
+              ${SLIDE_TYPES.map(t => `<option value="${t.value}" ${t.value === slideType ? 'selected' : ''}>${t.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Headline</label>
+            <input type="text" id="slide-hl-${i}" value="${escHtml(s.headline||'')}" placeholder="Título do slide" oninput="updatePreview()" />
+          </div>
+          <div class="field">
+            <label>Subtítulo <span style="font-weight:400;text-transform:none;">(opcional)</span></label>
+            <input type="text" id="slide-sub-${i}" value="${escHtml(s.subtitle||'')}" placeholder="Subtítulo" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Corpo / Texto <span style="font-weight:400;text-transform:none;">(opcional)</span></label>
+            <textarea id="slide-body-${i}" placeholder="Texto do slide, tópicos, etc...">${escHtml(s.body||'')}</textarea>
+          </div>
+          <div class="field">
+            <label>Descrição Visual</label>
+            <textarea id="slide-visual-${i}" placeholder="Descreva o visual, composição, elementos gráficos...">${escHtml(s.visual||'')}</textarea>
+          </div>
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  }
+  updatePreview();
+}
+
+function getTypeLabel(val) {
+  const t = SLIDE_TYPES.find(t => t.value === val);
+  return t ? t.label : val;
+}
+
+function onSlideTypeChange(i) {
+  const val = document.getElementById(`slide-type-${i}`).value;
+  const badge = document.getElementById(`slide-badge-${i}`);
+  if (badge) badge.textContent = getTypeLabel(val);
+}
+
+function toggleSlide(i) {
+  const card = document.getElementById(`slide-card-${i}`);
+  card.classList.toggle('collapsed');
+}
+
+function changeSlideCount(delta) {
+  const newCount = Math.max(2, Math.min(10, state.slideCount + delta));
+  if (newCount === state.slideCount) return;
+  syncSlidesFromDOM();
+  state.slideCount = newCount;
+  renderSlides();
+  saveToStorage();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PREVIEW
+═══════════════════════════════════════════════════════════ */
+function getFormatDims() {
+  const fmt = FORMATS.find(f => f.id === state.selectedFormat);
+  if (!fmt) return { w: 1080, h: 1080 };
+  if (state.selectedFormat === 'custom') {
+    const w = parseInt(document.getElementById('customW').value) || 1080;
+    const h = parseInt(document.getElementById('customH').value) || 1080;
+    return { w, h };
+  }
+  return { w: fmt.w, h: fmt.h };
+}
+
+/* Dimensions doubled for generation (same ratio, 2x resolution) */
+function getGenerationDims() {
+  const d = getFormatDims();
+  return { w: d.w * 2, h: d.h * 2 };
+}
+
+function updatePreview() {
+  renderStylePreview();
+  renderFontPreview();
+  if (!state.selectedFormat) return;
+
+  const pal = getCurrentPalette();
+  const previewInner = document.getElementById('previewInner');
+  const previewLabel = document.getElementById('previewLabel');
+  const previewContainer = document.getElementById('previewContainer');
+
+  const PREVIEW_H = 220;
+  const fmt = FORMATS.find(f => f.id === state.selectedFormat);
+
+  if (state.selectedFormat === 'carousel') {
+    const slideH = fmt.slideH;
+    const slideW = fmt.slideW;
+    const ratio = PREVIEW_H / slideH;
+    const pSlideW = Math.round(slideW * ratio);
+
+    previewContainer.classList.remove('preview-single');
+    previewInner.innerHTML = '';
+    previewInner.style.justifyContent = 'flex-start';
+
+    for (let i = 0; i < state.slideCount; i++) {
+      const sd = getSlideData(i);
+      const el = document.createElement('div');
+      el.className = 'preview-slide';
+      el.style.width = pSlideW + 'px';
+      el.style.height = PREVIEW_H + 'px';
+      el.style.background = pal.bg;
+      el.innerHTML = `
+        <div class="preview-content" style="color:${pal.text};">
+          <div class="preview-slide-type" style="color:${pal.accent};">${getTypeLabel(sd.type)}</div>
+          <div class="preview-headline" style="color:${pal.text};">${escHtml(sd.headline || 'Slide ' + (i+1))}</div>
+          ${sd.subtitle ? `<div class="preview-sub" style="color:${pal.text};">${escHtml(sd.subtitle)}</div>` : ''}
+        </div>
+        <div class="preview-num" style="color:${pal.accent};">${i+1}/${state.slideCount}</div>
+      `;
+      previewInner.appendChild(el);
+    }
+
+    const totalW = pSlideW * state.slideCount;
+    previewLabel.innerHTML = `<span>${fmt.name}</span> &nbsp;|&nbsp; ${fmt.slideW * state.slideCount}×${fmt.slideH}px (${state.slideCount} slides de ${fmt.slideW}×${fmt.slideH}px)`;
+  } else {
+    const dims = getFormatDims();
+    const ratio = dims.w / dims.h;
+    let pW, pH;
+    const MAX_W = Math.min(560, previewContainer.offsetWidth || 560);
+    const MAX_H = PREVIEW_H;
+
+    if (ratio >= 1) {
+      pW = Math.min(MAX_W, MAX_H * ratio);
+      pH = pW / ratio;
+      if (pH > MAX_H) { pH = MAX_H; pW = pH * ratio; }
+    } else {
+      pH = MAX_H;
+      pW = pH * ratio;
+      if (pW > MAX_W) { pW = MAX_W; pH = pW / ratio; }
+    }
+    pW = Math.round(pW);
+    pH = Math.round(pH);
+
+    const headline = document.getElementById('singleHeadline')?.value || '';
+    const subtitle = document.getElementById('singleSubtitle')?.value || '';
+
+    previewContainer.classList.add('preview-single');
+    previewInner.style.justifyContent = 'center';
+    previewInner.innerHTML = `
+      <div class="preview-frame" style="width:${pW}px;height:${pH}px;background:${pal.bg};">
+        <div class="preview-content" style="color:${pal.text};">
+          ${headline ? `<div class="preview-headline" style="color:${pal.text};font-size:clamp(.6rem,${pW/20}px,1.1rem);">${escHtml(headline)}</div>` : ''}
+          ${subtitle ? `<div class="preview-sub" style="color:${pal.accent};">${escHtml(subtitle)}</div>` : ''}
+          ${!headline && !subtitle ? `<div class="preview-sub" style="color:${pal.accent};opacity:.4;">Preview</div>` : ''}
+        </div>
+      </div>
+    `;
+    previewLabel.innerHTML = `<span>${fmt ? fmt.name : 'Personalizado'}</span> &nbsp;|&nbsp; ${dims.w}×${dims.h}px`;
+  }
+
+  saveToStorage();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TIPS
+═══════════════════════════════════════════════════════════ */
+function showTips(formatId) {
+  const panel = document.getElementById('tipsPanel');
+  const body = document.getElementById('tipsBody');
+  const tips = FORMAT_TIPS[formatId] || FORMAT_TIPS['custom'];
+
+  panel.classList.remove('hidden');
+  body.innerHTML = tips.map(t => `
+    <div class="tip-item">
+      <span class="tip-icon">${t.icon}</span>
+      <span class="tip-text">${t.text}</span>
+    </div>
+  `).join('');
+}
+
+function toggleTips() {
+  document.getElementById('tipsPanel').classList.toggle('open');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROMPT GENERATION
+═══════════════════════════════════════════════════════════ */
+function generatePrompt() {
+  if (!state.selectedFormat) {
+    alert('Selecione um formato primeiro.');
+    return;
+  }
+
+  const pal = getCurrentPalette();
+  const fmt = FORMATS.find(f => f.id === state.selectedFormat);
+  const dims = getFormatDims();
+  const fontCfg = getTypographyConfig();
+  const typography = `Headline: ${fontCfg.headline} | Subtítulo: ${fontCfg.subtitle} | Corpo: ${fontCfg.body}`;
+  const visualStyle = document.getElementById('visualStyle').value;
+  const lang = state.lang;
+
+  let prompt = '';
+
+  if (state.selectedFormat === 'carousel') {
+    syncSlidesFromDOM();
+    prompt = lang === 'pt'
+      ? generateCarouselPromptPT(fmt, dims, pal, typography, visualStyle)
+      : generateCarouselPromptEN(fmt, dims, pal, typography, visualStyle);
+  } else {
+    const headline = document.getElementById('singleHeadline').value.trim();
+    const subtitle = document.getElementById('singleSubtitle').value.trim();
+    const body = document.getElementById('singleBody').value.trim();
+    const visual = document.getElementById('singleVisual').value.trim();
+    const elements = document.getElementById('singleElements').value.trim();
+    const mood = document.getElementById('singleMood').value;
+
+    prompt = lang === 'pt'
+      ? generateSinglePromptPT(fmt, dims, pal, typography, visualStyle, headline, subtitle, body, visual, elements, mood)
+      : generateSinglePromptEN(fmt, dims, pal, typography, visualStyle, headline, subtitle, body, visual, elements, mood);
+  }
+
+  state.generatedPrompt = prompt;
+
+  const box = document.getElementById('promptBox');
+  box.textContent = prompt;
+  box.classList.add('visible');
+  document.getElementById('copyBtns').classList.remove('hidden');
+
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  saveToStorage();
+}
+
+function generateSinglePromptPT(fmt, dims, pal, typography, visualStyle, headline, subtitle, body, visual, elements, mood) {
+  const palLabel = getPaletteLabel(pal);
+  const styleDesc = STYLE_DESCRIPTIONS[visualStyle] || '';
+  const moodDesc = MOOD_DESCRIPTIONS[mood] || '';
+  const fmtName = fmt ? fmt.name : 'Personalizado';
+
+  return `Você é um designer gráfico sênior especializado em conteúdo para redes sociais. Crie uma arte de alta qualidade seguindo todas as especificações abaixo com precisão técnica e sensibilidade estética.
+
+Crie uma arte para ${fmtName} com as seguintes especificações:
+
+**Dimensões:** ${dims.w}×${dims.h} pixels
+
+**Paleta de Cores:**
+- Fundo: ${pal.bg} — base da composição
+- Cor de destaque: ${pal.accent} — títulos, bordas, elementos principais
+- Texto: ${pal.text} — corpo de texto e subtítulos
+${pal.id === 'custom' || state.selectedPalette === 'custom' ? '' : `- Paleta: ${palLabel}`}
+
+**Tipografia:** ${typography} — Bold (700-900) para título principal, Semibold (600) para subtítulo, Regular (400) para corpo de texto
+
+**Estilo Visual:** ${visualStyle} — ${styleDesc}
+
+**Conteúdo:**
+- Título: ${headline || '(não definido)'}
+- Subtítulo: ${subtitle || '(não definido)'}
+- Texto de apoio / CTA: ${body || '(não definido)'}
+- Elementos adicionais: ${elements || '(nenhum)'}
+
+**Descrição Visual:**
+${visual || 'Composição equilibrada com hierarquia visual clara, fundo limpo e elementos de destaque bem posicionados.'}
+
+**Mood / Sentimento:** ${mood} — ${moodDesc}
+
+**Diretrizes Técnicas:**
+- Certifique-se de que a composição seja equilibrada e com hierarquia visual clara
+- O texto deve ser legível sobre o fundo (contraste WCAG mínimo AA)
+- Mantenha margens de segurança de pelo menos 5% em cada borda
+- Iluminação e sombras devem ser coerentes com o estilo ${visualStyle}
+- Todos os elementos devem estar dentro dos limites do canvas
+- Exportar como imagem única de ${dims.w}×${dims.h}px, RGB, 72 DPI para uso digital`.trim();
+}
+
+function generateSinglePromptEN(fmt, dims, pal, typography, visualStyle, headline, subtitle, body, visual, elements, mood) {
+  const styleDesc = STYLE_DESCRIPTIONS[visualStyle] || '';
+  const moodDesc = MOOD_DESCRIPTIONS[mood] || '';
+  const fmtName = fmt ? fmt.name : 'Custom';
+
+  return `You are a senior graphic designer specialized in social media content. Create a high-quality graphic following all specifications below with technical precision and aesthetic sensibility.
+
+Create a ${fmtName} artwork with the following specifications:
+
+**Dimensions:** ${dims.w}×${dims.h} pixels
+
+**Color Palette:**
+- Background: ${pal.bg} — composition base
+- Accent color: ${pal.accent} — titles, borders, key elements
+- Text: ${pal.text} — body text and subtitles
+
+**Typography:** ${typography} — Bold (700-900) for main headline, Semibold (600) for subtitle, Regular (400) for body text
+
+**Visual Style:** ${visualStyle} — ${styleDesc}
+
+**Content:**
+- Headline: ${headline || '(not defined)'}
+- Subtitle: ${subtitle || '(not defined)'}
+- Body / CTA: ${body || '(not defined)'}
+- Additional elements: ${elements || '(none)'}
+
+**Visual Description:**
+${visual || 'Balanced composition with clear visual hierarchy, clean background and well-positioned highlight elements.'}
+
+**Mood:** ${mood} — ${moodDesc}
+
+**Technical Guidelines:**
+- Ensure balanced composition with clear visual hierarchy
+- Text must be legible over the background (minimum WCAG AA contrast)
+- Maintain safety margins of at least 5% on each edge
+- Lighting and shadows must be coherent with the ${visualStyle} style
+- All elements must stay within the canvas boundaries
+- Export as single image ${dims.w}×${dims.h}px, RGB, 72 DPI for digital use`.trim();
+}
+
+function generateCarouselPromptPT(fmt, dims, pal, typography, visualStyle) {
+  const styleDesc = STYLE_DESCRIPTIONS[visualStyle] || '';
+  const palLabel = getPaletteLabel(pal);
+  const totalW = fmt.slideW * state.slideCount;
+
+  let slidesText = state.slides.slice(0, state.slideCount).map((s, i) => {
+    return `--- SLIDE ${i + 1}/${state.slideCount} (${getTypeLabel(s.type)}) ---
+Headline: ${s.headline || '(não definido)'}
+Subtítulo: ${s.subtitle || '(não definido)'}
+Corpo: ${s.body || '(não definido)'}
+Descrição Visual: ${s.visual || 'Layout padrão do carrossel'}
+Numeração: ${i + 1}/${state.slideCount}`;
+  }).join('\n\n');
+
+  return `Você é um designer gráfico sênior especializado em carrosseis para Instagram. Crie um carrossel completo de ${state.slideCount} slides com máxima qualidade visual e consistência estética entre todos os slides.
+
+**Formato:** Carrossel Instagram — ${state.slideCount} slides
+**Dimensão total do canvas:** ${totalW}×${fmt.slideH}px (${state.slideCount} slides de ${fmt.slideW}×${fmt.slideH}px cada, lado a lado)
+
+**Paleta de Cores:**
+- Fundo: ${pal.bg}
+- Cor de destaque: ${pal.accent}
+- Texto: ${pal.text}
+- Nome da paleta: ${palLabel}
+
+**Tipografia:** ${typography} — Bold para títulos, Regular para corpo
+
+**Estilo Visual:** ${visualStyle} — ${styleDesc}
+
+**Slides:**
+
+${slidesText}
+
+**Diretrizes de Design:**
+- Mantenha consistência visual absoluta entre todos os slides (mesma paleta, tipografia, estilo)
+- Cada slide deve funcionar de forma independente E como parte do conjunto
+- Inclua numeração visível em cada slide (${state.slideCount > 0 ? '1/' + state.slideCount + ', 2/' + state.slideCount + '...' : ''})
+- O primeiro slide (capa) deve prender atenção imediatamente
+- O último slide deve ter um CTA claro
+- Aplique margens internas de pelo menos 60px em cada slide
+- Elementos podem "transbordar" sutilmente entre slides para criar continuidade visual
+- Iluminação coerente com o estilo ${visualStyle} em todos os slides
+
+Exportar como canvas único de ${totalW}×${fmt.slideH}px, cada slide separado por guias verticais a cada ${fmt.slideW}px.`.trim();
+}
+
+function generateCarouselPromptEN(fmt, dims, pal, typography, visualStyle) {
+  const styleDesc = STYLE_DESCRIPTIONS[visualStyle] || '';
+  const totalW = fmt.slideW * state.slideCount;
+
+  let slidesText = state.slides.slice(0, state.slideCount).map((s, i) => {
+    return `--- SLIDE ${i + 1}/${state.slideCount} (${getTypeLabel(s.type)}) ---
+Headline: ${s.headline || '(not defined)'}
+Subtitle: ${s.subtitle || '(not defined)'}
+Body: ${s.body || '(not defined)'}
+Visual Description: ${s.visual || 'Standard carousel layout'}
+Numbering: ${i + 1}/${state.slideCount}`;
+  }).join('\n\n');
+
+  return `You are a senior graphic designer specialized in Instagram carousels. Create a complete ${state.slideCount}-slide carousel with maximum visual quality and aesthetic consistency across all slides.
+
+**Format:** Instagram Carousel — ${state.slideCount} slides
+**Total canvas size:** ${totalW}×${fmt.slideH}px (${state.slideCount} slides of ${fmt.slideW}×${fmt.slideH}px each, side by side)
+
+**Color Palette:**
+- Background: ${pal.bg}
+- Accent: ${pal.accent}
+- Text: ${pal.text}
+
+**Typography:** ${typography} — Bold for headlines, Regular for body
+
+**Visual Style:** ${visualStyle} — ${styleDesc}
+
+**Slides:**
+
+${slidesText}
+
+**Design Guidelines:**
+- Maintain absolute visual consistency across all slides (same palette, typography, style)
+- Each slide must work independently AND as part of the whole
+- Include visible numbering on each slide (1/${state.slideCount}, 2/${state.slideCount}...)
+- First slide (cover) must capture attention immediately
+- Last slide must have a clear CTA
+- Apply internal margins of at least 60px per slide
+- Elements may subtly bleed between slides to create visual continuity
+- Consistent lighting with ${visualStyle} style across all slides
+
+Export as single canvas ${totalW}×${fmt.slideH}px, each slide separated by vertical guides every ${fmt.slideW}px.`.trim();
+}
+
+function getPaletteLabel(pal) {
+  const p = PALETTES.find(p => p.id === state.selectedPalette);
+  return p ? p.label : 'Personalizado';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COPY BUTTONS
+═══════════════════════════════════════════════════════════ */
+function copyPrompt(target) {
+  const base = state.generatedPrompt;
+  if (!base) return;
+
+  let text = base;
+  if (target === 'gemini') {
+    text = base + '\n\n[Prompt otimizado para Google Gemini / Imagen]';
+  } else if (target === 'chatgpt') {
+    text = base + '\n\n[Prompt otimizado para ChatGPT / DALL-E]';
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btnId = target === 'plain' ? 'btnCopyPlain' : null;
+    if (btnId) {
+      const btn = document.getElementById(btnId);
+      const orig = btn.innerHTML;
+      btn.innerHTML = '&#10003; Copiado!';
+      btn.classList.add('btn-success');
+      setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('btn-success'); }, 2000);
+    }
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════ */
+function resetProject() {
+  if (!confirm('Tem certeza que deseja iniciar um novo projeto? Todo o conteúdo será perdido.')) return;
+  localStorage.removeItem('artesIA_state');
+  location.reload();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOCAL STORAGE
+═══════════════════════════════════════════════════════════ */
+const STORAGE_VERSION = 2;  // bump to invalidate old saves with example content
+
+function saveToStorage() {
+  try {
+    const data = {
+      _v: STORAGE_VERSION,
+      selectedFormat: state.selectedFormat,
+      selectedPalette: state.selectedPalette,
+      lang: state.lang,
+      slideCount: state.slideCount,
+      customW: document.getElementById('customW')?.value || 1080,
+      customH: document.getElementById('customH')?.value || 1080,
+      colorBg: document.getElementById('colorBg')?.value,
+      colorAccent: document.getElementById('colorAccent')?.value,
+      colorText: document.getElementById('colorText')?.value,
+      typography: document.getElementById('typography')?.value,
+      fontHeadline: document.getElementById('fontHeadline')?.value,
+      fontSubtitle: document.getElementById('fontSubtitle')?.value,
+      fontBody: document.getElementById('fontBody')?.value,
+      visualStyle: document.getElementById('visualStyle')?.value,
+      singleHeadline: document.getElementById('singleHeadline')?.value,
+      singleSubtitle: document.getElementById('singleSubtitle')?.value,
+      singleBody: document.getElementById('singleBody')?.value,
+      singleVisual: document.getElementById('singleVisual')?.value,
+      singleElements: document.getElementById('singleElements')?.value,
+      singleMood: document.getElementById('singleMood')?.value
+    };
+    localStorage.setItem('artesIA_state', JSON.stringify(data));
+  } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('artesIA_state');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    // Discard old saves that had example content pre-filled
+    if ((data._v || 1) < STORAGE_VERSION) {
+      localStorage.removeItem('artesIA_state');
+      return;
+    }
+
+    if (data.selectedPalette) {
+      state.selectedPalette = data.selectedPalette;
+      selectPalette(data.selectedPalette);
+    }
+    if (data.lang) setLang(data.lang);
+    if (data.colorBg) document.getElementById('colorBg').value = data.colorBg;
+    if (data.colorAccent) document.getElementById('colorAccent').value = data.colorAccent;
+    if (data.colorText) document.getElementById('colorText').value = data.colorText;
+    if (data.typography) document.getElementById('typography').value = data.typography;
+    if (data.fontHeadline) document.getElementById('fontHeadline').value = data.fontHeadline;
+    if (data.fontSubtitle) document.getElementById('fontSubtitle').value = data.fontSubtitle;
+    if (data.fontBody)     document.getElementById('fontBody').value = data.fontBody;
+    if (data.visualStyle) document.getElementById('visualStyle').value = data.visualStyle;
+    if (data.customW) document.getElementById('customW').value = data.customW;
+    if (data.customH) document.getElementById('customH').value = data.customH;
+
+    if (data.selectedFormat) {
+      selectFormat(data.selectedFormat);
+      if (data.selectedFormat !== 'carousel') {
+        if (data.singleHeadline) document.getElementById('singleHeadline').value = data.singleHeadline;
+        if (data.singleSubtitle) document.getElementById('singleSubtitle').value = data.singleSubtitle;
+        if (data.singleBody) document.getElementById('singleBody').value = data.singleBody;
+        if (data.singleVisual) document.getElementById('singleVisual').value = data.singleVisual;
+        if (data.singleElements) document.getElementById('singleElements').value = data.singleElements;
+        if (data.singleMood) document.getElementById('singleMood').value = data.singleMood;
+      }
+      updatePreview();
+    }
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════ */
+function escHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Custom dims live update
+document.getElementById('customW').addEventListener('input', updatePreview);
+document.getElementById('customH').addEventListener('input', updatePreview);
+
+/* ═══════════════════════════════════════════════════════════
+   IMAGE GENERATION — GEMINI IMAGEN 3
+═══════════════════════════════════════════════════════════ */
+
+// Save API key to localStorage when changed
+document.getElementById('geminiApiKey').addEventListener('change', () => {
+  localStorage.setItem('artesIA_apiKey', document.getElementById('geminiApiKey').value.trim());
+});
+
+// Load saved API key
+(function loadApiKey() {
+  const saved = localStorage.getItem('artesIA_apiKey');
+  if (saved) document.getElementById('geminiApiKey').value = saved;
+})();
+
+// Map format IDs to Imagen 3 supported aspect ratios
+const FORMAT_ASPECT_RATIO = {
+  'carousel':       '1:1',
+  'feed-square':    '1:1',
+  'feed-portrait':  '3:4',
+  'story':          '9:16',
+  'linkedin-banner':'16:9',
+  'youtube-thumb':  '16:9',
+  'twitter-header': '16:9',
+  'custom':         '1:1'
+};
+
+function getAspectRatioForFormat(fmtId, customW, customH) {
+  if (fmtId === 'custom' && customW && customH) {
+    const ratio = customW / customH;
+    if (ratio > 1.5) return '16:9';
+    if (ratio < 0.75) return '9:16';
+    if (ratio < 0.9) return '3:4';
+    if (ratio > 1.1) return '4:3';
+    return '1:1';
+  }
+  return FORMAT_ASPECT_RATIO[fmtId] || '1:1';
+}
+
+// Show/hide image gen section and update slide checkboxes when prompt is generated
+const _origGenPrompt = generatePrompt;
+generatePrompt = function() {
+  _origGenPrompt();
+  const sec = document.getElementById('imageGenSection');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Build slide checkboxes for carousel
+  const isCarousel = state.selectedFormat === 'carousel';
+  document.getElementById('carouselSlideSelector').style.display = isCarousel ? 'block' : 'none';
+  if (isCarousel) {
+    const container = document.getElementById('slideCheckboxes');
+    container.innerHTML = '';
+    for (let i = 1; i <= state.slideCount; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'slide-checkbox-btn selected';
+      btn.dataset.slide = i;
+      btn.textContent = `Slide ${i}`;
+      btn.onclick = () => btn.classList.toggle('selected');
+      container.appendChild(btn);
+    }
+  }
+
+  // Update generate button label
+  document.getElementById('btnGenerateImage').innerHTML =
+    isCarousel
+      ? '&#127775; Gerar Slides Selecionados'
+      : '&#127775; Gerar Imagem';
+};
+
+/* ── Gemini text call (creative director) ── */
+function selectQuality(btn) {
+  document.querySelectorAll('#qualitySelector .slide-checkbox-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function getSelectedImageModel() {
+  return document.getElementById('imageModelSelect')?.value || 'gemini-3-pro-image-preview';
+}
+
+function getSelectedTextModel() {
+  return document.getElementById('textModelSelect')?.value || 'gemini-3.1-pro-preview';
+}
+
+function saveModelPrefs() {
+  localStorage.setItem('artesIA_imageModel', document.getElementById('imageModelSelect').value);
+  localStorage.setItem('artesIA_textModel', document.getElementById('textModelSelect').value);
+}
+
+function loadModelPrefs() {
+  const img = localStorage.getItem('artesIA_imageModel');
+  const txt = localStorage.getItem('artesIA_textModel');
+  if (img) document.getElementById('imageModelSelect').value = img;
+  if (txt) document.getElementById('textModelSelect').value = txt;
+}
+
+async function callGeminiText(prompt, apiKey) {
+  const model = getSelectedTextModel();
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `HTTP ${resp.status}`);
+  }
+  const data = await resp.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+/* ── Gemini image generation call (generateContent) ── */
+async function callGeminiImage(prompt, apiKey, aspectRatio, extraParts = []) {
+  const model = getSelectedImageModel();
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const parts = [{ text: prompt }, ...extraParts];
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts }],
+      generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `HTTP ${resp.status}`);
+  }
+  const data = await resp.json();
+  const responseParts = data?.candidates?.[0]?.content?.parts || [];
+  const imgPart = responseParts.find(p => p.inlineData);
+  if (!imgPart) throw new Error('Nenhuma imagem retornada. Tente outro modelo.');
+  return { base64: imgPart.inlineData.data, mimeType: imgPart.inlineData.mimeType || 'image/png' };
+}
+
+/* ── Creative director: enriches a brief into a full image prompt ── */
+async function enrichPromptWithAI(brief, apiKey) {
+  const hasStyleRef  = refImages.style?.length > 0;
+  const hasPersonRef = !!refImages.person;
+  const hasLogoRef   = !!refImages.logo;
+  const hasBgRef     = !!refImages.background;
+  const hasGraphic   = !!refImages.graphic;
+
+  const directorPrompt = `You are a senior social media designer and art director. You create professional, scroll-stopping social media posts that look like they were designed in Canva Pro or Adobe Express by an expert — clean, intentional, typographically strong. NOT cinematic AI art. NOT photorealistic scenes with dramatic fog and lighting. GRAPHIC DESIGN.
+
+Your task: read the briefing and any attached reference images, then write a single image generation prompt in English. Output ONLY the prompt — no explanations, no titles, no markdown.
+
+BRIEFING:
+${brief}
+
+${hasStyleRef  ? '⬆ STYLE REFERENCE IMAGE ATTACHED — match the visual style, color feel, layout approach, and typography character of the provided style reference.' : ''}
+${hasPersonRef ? '⬆ PERSON/CLIENT PHOTO ATTACHED — feature this person prominently in the design, keeping their likeness accurate.' : ''}
+${hasLogoRef   ? '⬆ LOGO ATTACHED — CRITICAL: DO NOT MODIFY, EDIT, ALTER, RECOLOR, OR APPLY FILTERS TO THIS LOGO. Include it EXACTLY as provided. Only decide its POSITION strategically: bottom-center, bottom-left, footer bar, inside a card, or watermark-style. The logo itself must remain pristine and unchanged — only its placement on the canvas is flexible.' : ''}
+${hasBgRef     ? '⬆ BACKGROUND IMAGE ATTACHED — use this image as the background or scene.' : ''}
+${hasGraphic   ? '⬆ GRAPHIC ELEMENT ATTACHED — incorporate this chart/mockup/icon as a visual element in the layout.' : ''}
+
+━━━ ABSOLUTE RULE: TEXT IS SACRED ━━━
+NEVER invent, translate, or rewrite the headline/subtitle/body text.
+The EXACT original words must appear in the image in the ORIGINAL LANGUAGE provided.
+
+━━━ ABSOLUTE RULE: LOGO IS UNTOUCHABLE ━━━
+If a logo image is attached, include it EXACTLY as provided.
+DO NOT modify, edit, recolor, apply filters, change opacity, or alter any detail.
+Only choose its POSITION on the canvas strategically — the logo itself must remain pristine.
+
+━━━ DESIGN APPROACH — PREMIUM SOCIAL MEDIA GRAPHIC DESIGN ━━━
+
+Think like a senior art director at a top digital agency. The goal is a STUNNING DESIGNED PIECE that stops the scroll — clean structure combined with rich visual depth and atmosphere.
+
+1. BACKGROUND & ATMOSPHERE
+   Create depth and mood with layered backgrounds:
+   • Rich gradients with multiple color stops, or a deep moody base color with atmospheric variation
+   • Bokeh/blur: soft out-of-focus light orbs or blurred environmental elements in the background layer
+   • Subtle texture overlay (grain, noise, canvas) at low opacity to add tactile richness
+   • Light leaks or glows: soft radial glow behind key elements, rim lighting on subject edges
+   • Environmental context: blurred cityscape, nature, studio lights — placed in background layer with depth-of-field blur
+   • Atmospheric haze, fog wisps, or light rays — used tastefully to add depth, not overwhelm
+
+2. DEPTH LAYERS (foreground / midground / background)
+   Design in Z-axis layers:
+   • BACKGROUND: blurred/atmospheric environment or gradient + texture
+   • MIDGROUND: main subject, photos, or visual hero — sharp and well-lit
+   • FOREGROUND: decorative elements — semi-transparent geometric shapes, thin lines, particles, scattered dots — some partially cropped off the edge for depth
+   • Overlap elements across layers to create spatial dimension
+
+3. SHADOWS & GLOWS
+   Apply tasteful depth effects on every element:
+   • Drop shadows on text: soft, offset, color-tinted (use accent color or dark), not pure black
+   • Drop shadows on cards/containers: large soft radius, moderate opacity
+   • Glow effects: colored glow behind key words or icons using accent color
+   • Inner shadow or emboss on containers for subtle dimensionality
+   • Gradient overlay on photos to blend into the background color
+
+4. LAYOUT & COMPOSITION
+   • Define clear ZONES: where is the visual element? where is the text block?
+   • Text-heavy designs: large expressive text IS the design — use size contrast, weight, and color
+   • Mixed designs: visual element on one side/half, text on the other, breathing room
+   • Clean UI-style cards for lists, stats, or bullet points — with shadow and rounded corners
+   • Generous padding inside cards and between elements
+   • Safe margins: 40–60px equivalent on all edges
+
+5. TYPOGRAPHY WITH IMPACT
+   • Headline: large/dominant, heavy weight, with drop shadow or glow for legibility and flair
+   • Key emotional or important words: accent color + glow, or inside a colored highlight rectangle
+   • Colored underline, highlight box, or pill badge behind specific words for emphasis
+   • Body text: clean column, good contrast, subtle shadow for readability on complex backgrounds
+   • Mix weights: ultra-bold headline word + light surrounding words
+   • Decorative thin line or separator with gradient fade on ends
+   • Small label tags in caps (e.g. "MARKETING DIGITAL") with accent background pill
+
+6. DECORATIVE GRAPHIC ELEMENTS
+   Add tasteful embellishments that enrich without cluttering:
+   • Geometric: thin circles, arcs, hexagons, triangles — partially visible, low opacity
+   • Lines: diagonal or curved thin lines crossing the layout
+   • Particles: small scattered dots or sparkles in foreground layer
+   • Abstract blobs or brushstrokes in background at low opacity
+   • Grid or halftone dot pattern at very low opacity as texture
+   • Decorative brackets, plus signs, or corner marks as design accents
+
+7. ACCENT COLOR USAGE
+   • 1–3 key headline words in the accent color with glow
+   • Gradient lines, dividers, and UI dots in accent color
+   • Glowing shapes or halos behind key focal points
+   • Keep it surgical — accent pops, never drowns the layout
+
+8. LOGO PLACEMENT (if a logo is present)
+   NEVER default to top-right corner. Choose the position that serves the layout best:
+   • Bottom-center: anchors the piece, gives authority — great for single posts and stories
+   • Bottom-left or bottom-right: secondary anchor, editorial and clean
+   • Inside a footer bar or colored band: logo integrated into a horizontal strip at the bottom
+   • Top-left: only when the layout flows left-to-right and the logo opens the visual hierarchy
+   • Embedded in a card or glass panel: logo as part of a UI-style element
+   • Watermark-style (center, low opacity): when the image is photo-heavy and must not be cluttered
+   • Never: floating randomly, competing with the headline, or too large
+
+9. FINISH
+   • Rich, layered, atmospheric — like a premium agency Figma file exported at max quality
+   • Every element has intentional shadow, glow, or depth treatment
+   • Text is ALWAYS legible — sufficient contrast, with shadow/glow ensuring readability over complex backgrounds
+   • The overall impression: polished, modern, scroll-stopping
+
+Write the complete image generation prompt now.`;
+
+
+  return await callGeminiText(directorPrompt, apiKey);
+}
+
+/* ── Build brief for full carousel (single wide image) ── */
+function buildCarouselBrief(fmt, dims, pal, typography, visualStyle) {
+  const totalW = fmt.slideW * state.slideCount;
+  const slideH = fmt.slideH;
+  const slides = state.slides.slice(0, state.slideCount);
+
+  const slidesDesc = slides.map((s, i) => {
+    const type = getTypeLabel(s.type);
+    return `  PANEL ${i + 1}/${state.slideCount} [${type}]
+    Headline: "${s.headline || ''}"
+    Subtitle: "${s.subtitle || ''}"
+    Body: "${s.body || ''}"
+    Visual hint: ${s.visual || '(decide based on theme and storytelling flow)'}`;
+  }).join('\n\n');
+
+  return `Format: Instagram Carousel — SINGLE WIDE HORIZONTAL IMAGE, ${state.slideCount} panels side by side
+Total canvas: approximately ${state.slideCount * 3}:2 aspect ratio (very wide, one row only — do NOT stack rows)
+Each panel: ${fmt.slideW}×${slideH}px — ${state.slideCount} panels total, left to right
+This image will be sliced into ${state.slideCount} individual slides in Photoshop after generation.
+Visual style: ${visualStyle}
+Typography: ${typography}
+Color palette — Background: ${pal.bg} | Accent: ${pal.accent} | Text: ${pal.text}
+
+⚠️ CRITICAL: USE THESE EXACT TEXTS — DO NOT TRANSLATE, REWRITE, OR INVENT:
+${slidesDesc}
+
+LAYOUT:
+- Single horizontal row of ${state.slideCount} equal panels — absolutely NO vertical stacking or second row
+- Each panel must display its own headline and body text in the ORIGINAL LANGUAGE provided above
+- Panel number indicator (e.g. 1/${state.slideCount}) visible in each panel, small and subtle
+
+STORYTELLING & VISUAL CONTINUITY:
+- One unified scene/atmosphere flows across all ${state.slideCount} panels left to right
+- Background gradient, lighting, and environmental elements transition seamlessly between panels
+- A visual element (line, light beam, object, character) can span across panel boundaries to unify the strip
+- Each panel works alone AND as part of the sequence
+- Panel 1: strong hook — immediate visual impact and curiosity
+- Panel ${state.slideCount}: closure — CTA area, clear call to action
+- The composition guides the eye naturally from left to right, mirroring the swipe gesture`;
+}
+
+/* ── Build brief for single format ── */
+function buildSingleBrief(fmt, dims, pal, typography, visualStyle) {
+  const headline  = document.getElementById('singleHeadline')?.value?.trim() || '';
+  const subtitle  = document.getElementById('singleSubtitle')?.value?.trim() || '';
+  const body      = document.getElementById('singleBody')?.value?.trim() || '';
+  const visual    = document.getElementById('singleVisual')?.value?.trim() || '';
+  const elements  = document.getElementById('singleElements')?.value?.trim() || '';
+  const mood      = document.getElementById('singleMood')?.value || '';
+
+  return `Format: ${fmt?.name || 'Social media post'} — ${dims.w}×${dims.h}px
+Aspect ratio: ${getAspectRatioForFormat(state.selectedFormat, dims.w, dims.h)}
+Visual style: ${visualStyle}
+Typography: ${typography}
+Color palette — Background: ${pal.bg} | Accent/highlight: ${pal.accent} | Text: ${pal.text}
+Headline (must appear in image): "${headline}"
+Subtitle (must appear in image): "${subtitle}"
+Body / CTA text: "${body}"
+Additional elements: ${elements || 'none'}
+Mood / feeling: ${mood}
+User visual description: ${visual || '(não fornecida — crie você mesmo com base no tema do texto)'}`;
+}
+
+/* ── Build brief for one carousel slide (legacy, unused) ── */
+function buildSlideBrief(slide, idx, total, pal, typography, visualStyle) {
+  return buildSlideBriefWithContext(slide, idx, total, pal, typography, visualStyle, '', []);
+}
+
+/* ── Generate a detailed storyboard for the full carousel series ── */
+async function buildCarouselStyleGuide(fmt, pal, typography, visualStyle, apiKey) {
+  const slides = state.slides.slice(0, state.slideCount);
+  const allContent = slides.map((s, i) =>
+    `Slide ${i+1} [${getTypeLabel(s.type)}]: Headline: "${s.headline || ''}" | Subtitle: "${s.subtitle || ''}" | Body: "${s.body || ''}"`
+  ).join('\n');
+
+  const prompt = `You are a senior art director and storyboard writer creating a visual plan for an Instagram carousel series that will be generated as individual images.
+
+CAROUSEL CONTENT:
+${allContent}
+
+Color palette: Background ${pal.bg} | Accent ${pal.accent} | Text ${pal.text}
+Typography: ${typography}
+Visual style: ${visualStyle}
+Total slides: ${state.slideCount}
+
+Your job: write a DETAILED STORYBOARD in English that will be used to generate each slide as a separate image. The slides must look like they belong to one cohesive series — same scene, evolving visually.
+
+Output format — follow this EXACTLY:
+
+SERIES_SCENE: [One paragraph describing the single unified visual world: environment, atmosphere, color palette treatment, lighting setup, recurring visual elements. Be very specific.]
+
+TYPOGRAPHY_SYSTEM: [Describe the text treatment rules for the series: font positioning zones, which types of words get accent color, what highlight boxes or decorative elements to use, slide number style. Be specific — e.g. "The most emotionally charged word in each headline appears in warm gold, the rest in white. Body text sits inside a semi-transparent dark panel. Slide number shown as a minimal fraction in the bottom right corner."]
+
+SLIDE_1: [Exact camera framing, what portion of the scene is shown, position and direction of light, specific objects visible, atmosphere details, text zone placement. 3-4 sentences.]
+SLIDE_2: [Same format — how the scene EVOLVES from slide 1, what changes or moves, what is now visible that wasn't before. 3-4 sentences.]
+SLIDE_3: [Continue the visual progression. 3-4 sentences.]
+${slides.slice(3).map((_, i) => `SLIDE_${i+4}: [Visual progression continues. 3-4 sentences.]`).join('\n')}
+
+Rules:
+- The scene must EVOLVE — not just the same image with different lighting. There should be a clear visual journey (e.g. zoom out, move through a space, time of day changes, an element grows or transforms).
+- Each slide's framing must be distinct but clearly from the same world.
+- Typography treatments must use the accent color to highlight 1-3 emotionally important words per slide headline.`;
+
+  return await callGeminiText(prompt, apiKey);
+}
+
+/* ── Extract per-slide scene from storyboard ── */
+function extractSlideScene(storyboard, slideIndex) {
+  const tag = `SLIDE_${slideIndex + 1}:`;
+  const nextTag = `SLIDE_${slideIndex + 2}:`;
+  const start = storyboard.indexOf(tag);
+  if (start === -1) return '';
+  const end = storyboard.indexOf(nextTag);
+  const raw = end === -1
+    ? storyboard.slice(start + tag.length)
+    : storyboard.slice(start + tag.length, end);
+  return raw.trim();
+}
+
+function extractSection(storyboard, tag) {
+  const start = storyboard.indexOf(tag + ':');
+  if (start === -1) return '';
+  const nextMatch = storyboard.slice(start + tag.length + 1).search(/\n[A-Z_]+:/);
+  const end = nextMatch === -1 ? storyboard.length : start + tag.length + 1 + nextMatch;
+  return storyboard.slice(start + tag.length + 1, end).trim();
+}
+
+/* ── Build per-slide brief with full series context ── */
+function buildSlideBriefWithContext(slide, idx, total, pal, typography, visualStyle, styleGuide, allSlides) {
+  const isFirst = idx === 0;
+  const isLast  = idx === total - 1;
+
+  const seriesScene    = styleGuide ? extractSection(styleGuide, 'SERIES_SCENE') : '';
+  const typoSystem     = styleGuide ? extractSection(styleGuide, 'TYPOGRAPHY_SYSTEM') : '';
+  const thisSlideScene = styleGuide ? extractSlideScene(styleGuide, idx) : '';
+
+  return `Format: Instagram Carousel — Slide ${idx + 1} of ${total} — 1080×1350px (portrait 4:5)
+Visual style: ${visualStyle} | Typography: ${typography}
+Color palette — Background: ${pal.bg} | Accent color: ${pal.accent} | Text: ${pal.text}
+
+━━━ SERIES VISUAL WORLD ━━━
+${seriesScene || 'Unified atmospheric scene consistent across all slides.'}
+
+━━━ TYPOGRAPHY SYSTEM (apply exactly) ━━━
+${typoSystem || `Highlight 1-2 key words in accent color ${pal.accent}. Body text in a semi-transparent dark panel. Slide number as small fraction in corner.`}
+
+━━━ THIS SLIDE: ${idx + 1}/${total} — ${getTypeLabel(slide.type)} ━━━
+SCENE DIRECTION:
+${thisSlideScene || (slide.visual || 'Follow the series style, evolving from previous slide.')}
+
+${isFirst ? '⭐ FIRST SLIDE — maximum visual impact, create immediate curiosity, strongest hook' : ''}
+${isLast  ? '⭐ LAST SLIDE — visual closure, warm and inviting, clear CTA zone' : ''}
+
+⚠️ USE THESE EXACT WORDS — DO NOT TRANSLATE, REWRITE, OR INVENT:
+Headline: "${slide.headline || ''}"
+Subtitle: "${slide.subtitle || ''}"
+Body: "${slide.body || ''}"
+Slide number indicator: ${idx + 1}/${total}`;
+}
+
+async function generateImages() {
+  const apiKey = document.getElementById('geminiApiKey').value.trim();
+  if (!apiKey) { alert('Insira sua API Key do Gemini.'); return; }
+
+  const btn = document.getElementById('btnGenerateImage');
+  const status = document.getElementById('imageGenStatus');
+  const results = document.getElementById('imageGenResults');
+
+  btn.disabled = true;
+  results.innerHTML = '';
+  status.style.display = 'block';
+
+  const dims = getGenerationDims();   // 2× resolution, same aspect ratio
+  const aspectRatio = getAspectRatioForFormat(state.selectedFormat, dims.w, dims.h);
+  const pal = getCurrentPalette();
+  const fontCfg = getTypographyConfig();
+  const typography = `Headline: ${fontCfg.headline} | Subtítulo: ${fontCfg.subtitle} | Corpo: ${fontCfg.body}`;
+  const visualStyle = document.getElementById('visualStyle').value;
+  const fmt = FORMATS.find(f => f.id === state.selectedFormat);
+  const refParts = getRefImageParts();
+
+  try {
+    if (state.selectedFormat === 'carousel') {
+      syncSlidesFromDOM();
+
+      // Step 1: generate a shared style guide for the series
+      status.innerHTML = '<span class="gen-spinner"></span> Definindo linguagem visual do carrossel...';
+      const styleGuide = await buildCarouselStyleGuide(fmt, pal, typography, visualStyle, apiKey);
+
+      // Step 2: generate each slide individually with series context
+      const slides = state.slides.slice(0, state.slideCount);
+      for (let i = 0; i < slides.length; i++) {
+        const slide = slides[i];
+        try {
+          status.innerHTML = `<span class="gen-spinner"></span> Slide ${i + 1}/${state.slideCount} — gerando...`;
+          const brief = buildSlideBriefWithContext(slide, i, state.slideCount, pal, typography, visualStyle, styleGuide, slides);
+          const imagePrompt = await enrichPromptWithAI(brief, apiKey);
+          const { base64, mimeType } = await callGeminiImage(imagePrompt, apiKey, '3:4', refParts);
+          appendImageResult(results, `Slide ${i + 1}/${state.slideCount} — ${getTypeLabel(slide.type)}`, base64, mimeType, `slide-${i + 1}`);
+        } catch(err) {
+          appendErrorResult(results, `Slide ${i + 1}`, err.message);
+        }
+      }
+    } else {
+      status.innerHTML = '<span class="gen-spinner"></span> Pensando na composição visual...';
+      const brief = buildSingleBrief(fmt, dims, pal, typography, visualStyle);
+      const imagePrompt = await enrichPromptWithAI(brief, apiKey);
+
+      status.innerHTML = '<span class="gen-spinner"></span> Gerando imagem...';
+      const { base64, mimeType } = await callGeminiImage(imagePrompt, apiKey, aspectRatio, refParts);
+      appendImageResult(results, fmt?.name || 'Imagem Gerada', base64, mimeType, 'arte');
+    }
+
+    status.innerHTML = '✅ Concluído!';
+    setTimeout(() => { status.style.display = 'none'; }, 3000);
+  } catch(err) {
+    status.innerHTML = `❌ Erro: ${escHtml(err.message)}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function appendImageResult(container, label, base64, mimeType, filename) {
+  const src = `data:${mimeType};base64,${base64}`;
+  const card = document.createElement('div');
+  card.className = 'img-result-card';
+  card.innerHTML = `
+    <div class="img-result-header">
+      <span>🖼 ${escHtml(label)}</span>
+      <span style="color:var(--success); font-size:.75rem">✓ Gerado</span>
+    </div>
+    <div class="img-result-body">
+      <img src="${src}" alt="${escHtml(label)}" />
+    </div>
+    <div class="img-result-actions">
+      <a class="btn btn-gold btn-sm" href="${src}" download="${filename}.png">⬇ Baixar PNG</a>
+      <button class="btn btn-ghost btn-sm" onclick="copyImageToClipboard(this, '${src}')">📋 Copiar Imagem</button>
+    </div>`;
+  container.appendChild(card);
+}
+
+function appendErrorResult(container, label, message) {
+  const card = document.createElement('div');
+  card.className = 'img-result-card';
+  card.innerHTML = `
+    <div class="img-result-header">
+      <span>❌ ${escHtml(label)}</span>
+    </div>
+    <div style="padding:16px; color:var(--danger); font-size:.85rem">${escHtml(message)}</div>`;
+  container.appendChild(card);
+}
+
+async function copyImageToClipboard(btn, src) {
+  try {
+    const resp = await fetch(src);
+    const blob = await resp.blob();
+    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ Copiado!';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  } catch {
+    alert('Não foi possível copiar a imagem. Use o botão de download.');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REFERENCE IMAGES — per slot
+═══════════════════════════════════════════════════════════ */
+// refImages is keyed by slot: { logo, person, background, graphic, style[] }
+// Already declared as [] at top — replace with object
+Object.assign(refImages, { logo: null, person: null, background: null, graphic: null, style: [] });
+
+const REF_LABELS = {
+  logo:       'Logo/Marca',
+  person:     'Foto/Pessoa',
+  background: 'Fundo/Cena',
+  graphic:    'Elemento Gráfico',
+  style:      'Referência de Estilo'
+};
+
+function triggerRefInput(slot) {
+  document.getElementById('refInput-' + slot).click();
+}
+
+function readImageFile(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => resolve({ name: file.name, mimeType: file.type, base64: e.target.result.split(',')[1] });
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleRefFile(input, slot) {
+  const file = input.files[0];
+  if (!file) return;
+  refImages[slot] = await readImageFile(file);
+  input.value = '';
+  renderRefZone(slot);
+}
+
+async function handleRefFiles(input, slot) {
+  const files = [...input.files];
+  if (!files.length) return;
+  const imgs = await Promise.all(files.map(readImageFile));
+  refImages[slot] = imgs;
+  input.value = '';
+  renderRefZone(slot);
+}
+
+function handleRefDrop(e, slot) {
+  e.preventDefault();
+  document.querySelector(`[data-slot="${slot}"]`).classList.remove('ref-zone-hover');
+  const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  if (slot === 'style') {
+    Promise.all(files.map(readImageFile)).then(imgs => {
+      refImages[slot] = imgs;
+      renderRefZone(slot);
+    });
+  } else {
+    readImageFile(files[0]).then(img => {
+      refImages[slot] = img;
+      renderRefZone(slot);
+    });
+  }
+}
+
+function clearRefSlot(slot, e) {
+  e.stopPropagation();
+  refImages[slot] = slot === 'style' ? [] : null;
+  renderRefZone(slot);
+}
+
+function renderRefZone(slot) {
+  const zone = document.querySelector(`[data-slot="${slot}"]`);
+  const preview = document.getElementById('preview-' + slot);
+  const data = refImages[slot];
+  const hasData = Array.isArray(data) ? data.length > 0 : !!data;
+
+  zone.classList.toggle('has-image', hasData);
+
+  // add clear button if not present
+  if (!zone.querySelector('.ref-clear')) {
+    const btn = document.createElement('button');
+    btn.className = 'ref-clear';
+    btn.textContent = '✕ Remover';
+    btn.onclick = (e) => clearRefSlot(slot, e);
+    zone.appendChild(btn);
+  }
+
+  if (!hasData) { preview.innerHTML = ''; return; }
+
+  const items = Array.isArray(data) ? data : [data];
+  preview.innerHTML = items.map(img =>
+    `<img src="data:${img.mimeType};base64,${img.base64}" alt="${escHtml(img.name)}" />`
+  ).join('');
+}
+
+function getRefImageParts() {
+  const parts = [];
+  const slots = ['background', 'person', 'logo', 'graphic', 'style'];
+  const roleDesc = {
+    background: 'USE THIS IMAGE AS THE BACKGROUND or scene reference for the artwork.',
+    person:     'THIS IS THE PERSON/CLIENT to feature in the artwork. Use their face, pose, or likeness.',
+    logo:       'THIS IS THE BRAND LOGO. DO NOT MODIFY, EDIT, FILTER, OR ALTER IT IN ANY WAY. Include it EXACTLY as provided — same colors, same design, same proportions. Only choose its POSITION strategically based on the layout: bottom-center, bottom-left, integrated into a footer bar, embedded in a card, or watermark-style if needed. The logo must remain pristine and unchanged. Position is flexible; the logo itself is not.',
+    graphic:    'THIS IS A GRAPHIC ELEMENT (chart, mockup, icon, UI screenshot). Incorporate it into the layout.',
+    style:      'THIS IS A STYLE REFERENCE. Match the visual style, color palette, typography feel, and layout approach of this image.'
+  };
+  for (const slot of slots) {
+    const data = refImages[slot];
+    if (!data) continue;
+    const items = Array.isArray(data) ? data : [data];
+    items.forEach(img => {
+      parts.push({ text: `[${REF_LABELS[slot]}]: ${roleDesc[slot]}` });
+      parts.push({ inlineData: { mimeType: img.mimeType, data: img.base64 } });
+    });
+  }
+  return parts;
+}
+
+// Init
+init();
+loadModelPrefs();
+</script>
+</body>
+</html>
