@@ -2942,21 +2942,24 @@ function resetUsageStats() {
 function classifyApiError(status, message) {
   const msg = (message || '').toLowerCase();
   if (status === 429 || msg.includes('quota') || msg.includes('resource_exhausted') || msg.includes('rate limit')) {
-    return { type: 'quota', label: '⚠️ Limite de uso atingido', suggestion: 'Trocando para modelo alternativo automaticamente...' };
+    return { type: 'quota', label: '⚠️ Limite de uso atingido', suggestion: 'Você atingiu o limite deste modelo. Troque para outro modelo no seletor acima e tente novamente.' };
   }
-  if (status === 403 || msg.includes('api key') || msg.includes('permission') || msg.includes('unauthorized')) {
-    return { type: 'auth', label: '🔑 API Key inválida ou sem permissão', suggestion: 'Verifique sua chave de API do Gemini.' };
+  if (status === 403 || msg.includes('api key') || msg.includes('permission') || msg.includes('unauthorized') || msg.includes('api_key')) {
+    return { type: 'auth', label: '🔑 API Key inválida ou sem permissão', suggestion: 'Verifique se sua chave de API do Gemini está correta e ativa em aistudio.google.com/apikey.' };
   }
   if (status === 400 || msg.includes('invalid') || msg.includes('bad request')) {
-    return { type: 'invalid', label: '⚙️ Requisição inválida', suggestion: 'O modelo pode não suportar esse tipo de conteúdo. Tente outro modelo.' };
+    return { type: 'invalid', label: '⚙️ Requisição inválida', suggestion: 'Este modelo pode não suportar geração de imagens ou o conteúdo foi bloqueado. Tente outro modelo.' };
   }
-  if (status === 503 || msg.includes('overload') || msg.includes('unavailable') || msg.includes('model is not available')) {
-    return { type: 'unavailable', label: '🔴 Modelo indisponível', suggestion: 'O modelo está sobrecarregado. Trocando para alternativa...' };
+  if (status === 503 || msg.includes('overload') || msg.includes('unavailable') || msg.includes('model is not available') || msg.includes('not found')) {
+    return { type: 'unavailable', label: '🔴 Modelo indisponível', suggestion: 'Este modelo está fora do ar ou não existe. Selecione outro modelo e tente novamente.' };
+  }
+  if (msg.includes('nenhuma imagem') || msg.includes('no image')) {
+    return { type: 'noimage', label: '🖼 Nenhuma imagem gerada', suggestion: 'O modelo processou mas não retornou imagem. Tente outro modelo de imagem.' };
   }
   if (msg.includes('abort') || msg.includes('cancel')) {
     return { type: 'cancel', label: '⛔ Geração cancelada', suggestion: '' };
   }
-  return { type: 'unknown', label: '❌ Erro inesperado', suggestion: 'Tente novamente em alguns instantes.' };
+  return { type: 'unknown', label: '❌ Erro inesperado', suggestion: 'Verifique o detalhe técnico abaixo para entender o que aconteceu.' };
 }
 
 function loadModelPrefs() {
@@ -3386,7 +3389,8 @@ async function generateImages() {
       _usageStats.errors++;
       trackUsage('image');
       const classified = err.classified || classifyApiError(0, err.message);
-      status.innerHTML = `${classified.label}${classified.suggestion ? ` — ${classified.suggestion}` : ''}`;
+      status.style.display = 'none';
+      appendErrorResult(results, 'Geração', classified.label, classified.suggestion, err.message);
     }
   } finally {
     _activeAbortController = null;
