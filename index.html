@@ -1070,48 +1070,63 @@
       <div class="num">6</div>
       <div>
         <h2>Gerar Imagem com IA</h2>
-        <p>Produza a arte diretamente via Imagen 4 + Gemini 2.5 Pro</p>
+        <p>Produza a arte diretamente com os modelos Gemini</p>
       </div>
     </div>
 
-    <div class="field-group" style="margin-bottom:16px">
-      <label class="field-label">Chave de API do Gemini</label>
-      <input type="password" id="geminiApiKey" class="input" value="AIzaSyCQ1tY6yT3LeNiIYXcZEi03J4xF2q_bAqw" placeholder="Cole sua API Key aqui..." />
-      <span class="field-hint">Sua chave fica salva localmente, nunca é enviada para terceiros.</span>
+    <!-- API Key -->
+    <div style="margin-bottom:18px">
+      <label class="field-label">🔑 Chave de API do Gemini</label>
+      <div style="position:relative">
+        <input type="password" id="geminiApiKey" class="input" value="AIzaSyCQ1tY6yT3LeNiIYXcZEi03J4xF2q_bAqw" placeholder="Cole sua API Key aqui..." style="padding-right:44px"/>
+        <button onclick="toggleApiKeyVisibility()" title="Mostrar/ocultar chave" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem" id="btnToggleKey">👁</button>
+      </div>
+      <span class="field-hint">Sua chave fica salva localmente e nunca é enviada para terceiros.</span>
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px">
-      <div class="field-group" style="margin:0">
-        <label class="field-label">🖼 Modelo de Imagem</label>
-        <select id="imageModelSelect" class="input" onchange="saveModelPrefs()">
-          <optgroup label="── Gemini 3 ──">
-            <option value="gemini-3-pro-image-preview" selected>Gemini 3 Pro Image ⭐</option>
-            <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash Image ⚡</option>
-            <option value="gemini-3-pro-image-preview">Gemini 3 Pro Image Preview</option>
-            <option value="nano-banana-pro-preview">Nano Banana Pro Preview</option>
-          </optgroup>
-          <optgroup label="── Gemini 2.5 ──">
-            <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
-          </optgroup>
-        </select>
-        <span class="field-hint">Modelo usado para gerar as imagens.</span>
-      </div>
-      <div class="field-group" style="margin:0">
-        <label class="field-label">🧠 Modelo de Texto (Diretor)</label>
-        <select id="textModelSelect" class="input" onchange="saveModelPrefs()">
-          <optgroup label="── Gemini 3 ──">
-            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview ⭐</option>
-            <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview ⚡</option>
-            <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite</option>
-          </optgroup>
-          <optgroup label="── Gemini 2.5 ──">
-            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-          </optgroup>
-        </select>
-        <span class="field-hint">Usado para criar a direção de arte e o storyboard.</span>
+    <!-- Models -->
+    <div style="margin-bottom:18px">
+      <label class="field-label" style="margin-bottom:10px; display:block">🤖 Modelos de IA</label>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 14px">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px">
+            <span style="font-size:1.1rem">🖼</span>
+            <span style="font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)">Imagem</span>
+          </div>
+          <select id="imageModelSelect" class="input" onchange="saveModelPrefs()" style="margin:0; font-size:.85rem">
+            <optgroup label="── Gemini 3 ──">
+              <option value="gemini-3-pro-image-preview" selected>Gemini 3 Pro Image ⭐</option>
+              <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash Image ⚡</option>
+            </optgroup>
+            <optgroup label="── Gemini 2.5 ──">
+              <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
+            </optgroup>
+          </select>
+          <div style="font-size:.72rem; color:var(--muted); margin-top:6px; opacity:.7">Gera as imagens finais</div>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 14px">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px">
+            <span style="font-size:1.1rem">🧠</span>
+            <span style="font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)">Diretor de Arte</span>
+          </div>
+          <select id="textModelSelect" class="input" onchange="saveModelPrefs()" style="margin:0; font-size:.85rem">
+            <optgroup label="── Gemini 3 ──">
+              <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview ⭐</option>
+              <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+              <option value="gemini-3-flash-preview">Gemini 3 Flash Preview ⚡</option>
+              <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite</option>
+            </optgroup>
+            <optgroup label="── Gemini 2.5 ──">
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+            </optgroup>
+          </select>
+          <div style="font-size:.72rem; color:var(--muted); margin-top:6px; opacity:.7">Cria o prompt de direção de arte</div>
+        </div>
+
       </div>
     </div>
 
@@ -1191,24 +1206,31 @@
       </div>
     </div>
 
-    <div style="display:flex; gap:10px">
-      <button class="btn btn-gold" id="btnGenerateImage" onclick="generateImages()" style="flex:1; justify-content:center; font-size:1rem; padding:16px">
-        &#127775; Gerar Imagem
+    <!-- Generate + Cancel -->
+    <div style="display:flex; gap:10px; margin-bottom:12px">
+      <button class="btn btn-gold" id="btnGenerateImage" onclick="generateImages()" style="flex:1; justify-content:center; font-size:1rem; padding:15px">
+        ✦ Gerar Imagem
       </button>
-      <button class="btn btn-ghost" id="btnCancelGenerate" onclick="cancelGeneration()" style="display:none; padding:16px 20px; border-color:var(--danger); color:var(--danger)" title="Cancelar geração">
-        ✕ Cancelar
+      <button class="btn btn-ghost" id="btnCancelGenerate" onclick="cancelGeneration()" style="display:none; padding:15px 18px; border-color:rgba(239,68,68,.5); color:#ef4444; gap:6px">
+        <span style="font-size:1rem">⏹</span> Cancelar
       </button>
     </div>
 
-    <div id="modelUsageBar" style="display:none; margin-top:10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 14px; font-size:.78rem; color:var(--muted); display:flex; gap:16px; flex-wrap:wrap; align-items:center">
-      <span style="color:var(--gold); font-weight:600">📊 Uso desta sessão:</span>
-      <span id="usageTextModel">🧠 Texto: 0 chamadas</span>
-      <span id="usageImageModel">🖼 Imagem: 0 chamadas</span>
-      <span id="usageErrors" style="color:var(--danger); display:none">❌ <span id="usageErrorCount">0</span> erros</span>
-      <button onclick="resetUsageStats()" style="margin-left:auto; background:none; border:none; color:var(--muted); cursor:pointer; font-size:.75rem; padding:2px 6px">↺ Resetar</button>
+    <!-- Usage stats bar -->
+    <div id="modelUsageBar" style="display:none; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:10px 14px; margin-bottom:4px">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
+        <span style="font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); opacity:.7">Uso da sessão</span>
+        <div style="display:flex; gap:14px; flex:1; flex-wrap:wrap">
+          <span id="usageTextModel" style="font-size:.78rem; color:var(--muted)">🧠 Texto: 0</span>
+          <span id="usageImageModel" style="font-size:.78rem; color:var(--muted)">🖼 Imagem: 0</span>
+          <span id="usageErrors" style="font-size:.78rem; color:#ef4444; display:none">❌ <span id="usageErrorCount">0</span> erros</span>
+        </div>
+        <button onclick="resetUsageStats()" style="background:none; border:1px solid rgba(255,255,255,0.1); border-radius:4px; color:var(--muted); cursor:pointer; font-size:.72rem; padding:3px 8px; opacity:.7">↺ Resetar</button>
+      </div>
     </div>
 
-    <div id="imageGenStatus" style="display:none; margin-top:16px; text-align:center; color:var(--muted); font-size:.9rem"></div>
+    <!-- Status -->
+    <div id="imageGenStatus" style="display:none; margin-top:14px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:8px; text-align:center; color:var(--muted); font-size:.88rem"></div>
     <div id="imageGenResults" style="margin-top:20px; display:flex; flex-direction:column; gap:20px"></div>
   </div>
 
@@ -2851,6 +2873,15 @@ function getSelectedTextModel() {
   return document.getElementById('textModelSelect')?.value || 'gemini-3.1-pro-preview';
 }
 
+function toggleApiKeyVisibility() {
+  const input = document.getElementById('geminiApiKey');
+  const btn   = document.getElementById('btnToggleKey');
+  if (!input) return;
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  if (btn) btn.textContent = isHidden ? '🙈' : '👁';
+}
+
 function saveModelPrefs() {
   localStorage.setItem('artesIA_imageModel', document.getElementById('imageModelSelect').value);
   localStorage.setItem('artesIA_textModel', document.getElementById('textModelSelect').value);
@@ -2991,51 +3022,13 @@ async function callGeminiImage(prompt, apiKey, aspectRatio, extraParts = [], mod
   return { base64: imgPart.inlineData.data, mimeType: imgPart.inlineData.mimeType || 'image/png' };
 }
 
-/* ── Gemini image with auto-fallback on quota/unavailable ── */
+/* ── Wrappers sem fallback — erro direto ao usuário ── */
 async function callGeminiImageWithFallback(prompt, apiKey, aspectRatio, extraParts, statusEl) {
-  const preferred = getSelectedImageModel();
-  const chain = [preferred, ...IMAGE_MODEL_FALLBACKS.filter(m => m !== preferred)];
-  for (let i = 0; i < chain.length; i++) {
-    const model = chain[i];
-    try {
-      if (i > 0 && statusEl) {
-        statusEl.innerHTML = `<span class="gen-spinner"></span> Tentando modelo alternativo: <strong>${model}</strong>...`;
-      }
-      return await callGeminiImage(prompt, apiKey, aspectRatio, extraParts, model);
-    } catch(err) {
-      if (err.name === 'AbortError') throw err;
-      const type = err.classified?.type;
-      if ((type === 'quota' || type === 'unavailable') && i < chain.length - 1) {
-        _usageStats.errors++;
-        trackUsage('image'); // já contado mas atualiza display
-        continue; // tenta próximo
-      }
-      throw err;
-    }
-  }
+  return await callGeminiImage(prompt, apiKey, aspectRatio, extraParts);
 }
 
-/* ── Gemini text with auto-fallback on quota/unavailable ── */
 async function callGeminiTextWithFallback(prompt, apiKey, statusEl) {
-  const preferred = getSelectedTextModel();
-  const chain = [preferred, ...TEXT_MODEL_FALLBACKS.filter(m => m !== preferred)];
-  for (let i = 0; i < chain.length; i++) {
-    const model = chain[i];
-    try {
-      if (i > 0 && statusEl) {
-        statusEl.innerHTML = `<span class="gen-spinner"></span> Diretor de arte: usando modelo alternativo <strong>${model}</strong>...`;
-      }
-      return await callGeminiText(prompt, apiKey, model);
-    } catch(err) {
-      if (err.name === 'AbortError') throw err;
-      const type = err.classified?.type;
-      if ((type === 'quota' || type === 'unavailable') && i < chain.length - 1) {
-        _usageStats.errors++;
-        continue;
-      }
-      throw err;
-    }
-  }
+  return await callGeminiText(prompt, apiKey);
 }
 
 /* ── Creative director: enriches a brief into a full image prompt ── */
@@ -3417,16 +3410,33 @@ function appendImageResult(container, label, base64, mimeType, filename) {
 function appendErrorResult(container, label, classifiedLabel, suggestion, rawMessage) {
   const card = document.createElement('div');
   card.className = 'img-result-card';
+  const imgModel  = document.getElementById('imageModelSelect')?.value || '—';
+  const txtModel  = document.getElementById('textModelSelect')?.value  || '—';
+  const timestamp = new Date().toLocaleTimeString('pt-BR');
   card.innerHTML = `
-    <div class="img-result-header">
-      <span>${escHtml(label)}</span>
-      <span style="color:var(--danger); font-size:.75rem">${escHtml(classifiedLabel || '❌ Erro')}</span>
+    <div class="img-result-header" style="background:rgba(239,68,68,.08); border-bottom:1px solid rgba(239,68,68,.15)">
+      <span style="color:#f87171; font-weight:600">${escHtml(classifiedLabel || '❌ Erro')}</span>
+      <span style="color:var(--muted); font-size:.72rem">${escHtml(label)} · ${timestamp}</span>
     </div>
-    <div style="padding:12px 16px;">
-      ${suggestion ? `<div style="color:var(--muted); font-size:.82rem; margin-bottom:6px">💡 ${escHtml(suggestion)}</div>` : ''}
-      <details style="margin-top:4px">
-        <summary style="cursor:pointer; color:var(--muted); font-size:.75rem; opacity:0.6">Ver detalhe técnico</summary>
-        <div style="color:var(--danger); font-size:.75rem; margin-top:6px; word-break:break-all">${escHtml(rawMessage || '')}</div>
+    <div style="padding:14px 16px; display:flex; flex-direction:column; gap:10px">
+      ${suggestion ? `
+        <div style="display:flex; gap:8px; align-items:flex-start; background:rgba(251,191,36,.06); border:1px solid rgba(251,191,36,.15); border-radius:6px; padding:10px 12px">
+          <span style="font-size:1rem; flex-shrink:0">💡</span>
+          <span style="font-size:.82rem; color:#fbbf24; line-height:1.5">${escHtml(suggestion)}</span>
+        </div>` : ''}
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+        <div style="background:rgba(255,255,255,0.03); border-radius:6px; padding:8px 10px">
+          <div style="font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); opacity:.6; margin-bottom:3px">Modelo de imagem</div>
+          <div style="font-size:.8rem; color:var(--muted); word-break:break-all">${escHtml(imgModel)}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); border-radius:6px; padding:8px 10px">
+          <div style="font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); opacity:.6; margin-bottom:3px">Modelo de texto</div>
+          <div style="font-size:.8rem; color:var(--muted); word-break:break-all">${escHtml(txtModel)}</div>
+        </div>
+      </div>
+      <details style="cursor:pointer">
+        <summary style="font-size:.75rem; color:var(--muted); opacity:.6; user-select:none">▸ Mensagem técnica do servidor</summary>
+        <div style="margin-top:8px; background:rgba(0,0,0,.3); border-radius:6px; padding:10px 12px; font-size:.75rem; color:#f87171; line-height:1.6; word-break:break-all; font-family:monospace">${escHtml(rawMessage || 'sem detalhe disponível')}</div>
       </details>
     </div>`;
   container.appendChild(card);
