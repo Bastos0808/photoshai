@@ -1191,9 +1191,22 @@
       </div>
     </div>
 
-    <button class="btn btn-gold" id="btnGenerateImage" onclick="generateImages()" style="width:100%; justify-content:center; font-size:1rem; padding:16px">
-      &#127775; Gerar Imagem
-    </button>
+    <div style="display:flex; gap:10px">
+      <button class="btn btn-gold" id="btnGenerateImage" onclick="generateImages()" style="flex:1; justify-content:center; font-size:1rem; padding:16px">
+        &#127775; Gerar Imagem
+      </button>
+      <button class="btn btn-ghost" id="btnCancelGenerate" onclick="cancelGeneration()" style="display:none; padding:16px 20px; border-color:var(--danger); color:var(--danger)" title="Cancelar geração">
+        ✕ Cancelar
+      </button>
+    </div>
+
+    <div id="modelUsageBar" style="display:none; margin-top:10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 14px; font-size:.78rem; color:var(--muted); display:flex; gap:16px; flex-wrap:wrap; align-items:center">
+      <span style="color:var(--gold); font-weight:600">📊 Uso desta sessão:</span>
+      <span id="usageTextModel">🧠 Texto: 0 chamadas</span>
+      <span id="usageImageModel">🖼 Imagem: 0 chamadas</span>
+      <span id="usageErrors" style="color:var(--danger); display:none">❌ <span id="usageErrorCount">0</span> erros</span>
+      <button onclick="resetUsageStats()" style="margin-left:auto; background:none; border:none; color:var(--muted); cursor:pointer; font-size:.75rem; padding:2px 6px">↺ Resetar</button>
+    </div>
 
     <div id="imageGenStatus" style="display:none; margin-top:16px; text-align:center; color:var(--muted); font-size:.9rem"></div>
     <div id="imageGenResults" style="margin-top:20px; display:flex; flex-direction:column; gap:20px"></div>
@@ -2843,6 +2856,78 @@ function saveModelPrefs() {
   localStorage.setItem('artesIA_textModel', document.getElementById('textModelSelect').value);
 }
 
+/* ── Fallback model chains ── */
+const IMAGE_MODEL_FALLBACKS = [
+  'gemini-3-pro-image-preview',
+  'gemini-3.1-flash-image-preview',
+  'gemini-2.5-flash-image'
+];
+const TEXT_MODEL_FALLBACKS = [
+  'gemini-3.1-pro-preview',
+  'gemini-3-pro-preview',
+  'gemini-3-flash-preview',
+  'gemini-2.5-pro',
+  'gemini-2.5-flash'
+];
+
+/* ── Cancellation ── */
+let _activeAbortController = null;
+
+function cancelGeneration() {
+  if (_activeAbortController) {
+    _activeAbortController.abort();
+    _activeAbortController = null;
+  }
+}
+
+/* ── Usage tracking ── */
+const _usageStats = { text: 0, image: 0, errors: 0 };
+
+function trackUsage(type) {
+  _usageStats[type]++;
+  const bar = document.getElementById('modelUsageBar');
+  if (bar) bar.style.display = 'flex';
+  const textEl  = document.getElementById('usageTextModel');
+  const imageEl = document.getElementById('usageImageModel');
+  const errEl   = document.getElementById('usageErrors');
+  const errCnt  = document.getElementById('usageErrorCount');
+  const tModel  = document.getElementById('textModelSelect')?.value || '';
+  const iModel  = document.getElementById('imageModelSelect')?.value || '';
+  if (textEl)  textEl.textContent  = `🧠 Texto (${tModel.split('-').slice(-2).join('-')}): ${_usageStats.text} chamadas`;
+  if (imageEl) imageEl.textContent = `🖼 Imagem (${iModel.split('-').slice(-2).join('-')}): ${_usageStats.image} chamadas`;
+  if (errEl && errCnt) {
+    errCnt.textContent = _usageStats.errors;
+    errEl.style.display = _usageStats.errors > 0 ? 'inline' : 'none';
+  }
+}
+
+function resetUsageStats() {
+  _usageStats.text = 0; _usageStats.image = 0; _usageStats.errors = 0;
+  const bar = document.getElementById('modelUsageBar');
+  if (bar) bar.style.display = 'none';
+}
+
+/* ── Error classifier ── */
+function classifyApiError(status, message) {
+  const msg = (message || '').toLowerCase();
+  if (status === 429 || msg.includes('quota') || msg.includes('resource_exhausted') || msg.includes('rate limit')) {
+    return { type: 'quota', label: '⚠️ Limite de uso atingido', suggestion: 'Trocando para modelo alternativo automaticamente...' };
+  }
+  if (status === 403 || msg.includes('api key') || msg.includes('permission') || msg.includes('unauthorized')) {
+    return { type: 'auth', label: '🔑 API Key inválida ou sem permissão', suggestion: 'Verifique sua chave de API do Gemini.' };
+  }
+  if (status === 400 || msg.includes('invalid') || msg.includes('bad request')) {
+    return { type: 'invalid', label: '⚙️ Requisição inválida', suggestion: 'O modelo pode não suportar esse tipo de conteúdo. Tente outro modelo.' };
+  }
+  if (status === 503 || msg.includes('overload') || msg.includes('unavailable') || msg.includes('model is not available')) {
+    return { type: 'unavailable', label: '🔴 Modelo indisponível', suggestion: 'O modelo está sobrecarregado. Trocando para alternativa...' };
+  }
+  if (msg.includes('abort') || msg.includes('cancel')) {
+    return { type: 'cancel', label: '⛔ Geração cancelada', suggestion: '' };
+  }
+  return { type: 'unknown', label: '❌ Erro inesperado', suggestion: 'Tente novamente em alguns instantes.' };
+}
+
 function loadModelPrefs() {
   const img = localStorage.getItem('artesIA_imageModel');
   const txt = localStorage.getItem('artesIA_textModel');
@@ -2850,44 +2935,107 @@ function loadModelPrefs() {
   if (txt) document.getElementById('textModelSelect').value = txt;
 }
 
-async function callGeminiText(prompt, apiKey) {
-  const model = getSelectedTextModel();
+async function callGeminiText(prompt, apiKey, modelOverride) {
+  const model = modelOverride || getSelectedTextModel();
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const signal = _activeAbortController?.signal;
   const resp = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] }),
+    signal
   });
+  trackUsage('text');
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `HTTP ${resp.status}`);
+    const rawMsg = err?.error?.message || `HTTP ${resp.status}`;
+    const classified = classifyApiError(resp.status, rawMsg);
+    const error = new Error(rawMsg);
+    error.classified = classified;
+    error.status = resp.status;
+    throw error;
   }
   const data = await resp.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 /* ── Gemini image generation call (generateContent) ── */
-async function callGeminiImage(prompt, apiKey, aspectRatio, extraParts = []) {
-  const model = getSelectedImageModel();
+async function callGeminiImage(prompt, apiKey, aspectRatio, extraParts = [], modelOverride) {
+  const model = modelOverride || getSelectedImageModel();
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const parts = [{ text: prompt }, ...extraParts];
+  const signal = _activeAbortController?.signal;
   const resp = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ role: 'user', parts }],
       generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
-    })
+    }),
+    signal
   });
+  trackUsage('image');
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `HTTP ${resp.status}`);
+    const rawMsg = err?.error?.message || `HTTP ${resp.status}`;
+    const classified = classifyApiError(resp.status, rawMsg);
+    const error = new Error(rawMsg);
+    error.classified = classified;
+    error.status = resp.status;
+    throw error;
   }
   const data = await resp.json();
   const responseParts = data?.candidates?.[0]?.content?.parts || [];
   const imgPart = responseParts.find(p => p.inlineData);
   if (!imgPart) throw new Error('Nenhuma imagem retornada. Tente outro modelo.');
   return { base64: imgPart.inlineData.data, mimeType: imgPart.inlineData.mimeType || 'image/png' };
+}
+
+/* ── Gemini image with auto-fallback on quota/unavailable ── */
+async function callGeminiImageWithFallback(prompt, apiKey, aspectRatio, extraParts, statusEl) {
+  const preferred = getSelectedImageModel();
+  const chain = [preferred, ...IMAGE_MODEL_FALLBACKS.filter(m => m !== preferred)];
+  for (let i = 0; i < chain.length; i++) {
+    const model = chain[i];
+    try {
+      if (i > 0 && statusEl) {
+        statusEl.innerHTML = `<span class="gen-spinner"></span> Tentando modelo alternativo: <strong>${model}</strong>...`;
+      }
+      return await callGeminiImage(prompt, apiKey, aspectRatio, extraParts, model);
+    } catch(err) {
+      if (err.name === 'AbortError') throw err;
+      const type = err.classified?.type;
+      if ((type === 'quota' || type === 'unavailable') && i < chain.length - 1) {
+        _usageStats.errors++;
+        trackUsage('image'); // já contado mas atualiza display
+        continue; // tenta próximo
+      }
+      throw err;
+    }
+  }
+}
+
+/* ── Gemini text with auto-fallback on quota/unavailable ── */
+async function callGeminiTextWithFallback(prompt, apiKey, statusEl) {
+  const preferred = getSelectedTextModel();
+  const chain = [preferred, ...TEXT_MODEL_FALLBACKS.filter(m => m !== preferred)];
+  for (let i = 0; i < chain.length; i++) {
+    const model = chain[i];
+    try {
+      if (i > 0 && statusEl) {
+        statusEl.innerHTML = `<span class="gen-spinner"></span> Diretor de arte: usando modelo alternativo <strong>${model}</strong>...`;
+      }
+      return await callGeminiText(prompt, apiKey, model);
+    } catch(err) {
+      if (err.name === 'AbortError') throw err;
+      const type = err.classified?.type;
+      if ((type === 'quota' || type === 'unavailable') && i < chain.length - 1) {
+        _usageStats.errors++;
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 /* ── Creative director: enriches a brief into a full image prompt ── */
@@ -3003,7 +3151,7 @@ Think like a senior art director at a top digital agency. The goal is a STUNNING
 Write the complete image generation prompt now.`;
 
 
-  return await callGeminiText(directorPrompt, apiKey);
+  return await callGeminiTextWithFallback(directorPrompt, apiKey);
 }
 
 /* ── Build brief for full carousel (single wide image) ── */
@@ -3109,7 +3257,7 @@ Rules:
 - Each slide's framing must be distinct but clearly from the same world.
 - Typography treatments must use the accent color to highlight 1-3 emotionally important words per slide headline.`;
 
-  return await callGeminiText(prompt, apiKey);
+  return await callGeminiTextWithFallback(prompt, apiKey);
 }
 
 /* ── Extract per-slide scene from storyboard ── */
@@ -3170,15 +3318,18 @@ async function generateImages() {
   const apiKey = document.getElementById('geminiApiKey').value.trim();
   if (!apiKey) { alert('Insira sua API Key do Gemini.'); return; }
 
-  const btn = document.getElementById('btnGenerateImage');
+  const btn    = document.getElementById('btnGenerateImage');
+  const btnCxl = document.getElementById('btnCancelGenerate');
   const status = document.getElementById('imageGenStatus');
   const results = document.getElementById('imageGenResults');
 
+  _activeAbortController = new AbortController();
   btn.disabled = true;
+  if (btnCxl) btnCxl.style.display = 'inline-flex';
   results.innerHTML = '';
   status.style.display = 'block';
 
-  const dims = getGenerationDims();   // 2× resolution, same aspect ratio
+  const dims = getGenerationDims();
   const aspectRatio = getAspectRatioForFormat(state.selectedFormat, dims.w, dims.h);
   const pal = getCurrentPalette();
   const fontCfg = getTypographyConfig();
@@ -3191,40 +3342,56 @@ async function generateImages() {
     if (state.selectedFormat === 'carousel') {
       syncSlidesFromDOM();
 
-      // Step 1: generate a shared style guide for the series
       status.innerHTML = '<span class="gen-spinner"></span> Definindo linguagem visual do carrossel...';
       const styleGuide = await buildCarouselStyleGuide(fmt, pal, typography, visualStyle, apiKey);
 
-      // Step 2: generate each slide individually with series context
       const slides = state.slides.slice(0, state.slideCount);
       for (let i = 0; i < slides.length; i++) {
+        if (_activeAbortController?.signal.aborted) break;
         const slide = slides[i];
         try {
           status.innerHTML = `<span class="gen-spinner"></span> Slide ${i + 1}/${state.slideCount} — gerando...`;
           const brief = buildSlideBriefWithContext(slide, i, state.slideCount, pal, typography, visualStyle, styleGuide, slides);
-          const imagePrompt = await enrichPromptWithAI(brief, apiKey);
-          const { base64, mimeType } = await callGeminiImage(imagePrompt, apiKey, '3:4', refParts);
+          const imagePrompt = await callGeminiTextWithFallback(brief, apiKey, status);
+          const { base64, mimeType } = await callGeminiImageWithFallback(imagePrompt, apiKey, '3:4', refParts, status);
           appendImageResult(results, `Slide ${i + 1}/${state.slideCount} — ${getTypeLabel(slide.type)}`, base64, mimeType, `slide-${i + 1}`);
         } catch(err) {
-          appendErrorResult(results, `Slide ${i + 1}`, err.message);
+          if (err.name === 'AbortError') break;
+          _usageStats.errors++;
+          trackUsage('image');
+          const classified = err.classified || classifyApiError(0, err.message);
+          appendErrorResult(results, `Slide ${i + 1}`, classified.label, classified.suggestion, err.message);
         }
       }
     } else {
       status.innerHTML = '<span class="gen-spinner"></span> Pensando na composição visual...';
       const brief = buildSingleBrief(fmt, dims, pal, typography, visualStyle);
-      const imagePrompt = await enrichPromptWithAI(brief, apiKey);
+      const imagePrompt = await callGeminiTextWithFallback(brief, apiKey, status);
 
       status.innerHTML = '<span class="gen-spinner"></span> Gerando imagem...';
-      const { base64, mimeType } = await callGeminiImage(imagePrompt, apiKey, aspectRatio, refParts);
+      const { base64, mimeType } = await callGeminiImageWithFallback(imagePrompt, apiKey, aspectRatio, refParts, status);
       appendImageResult(results, fmt?.name || 'Imagem Gerada', base64, mimeType, 'arte');
     }
 
-    status.innerHTML = '✅ Concluído!';
-    setTimeout(() => { status.style.display = 'none'; }, 3000);
+    if (_activeAbortController?.signal.aborted) {
+      status.innerHTML = '⛔ Geração cancelada.';
+    } else {
+      status.innerHTML = '✅ Concluído!';
+      setTimeout(() => { status.style.display = 'none'; }, 3000);
+    }
   } catch(err) {
-    status.innerHTML = `❌ Erro: ${escHtml(err.message)}`;
+    if (err.name === 'AbortError') {
+      status.innerHTML = '⛔ Geração cancelada.';
+    } else {
+      _usageStats.errors++;
+      trackUsage('image');
+      const classified = err.classified || classifyApiError(0, err.message);
+      status.innerHTML = `${classified.label}${classified.suggestion ? ` — ${classified.suggestion}` : ''}`;
+    }
   } finally {
+    _activeAbortController = null;
     btn.disabled = false;
+    if (btnCxl) btnCxl.style.display = 'none';
   }
 }
 
@@ -3247,14 +3414,21 @@ function appendImageResult(container, label, base64, mimeType, filename) {
   container.appendChild(card);
 }
 
-function appendErrorResult(container, label, message) {
+function appendErrorResult(container, label, classifiedLabel, suggestion, rawMessage) {
   const card = document.createElement('div');
   card.className = 'img-result-card';
   card.innerHTML = `
     <div class="img-result-header">
-      <span>❌ ${escHtml(label)}</span>
+      <span>${escHtml(label)}</span>
+      <span style="color:var(--danger); font-size:.75rem">${escHtml(classifiedLabel || '❌ Erro')}</span>
     </div>
-    <div style="padding:16px; color:var(--danger); font-size:.85rem">${escHtml(message)}</div>`;
+    <div style="padding:12px 16px;">
+      ${suggestion ? `<div style="color:var(--muted); font-size:.82rem; margin-bottom:6px">💡 ${escHtml(suggestion)}</div>` : ''}
+      <details style="margin-top:4px">
+        <summary style="cursor:pointer; color:var(--muted); font-size:.75rem; opacity:0.6">Ver detalhe técnico</summary>
+        <div style="color:var(--danger); font-size:.75rem; margin-top:6px; word-break:break-all">${escHtml(rawMessage || '')}</div>
+      </details>
+    </div>`;
   container.appendChild(card);
 }
 
