@@ -1078,7 +1078,7 @@
     <div style="margin-bottom:18px">
       <label class="field-label">🔑 Chave de API do Gemini</label>
       <div style="position:relative">
-        <input type="password" id="geminiApiKey" class="input" value="AIzaSyCQ1tY6yT3LeNiIYXcZEi03J4xF2q_bAqw" placeholder="Cole sua API Key aqui..." style="padding-right:44px"/>
+        <input type="password" id="geminiApiKey" class="input" placeholder="Cole sua API Key aqui..." style="padding-right:44px" onchange="saveApiKey()" onblur="saveApiKey()"/>
         <button onclick="toggleApiKeyVisibility()" title="Mostrar/ocultar chave" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem" id="btnToggleKey">👁</button>
       </div>
       <span class="field-hint">Sua chave fica salva localmente e nunca é enviada para terceiros.</span>
@@ -2960,10 +2960,17 @@ function classifyApiError(status, message) {
 }
 
 function loadModelPrefs() {
-  const img = localStorage.getItem('artesIA_imageModel');
-  const txt = localStorage.getItem('artesIA_textModel');
-  if (img) document.getElementById('imageModelSelect').value = img;
-  if (txt) document.getElementById('textModelSelect').value = txt;
+  const img    = localStorage.getItem('artesIA_imageModel');
+  const txt    = localStorage.getItem('artesIA_textModel');
+  const apiKey = localStorage.getItem('artesIA_apiKey');
+  if (img)    document.getElementById('imageModelSelect').value = img;
+  if (txt)    document.getElementById('textModelSelect').value  = txt;
+  if (apiKey) document.getElementById('geminiApiKey').value     = apiKey;
+}
+
+function saveApiKey() {
+  const val = document.getElementById('geminiApiKey').value.trim();
+  if (val) localStorage.setItem('artesIA_apiKey', val);
 }
 
 async function callGeminiText(prompt, apiKey, modelOverride) {
