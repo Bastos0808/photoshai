@@ -1476,6 +1476,31 @@ function getTypographyConfig() {
   };
 }
 
+function buildTypographyRule() {
+  const cfg = getTypographyConfig();
+  const find = name => FONTS_CATALOG.find(f => f.name === name);
+  const hInfo = find(cfg.headline);
+  const sInfo = find(cfg.subtitle);
+  const bInfo = find(cfg.body);
+  const desc = (name, info) => info ? `"${name}" — ${info.vibe}` : `"${name}"`;
+  return `━━━ ABSOLUTE RULE: TYPOGRAPHY ━━━
+The typography choices below are MANDATORY. Render text in the visual style described — do NOT substitute with generic fonts.
+
+HEADLINE FONT: ${desc(cfg.headline, hInfo)}
+→ Apply to: main title, hero word, most prominent text element
+→ Weight: 700–900 (Bold to Black)
+
+SUBTITLE FONT: ${desc(cfg.subtitle, sInfo)}
+→ Apply to: subtitle, supporting line, secondary text
+→ Weight: 500–600 (Medium to SemiBold)
+
+BODY FONT: ${desc(cfg.body, bInfo)}
+→ Apply to: body copy, captions, small labels, descriptions
+→ Weight: 400 (Regular)
+
+Interpret the font personality visually: letterform proportions, spacing, contrast, and mood must match the font description above. This is a non-negotiable design requirement.`;
+}
+
 function renderFontPreview() {
   const card = document.getElementById('fontPreviewCard');
   if (!card) return;
@@ -3061,6 +3086,8 @@ ${hasPersonRef ? '⬆ PERSON/CLIENT PHOTO ATTACHED — feature this person promi
 ${hasLogoRef   ? '⬆ LOGO ATTACHED — CRITICAL: DO NOT MODIFY, EDIT, ALTER, RECOLOR, OR APPLY FILTERS TO THIS LOGO. Include it EXACTLY as provided. Only decide its POSITION strategically: bottom-center, bottom-left, footer bar, inside a card, or watermark-style. The logo itself must remain pristine and unchanged — only its placement on the canvas is flexible.' : ''}
 ${hasBgRef     ? '⬆ BACKGROUND IMAGE ATTACHED — use this image as the background or scene.' : ''}
 ${hasGraphic   ? '⬆ GRAPHIC ELEMENT ATTACHED — incorporate this chart/mockup/icon as a visual element in the layout.' : ''}
+
+${buildTypographyRule()}
 
 ━━━ ABSOLUTE RULE: TEXT IS SACRED ━━━
 NEVER invent, translate, or rewrite the headline/subtitle/body text.
