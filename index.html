@@ -1425,6 +1425,24 @@
 
           <div class="key-section">
             <div class="key-section-title">
+              <span>🤖 OpenAI</span>
+              <small>GPT Image 1 · DALL-E 3 — via Cloudflare Worker (grátis)</small>
+            </div>
+            <div class="key-row">
+              <label>URL do Cloudflare Worker</label>
+              <div class="key-input-wrap">
+                <input type="text" id="openaiWorkerUrl" class="input" placeholder="https://openai-proxy.seu-usuario.workers.dev" oninput="saveApiKeys()" />
+              </div>
+              <div class="key-hint" id="openaiWorkerStatus"></div>
+              <p class="key-hint">
+                A API Key da OpenAI fica <strong>guardada no Cloudflare</strong>, nunca exposta no browser.<br>
+                <a href="#" onclick="openWorkerGuide(); return false" style="color:var(--gold); font-weight:600">📖 Ver passo a passo para criar o Worker →</a>
+              </p>
+            </div>
+          </div>
+
+          <div class="key-section">
+            <div class="key-section-title">
               <span>🆓 Pollinations.ai</span>
               <small>Flux grátis · Sem conta · Sem chave</small>
             </div>
@@ -1470,6 +1488,11 @@
                 <option value="pollinations:flux-realism">🆓 Pollinations Flux Realism — Grátis, fotorrealista</option>
                 <option value="pollinations:turbo">🆓 Pollinations Turbo — Grátis, rápido ⚡</option>
               </optgroup>
+              <optgroup label="── 🤖 OpenAI (via Worker) ──">
+                <option value="openai:gpt-image-1">✦ GPT Image 1 — Melhor da OpenAI ⭐</option>
+                <option value="openai:dall-e-3">DALL-E 3 — Ótimo para texto</option>
+                <option value="openai:dall-e-3-hd">DALL-E 3 HD — Alta qualidade</option>
+              </optgroup>
               <optgroup label="── fal.ai — Flux ──">
                 <option value="fal:flux-pro">✦ Flux Pro — Alta qualidade ⭐</option>
                 <option value="fal:flux-dev">Flux Dev — Equilibrado</option>
@@ -1514,8 +1537,9 @@
           <!-- Model descriptions card -->
           <div style="background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:14px 16px; font-size:.75rem; line-height:1.8; color:#999">
             <div style="font-weight:700; color:var(--white); margin-bottom:8px; font-size:.78rem">📖 Guia dos modelos de imagem</div>
-            <div style="background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.15); border-radius:6px; padding:8px 10px; font-size:.72rem; color:#f87171; margin-bottom:8px">⚠️ <strong>OpenAI (DALL-E 3, GPT Image 1) e Hugging Face</strong> bloqueiam chamadas diretas de browser (CORS). Precisariam de um backend. Não disponíveis aqui.</div>
             <div>🆓 <strong style="color:#4caf50">Pollinations Flux / Realism / Turbo</strong> — grátis, sem conta. ⚠️ Não renderiza texto em imagem.</div>
+            <div style="margin-top:6px">✦ <strong style="color:#c8a0ff">GPT Image 1</strong> — melhor da OpenAI. Requer Cloudflare Worker + OpenAI Key.</div>
+            <div>✦ <strong style="color:#c8a0ff">DALL-E 3 / HD</strong> — excelente para texto em imagem. Requer Cloudflare Worker + OpenAI Key.</div>
             <div style="margin-top:6px">🎯 <strong style="color:var(--gold)">Ideogram v2</strong> — <em>melhor para texto legível em imagem</em> (preços, frases, CTAs). Requer fal.ai.</div>
             <div>✦ <strong style="color:var(--gold)">Flux Pro / Dev</strong> — melhor estética e qualidade geral. Requer fal.ai.</div>
             <div>🎨 <strong style="color:var(--gold)">Recraft V3</strong> — branding e identidade visual. Requer fal.ai.</div>
@@ -3152,29 +3176,35 @@ function switchSettingsTab(id, btn) {
 function saveApiKeys() {
   const g = document.getElementById('geminiApiKey').value.trim();
   const f = document.getElementById('falApiKey').value.trim();
-  if (g) localStorage.setItem('artesIA_apiKey', g);    else localStorage.removeItem('artesIA_apiKey');
-  if (f) localStorage.setItem('artesIA_falApiKey', f); else localStorage.removeItem('artesIA_falApiKey');
+  const w = document.getElementById('openaiWorkerUrl').value.trim();
+  if (g) localStorage.setItem('artesIA_apiKey', g);           else localStorage.removeItem('artesIA_apiKey');
+  if (f) localStorage.setItem('artesIA_falApiKey', f);        else localStorage.removeItem('artesIA_falApiKey');
+  if (w) localStorage.setItem('artesIA_openaiWorkerUrl', w);  else localStorage.removeItem('artesIA_openaiWorkerUrl');
   updateKeyStatuses();
 }
 function loadApiKeys() {
   const g = localStorage.getItem('artesIA_apiKey');
   const f = localStorage.getItem('artesIA_falApiKey');
-  if (g) document.getElementById('geminiApiKey').value = g;
-  if (f) document.getElementById('falApiKey').value    = f;
+  const w = localStorage.getItem('artesIA_openaiWorkerUrl');
+  if (g) document.getElementById('geminiApiKey').value    = g;
+  if (f) document.getElementById('falApiKey').value       = f;
+  if (w) document.getElementById('openaiWorkerUrl').value = w;
   updateKeyStatuses();
 }
 function updateKeyStatuses() {
   const g = localStorage.getItem('artesIA_apiKey');
   const f = localStorage.getItem('artesIA_falApiKey');
-  const set = (id, val) => {
+  const w = localStorage.getItem('artesIA_openaiWorkerUrl');
+  const set = (id, val, label) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.innerHTML = val
-      ? '<span class="key-status ok">✓ Chave configurada</span>'
-      : '<span class="key-status empty">⚠ Chave não configurada</span>';
+      ? `<span class="key-status ok">✓ ${label || 'Configurado'}</span>`
+      : `<span class="key-status empty">⚠ Não configurado</span>`;
   };
-  set('geminiKeyStatus', g);
-  set('falKeyStatus', f);
+  set('geminiKeyStatus',    g, 'Chave configurada');
+  set('falKeyStatus',       f, 'Chave configurada');
+  set('openaiWorkerStatus', w, 'Worker URL configurada');
 }
 function toggleKeyVis(inputId, btn) {
   const el = document.getElementById(inputId);
@@ -3561,12 +3591,76 @@ async function callPollinationsImage(prompt, aspectRatio, modelId) {
   return { base64, mimeType: blob.type || 'image/jpeg' };
 }
 
-/* ── Unified image call (Gemini / fal.ai / Pollinations) ── */
+/* ── OpenAI via Cloudflare Worker ── */
+async function callOpenAIViaWorker(prompt, workerUrl, aspectRatio, modelId) {
+  const rawModel = modelId.replace(/^openai:/, ''); // 'gpt-image-1', 'dall-e-3', etc.
+
+  // Size mapping
+  const sizeMap = {
+    '1:1':  '1024x1024',
+    '9:16': '1024x1792',
+    '3:4':  '1024x1792',
+    '16:9': '1792x1024',
+    '4:3':  '1792x1024',
+  };
+  const size = sizeMap[aspectRatio] || '1024x1024';
+
+  const body = { model: rawModel, prompt, n: 1, size, response_format: 'b64_json' };
+
+  const t0 = Date.now();
+  const signal = _activeAbortController?.signal;
+
+  let resp;
+  try {
+    resp = await fetch(workerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal,
+    });
+  } catch (e) {
+    addLog('error', { model: rawModel, prompt: prompt.slice(0, 200), status: `Erro de rede: ${e.message}`, duration: Date.now() - t0 });
+    throw Object.assign(e, {
+      classified: { type: 'network', label: '🌐 Erro de conexão com o Worker', suggestion: 'Verifique se a URL do Cloudflare Worker está correta em ⚙️ Configurações.' }
+    });
+  }
+
+  const duration = Date.now() - t0;
+  const data = await resp.json().catch(() => ({}));
+
+  if (!resp.ok) {
+    const rawMsg = data?.error?.message || data?.error || `HTTP ${resp.status}`;
+    addLog('error', { model: rawModel, prompt: prompt.slice(0, 200), status: rawMsg, duration });
+    const classified = classifyApiError(resp.status, String(rawMsg));
+    throw Object.assign(new Error(rawMsg), { classified, status: resp.status });
+  }
+
+  const b64 = data?.data?.[0]?.b64_json;
+  if (!b64) {
+    addLog('error', { model: rawModel, prompt: prompt.slice(0, 200), status: 'Sem imagem retornada', duration });
+    throw new Error('Nenhuma imagem retornada pelo OpenAI Worker.');
+  }
+
+  addLog('image', { model: rawModel, prompt: prompt.slice(0, 200), status: '✓ Gerado com sucesso', duration });
+  return { base64: b64, mimeType: 'image/png' };
+}
+
+/* ── Unified image call (Gemini / fal.ai / Pollinations / OpenAI) ── */
 async function callImageModel(prompt, aspectRatio, extraParts) {
   const modelId = getSelectedImageModel();
 
   if (modelId.startsWith('pollinations:')) {
     return await callPollinationsImage(prompt, aspectRatio, modelId);
+  }
+
+  if (modelId.startsWith('openai:')) {
+    const workerUrl = localStorage.getItem('artesIA_openaiWorkerUrl') || '';
+    if (!workerUrl) {
+      throw Object.assign(new Error('URL do Cloudflare Worker não configurada.'), {
+        classified: { type:'auth', label:'🔑 OpenAI Worker: URL não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira a URL do seu Cloudflare Worker.' }
+      });
+    }
+    return await callOpenAIViaWorker(prompt, workerUrl, aspectRatio, modelId);
   }
 
   if (modelId.startsWith('fal:')) {
