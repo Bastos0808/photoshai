@@ -1425,6 +1425,33 @@
 
           <div class="key-section">
             <div class="key-section-title">
+              <span>🆓 Pollinations.ai</span>
+              <small>Flux grátis · Sem conta · Sem chave</small>
+            </div>
+            <div style="background:rgba(76,175,80,.07); border:1px solid rgba(76,175,80,.2); border-radius:8px; padding:10px 14px; font-size:.78rem; color:#a0d0a0; line-height:1.6">
+              ✅ <strong>Pronto para usar!</strong> Nenhuma configuração necessária. Selecione <em>Pollinations Flux</em> no seletor de modelos e gere direto.
+              <br><span style="opacity:.7; font-size:.72rem">Usa Flux por baixo. Imagens não são privadas — evite dados sensíveis no prompt.</span>
+            </div>
+          </div>
+
+          <div class="key-section">
+            <div class="key-section-title">
+              <span>🤗 Hugging Face</span>
+              <small>FLUX Schnell · SDXL · 100% grátis com conta</small>
+            </div>
+            <div class="key-row">
+              <label>Hugging Face Token</label>
+              <div class="key-input-wrap">
+                <input type="password" id="hfApiKey" class="input" placeholder="hf_..." style="padding-right:44px" oninput="saveApiKeys()" />
+                <button class="key-toggle" onclick="toggleKeyVis('hfApiKey',this)" title="Mostrar/ocultar">👁</button>
+              </div>
+              <div class="key-hint" id="hfKeyStatus"></div>
+              <p class="key-hint">Crie conta grátis e gere token em <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a> · 100% gratuito, sem cartão.</p>
+            </div>
+          </div>
+
+          <div class="key-section">
+            <div class="key-section-title">
               <span>⚡ fal.ai</span>
               <small>Flux Pro · Ideogram · Recraft · e mais</small>
             </div>
@@ -1454,6 +1481,13 @@
               <span class="name">Modelo de Imagem</span>
             </div>
             <select id="imageModelSelect" class="input" onchange="saveModelPrefs(); updateActiveModelBar()" style="margin:0; font-size:.85rem">
+              <optgroup label="── 🆓 Gratuito (sem chave) ──">
+                <option value="pollinations:flux">🆓 Pollinations Flux — Grátis, sem chave</option>
+              </optgroup>
+              <optgroup label="── 🤗 Hugging Face (grátis c/ conta) ──">
+                <option value="hf:flux-schnell">🤗 HF FLUX Schnell — Grátis ⚡</option>
+                <option value="hf:sdxl">🤗 HF SDXL — Grátis</option>
+              </optgroup>
               <optgroup label="── fal.ai — Flux ──">
                 <option value="fal:flux-pro">✦ Flux Pro — Alta qualidade ⭐</option>
                 <option value="fal:flux-dev">Flux Dev — Equilibrado</option>
@@ -1496,13 +1530,15 @@
           </div>
 
           <!-- Model descriptions card -->
-          <div style="background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:14px 16px; font-size:.75rem; line-height:1.7; color:#999">
+          <div style="background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:14px 16px; font-size:.75rem; line-height:1.8; color:#999">
             <div style="font-weight:700; color:var(--white); margin-bottom:8px; font-size:.78rem">📖 Guia dos modelos de imagem</div>
-            <div>✦ <strong style="color:var(--gold)">Flux Pro</strong> — melhor qualidade geral, estética premium. Requer fal.ai.</div>
+            <div>🆓 <strong style="color:#4caf50">Pollinations Flux</strong> — grátis, sem conta, sem chave. Usa Flux. Imagens públicas.</div>
+            <div>🤗 <strong style="color:#4caf50">HF FLUX Schnell</strong> — grátis com conta HF. Rápido, boa qualidade. Token gratuito.</div>
+            <div>🤗 <strong style="color:#4caf50">HF SDXL</strong> — grátis com conta HF. Stable Diffusion XL. Mais estilizado.</div>
+            <div style="margin-top:4px">✦ <strong style="color:var(--gold)">Flux Pro</strong> — melhor qualidade geral, estética premium. Requer fal.ai (pago).</div>
             <div>🎯 <strong style="color:var(--gold)">Ideogram v2</strong> — melhor para artes <em>com texto legível</em> (preços, frases, CTAs). Requer fal.ai.</div>
-            <div>🎨 <strong style="color:var(--gold)">Recraft V3</strong> — ideal para branding, identidade visual, design comercial. Requer fal.ai.</div>
-            <div>⚡ <strong style="color:var(--gold)">Flux Schnell</strong> — 4× mais rápido, ótimo para rascunhos. Requer fal.ai.</div>
-            <div>🔷 <strong style="color:#80aaff">Gemini 3 Pro Image</strong> — multimodal, aceita imagens de referência. Requer Gemini Key.</div>
+            <div>🎨 <strong style="color:var(--gold)">Recraft V3</strong> — ideal para branding e identidade visual. Requer fal.ai.</div>
+            <div style="margin-top:4px">🔷 <strong style="color:#80aaff">Gemini 3 Pro Image</strong> — multimodal, aceita imagens de referência. Requer Gemini Key.</div>
           </div>
 
         </div>
@@ -3133,32 +3169,37 @@ function switchSettingsTab(id, btn) {
 
 /* ── API Key management ── */
 function saveApiKeys() {
-  const g = document.getElementById('geminiApiKey').value.trim();
-  const f = document.getElementById('falApiKey').value.trim();
-  if (g) localStorage.setItem('artesIA_apiKey', g);
-  else   localStorage.removeItem('artesIA_apiKey');
-  if (f) localStorage.setItem('artesIA_falApiKey', f);
-  else   localStorage.removeItem('artesIA_falApiKey');
+  const g  = document.getElementById('geminiApiKey').value.trim();
+  const f  = document.getElementById('falApiKey').value.trim();
+  const hf = document.getElementById('hfApiKey').value.trim();
+  if (g)  localStorage.setItem('artesIA_apiKey', g);     else localStorage.removeItem('artesIA_apiKey');
+  if (f)  localStorage.setItem('artesIA_falApiKey', f);  else localStorage.removeItem('artesIA_falApiKey');
+  if (hf) localStorage.setItem('artesIA_hfApiKey', hf);  else localStorage.removeItem('artesIA_hfApiKey');
   updateKeyStatuses();
 }
 function loadApiKeys() {
-  const g = localStorage.getItem('artesIA_apiKey');
-  const f = localStorage.getItem('artesIA_falApiKey');
-  if (g) document.getElementById('geminiApiKey').value = g;
-  if (f) document.getElementById('falApiKey').value   = f;
+  const g  = localStorage.getItem('artesIA_apiKey');
+  const f  = localStorage.getItem('artesIA_falApiKey');
+  const hf = localStorage.getItem('artesIA_hfApiKey');
+  if (g)  document.getElementById('geminiApiKey').value = g;
+  if (f)  document.getElementById('falApiKey').value    = f;
+  if (hf) document.getElementById('hfApiKey').value     = hf;
   updateKeyStatuses();
 }
 function updateKeyStatuses() {
-  const g = localStorage.getItem('artesIA_apiKey');
-  const f = localStorage.getItem('artesIA_falApiKey');
-  const gs = document.getElementById('geminiKeyStatus');
-  const fs = document.getElementById('falKeyStatus');
-  if (gs) gs.innerHTML = g
-    ? '<span class="key-status ok">✓ Chave configurada</span>'
-    : '<span class="key-status empty">⚠ Chave não configurada</span>';
-  if (fs) fs.innerHTML = f
-    ? '<span class="key-status ok">✓ Chave configurada</span>'
-    : '<span class="key-status empty">⚠ Chave não configurada</span>';
+  const g  = localStorage.getItem('artesIA_apiKey');
+  const f  = localStorage.getItem('artesIA_falApiKey');
+  const hf = localStorage.getItem('artesIA_hfApiKey');
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = val
+      ? '<span class="key-status ok">✓ Chave configurada</span>'
+      : '<span class="key-status empty">⚠ Chave não configurada</span>';
+  };
+  set('geminiKeyStatus', g);
+  set('falKeyStatus', f);
+  set('hfKeyStatus', hf);
 }
 function toggleKeyVis(inputId, btn) {
   const el = document.getElementById(inputId);
@@ -3264,6 +3305,9 @@ const TEXT_MODEL_FALLBACKS = [
 
 /* ── Image model descriptions ── */
 const IMAGE_MODEL_INFO = {
+  'pollinations:flux':             { label:'Pollinations Flux',  provider:'Grátis 🆓', note:'Sem chave, sem conta. Usa Flux. Imagens públicas.' },
+  'hf:flux-schnell':               { label:'HF FLUX Schnell',    provider:'HF Grátis 🤗', note:'Grátis com token HF. Rápido e boa qualidade.' },
+  'hf:sdxl':                       { label:'HF SDXL',            provider:'HF Grátis 🤗', note:'Grátis com token HF. Stable Diffusion XL.' },
   'fal:flux-pro':                  { label:'Flux Pro',           provider:'fal.ai',  note:'Melhor qualidade geral, estética premium' },
   'fal:flux-dev':                  { label:'Flux Dev',           provider:'fal.ai',  note:'Equilibrado — qualidade e velocidade' },
   'fal:flux-schnell':              { label:'Flux Schnell',       provider:'fal.ai',  note:'Rápido, ideal para rascunhos' },
@@ -3506,24 +3550,122 @@ async function callFalImage(prompt, falApiKey, aspectRatio, modelId) {
   return { base64, mimeType: blob.type || 'image/jpeg' };
 }
 
-/* ── Unified image call (Gemini OR fal.ai) ── */
+/* ── Pollinations.ai (totalmente grátis, sem chave) ── */
+const _POLLINATIONS_SIZES = {
+  '1:1':  { width:1024, height:1024 },
+  '9:16': { width:576,  height:1024 },
+  '3:4':  { width:768,  height:1024 },
+  '16:9': { width:1024, height:576  },
+  '4:3':  { width:1024, height:768  },
+};
+async function callPollinationsImage(prompt, aspectRatio) {
+  const size   = _POLLINATIONS_SIZES[aspectRatio] || _POLLINATIONS_SIZES['1:1'];
+  const seed   = Math.floor(Math.random() * 999999);
+  const url    = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${size.width}&height=${size.height}&nologo=true&seed=${seed}&model=flux`;
+  const signal = _activeAbortController?.signal;
+  const t0     = Date.now();
+  const resp   = await fetch(url, { signal });
+  trackUsage('image');
+  const duration = Date.now() - t0;
+  if (!resp.ok) {
+    const msg = `Pollinations: HTTP ${resp.status}`;
+    addLog('error', { model:'pollinations:flux', prompt: prompt.slice(0,200), status: msg, duration });
+    throw Object.assign(new Error(msg), {
+      classified: { type:'unavailable', label:'🔴 Pollinations indisponível', suggestion:'Tente novamente em alguns segundos ou troque de modelo.' }
+    });
+  }
+  const blob   = await resp.blob();
+  const base64 = await blobToBase64(blob);
+  addLog('image', { model:'pollinations:flux', prompt: prompt.slice(0,200), status:'✓ Gerado com sucesso', duration });
+  return { base64, mimeType: blob.type || 'image/jpeg' };
+}
+
+/* ── Hugging Face Inference API (grátis com conta) ── */
+const HF_MODEL_PATHS = {
+  'hf:flux-schnell': 'black-forest-labs/FLUX.1-schnell',
+  'hf:sdxl':         'stabilityai/stable-diffusion-xl-base-1.0',
+};
+function classifyHFError(status, message) {
+  const msg = (message || '').toLowerCase();
+  if (status === 401 || msg.includes('unauthorized') || msg.includes('invalid token')) {
+    return { type:'auth', label:'🔑 HF: Token inválido', suggestion:'Verifique seu token em ⚙️ Configurações → API Keys → Hugging Face.' };
+  }
+  if (status === 503 || msg.includes('loading') || msg.includes('currently loading')) {
+    return { type:'unavailable', label:'⏳ HF: Modelo carregando', suggestion:'O modelo está sendo carregado (frio). Aguarde 20s e tente novamente.' };
+  }
+  if (status === 429 || msg.includes('rate limit')) {
+    return { type:'quota', label:'⚠️ HF: Limite atingido', suggestion:'Aguarde alguns minutos. O tier gratuito tem limite de chamadas.' };
+  }
+  return { type:'unknown', label:'❌ HF: Erro desconhecido', suggestion:'Verifique seu token HF e tente novamente.' };
+}
+async function callHuggingFaceImage(prompt, hfToken, aspectRatio, modelId) {
+  const modelPath = HF_MODEL_PATHS[modelId];
+  if (!modelPath) throw new Error(`Modelo HF desconhecido: ${modelId}`);
+  const sizes = {
+    '1:1':  { width:1024, height:1024 },
+    '9:16': { width:576,  height:1024 },
+    '3:4':  { width:768,  height:1024 },
+    '16:9': { width:1024, height:576  },
+    '4:3':  { width:1024, height:768  },
+  };
+  const size   = sizes[aspectRatio] || sizes['1:1'];
+  const url    = `https://api-inference.huggingface.co/models/${modelPath}`;
+  const signal = _activeAbortController?.signal;
+  const t0     = Date.now();
+  const resp   = await fetch(url, {
+    method:  'POST',
+    headers: { 'Authorization': `Bearer ${hfToken}`, 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ inputs: prompt, parameters: { width: size.width, height: size.height, num_inference_steps: 4 } }),
+    signal
+  });
+  trackUsage('image');
+  const duration = Date.now() - t0;
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => ({}));
+    const msg     = errData?.error || `HTTP ${resp.status}`;
+    addLog('error', { model: modelId, prompt: prompt.slice(0,200), status: msg, duration });
+    throw Object.assign(new Error(msg), { classified: classifyHFError(resp.status, msg), status: resp.status });
+  }
+  const blob   = await resp.blob();
+  const base64 = await blobToBase64(blob);
+  addLog('image', { model: modelId, prompt: prompt.slice(0,200), status:'✓ Gerado com sucesso', duration });
+  return { base64, mimeType: blob.type || 'image/jpeg' };
+}
+
+/* ── Unified image call (Gemini / fal.ai / HF / Pollinations) ── */
 async function callImageModel(prompt, aspectRatio, extraParts) {
   const modelId = getSelectedImageModel();
+
+  if (modelId === 'pollinations:flux') {
+    return await callPollinationsImage(prompt, aspectRatio);
+  }
+
+  if (modelId.startsWith('hf:')) {
+    const hfKey = localStorage.getItem('artesIA_hfApiKey') || '';
+    if (!hfKey) {
+      throw Object.assign(new Error('Token Hugging Face não configurado.'), {
+        classified: { type:'auth', label:'🔑 HF: Token não configurado', suggestion:'Abra ⚙️ Configurações → API Keys → Hugging Face e insira seu token gratuito.' }
+      });
+    }
+    return await callHuggingFaceImage(prompt, hfKey, aspectRatio, modelId);
+  }
+
   if (modelId.startsWith('fal:')) {
     const falKey = localStorage.getItem('artesIA_falApiKey') || '';
     if (!falKey) {
-      const err = new Error('API Key do fal.ai não configurada.');
-      err.classified = { type:'auth', label:'🔑 fal.ai: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave fal.ai.' };
-      throw err;
+      throw Object.assign(new Error('API Key do fal.ai não configurada.'), {
+        classified: { type:'auth', label:'🔑 fal.ai: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave fal.ai.' }
+      });
     }
     return await callFalImage(prompt, falKey, aspectRatio, modelId);
   }
-  // Gemini fallback
+
+  // Gemini
   const geminiKey = localStorage.getItem('artesIA_apiKey') || '';
   if (!geminiKey) {
-    const err = new Error('API Key do Gemini não configurada.');
-    err.classified = { type:'auth', label:'🔑 Gemini: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave do Gemini.' };
-    throw err;
+    throw Object.assign(new Error('API Key do Gemini não configurada.'), {
+      classified: { type:'auth', label:'🔑 Gemini: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave do Gemini.' }
+    });
   }
   return await callGeminiImage(prompt, geminiKey, aspectRatio, extraParts);
 }
@@ -3886,18 +4028,21 @@ Slide number indicator: ${idx + 1}/${total}`;
 
 async function generateImages() {
   const modelId   = getSelectedImageModel();
-  const isFal     = modelId.startsWith('fal:');
   const geminiKey = localStorage.getItem('artesIA_apiKey') || '';
   const falKey    = localStorage.getItem('artesIA_falApiKey') || '';
+  const hfKey     = localStorage.getItem('artesIA_hfApiKey') || '';
 
-  if (isFal && !falKey) {
-    openSettings('keys');
-    alert('Configure sua chave fal.ai em ⚙️ Configurações → API Keys.');
-    return;
+  // Validate image provider key (Pollinations needs none)
+  if (modelId.startsWith('fal:') && !falKey) {
+    openSettings('keys'); alert('Configure sua chave fal.ai em ⚙️ Configurações → API Keys.'); return;
   }
+  if (modelId.startsWith('hf:') && !hfKey) {
+    openSettings('keys'); alert('Configure seu token Hugging Face em ⚙️ Configurações → API Keys.'); return;
+  }
+  // Gemini key always required for the Art Director (text model)
   if (!geminiKey) {
     openSettings('keys');
-    alert('Configure sua chave do Gemini em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte mesmo com fal.ai.)');
+    alert('Configure sua chave do Gemini em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte, mesmo usando outro modelo de imagem.)');
     return;
   }
   const apiKey = geminiKey;  // used for text model calls
