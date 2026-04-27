@@ -3595,17 +3595,29 @@ async function callPollinationsImage(prompt, aspectRatio, modelId) {
 async function callOpenAIViaWorker(prompt, workerUrl, aspectRatio, modelId) {
   const rawModel = modelId.replace(/^openai:/, ''); // 'gpt-image-1', 'dall-e-3', etc.
 
-  // Size mapping
-  const sizeMap = {
+  // gpt-image-1 usa tamanhos diferentes e NÃO aceita response_format
+  const isGptImage = rawModel === 'gpt-image-1';
+
+  const sizeMapGpt = {
+    '1:1':  '1024x1024',
+    '9:16': '1024x1536',
+    '3:4':  '1024x1536',
+    '16:9': '1536x1024',
+    '4:3':  '1536x1024',
+  };
+  const sizeMapDalle = {
     '1:1':  '1024x1024',
     '9:16': '1024x1792',
     '3:4':  '1024x1792',
     '16:9': '1792x1024',
     '4:3':  '1792x1024',
   };
-  const size = sizeMap[aspectRatio] || '1024x1024';
+  const size = (isGptImage ? sizeMapGpt : sizeMapDalle)[aspectRatio] || '1024x1024';
 
-  const body = { model: rawModel, prompt, n: 1, size, response_format: 'b64_json' };
+  // gpt-image-1 sempre retorna b64_json e não aceita response_format
+  const body = isGptImage
+    ? { model: rawModel, prompt, n: 1, size }
+    : { model: rawModel, prompt, n: 1, size, response_format: 'b64_json' };
 
   const t0 = Date.now();
   const signal = _activeAbortController?.signal;
@@ -3635,7 +3647,29 @@ async function callOpenAIViaWorker(prompt, workerUrl, aspectRatio, modelId) {
     throw Object.assign(new Error(rawMsg), { classified, status: resp.status });
   }
 
-  const b64 = data?.data?.[0]?.b64_json;
+  const item = data?.data?.[0];
+  const b64  = item?.b64_json;
+  const imgUrl = item?.url;
+
+  // Se veio como URL (fallback), busca e converte para base64
+  if (!b64 && imgUrl) {
+    try {
+      const imgResp = await fetch(imgUrl);
+      const blob    = await imgResp.blob();
+      const base64  = await new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload  = () => res(reader.result.split(',')[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(blob);
+      });
+      addLog('image', { model: rawModel, prompt: prompt.slice(0, 200), status: '✓ Gerado com sucesso (url)', duration });
+      return { base64, mimeType: blob.type || 'image/png' };
+    } catch (e) {
+      addLog('error', { model: rawModel, prompt: prompt.slice(0, 200), status: 'Falha ao baixar imagem da URL', duration });
+      throw new Error('Falha ao baixar imagem retornada pelo OpenAI.');
+    }
+  }
+
   if (!b64) {
     addLog('error', { model: rawModel, prompt: prompt.slice(0, 200), status: 'Sem imagem retornada', duration });
     throw new Error('Nenhuma imagem retornada pelo OpenAI Worker.');
