@@ -1425,22 +1425,6 @@
 
           <div class="key-section">
             <div class="key-section-title">
-              <span>🤖 OpenAI</span>
-              <small>GPT Image 1 · DALL-E 3 — ótimos para texto em imagem</small>
-            </div>
-            <div class="key-row">
-              <label>OpenAI API Key</label>
-              <div class="key-input-wrap">
-                <input type="password" id="openaiApiKey" class="input" placeholder="sk-..." style="padding-right:44px" oninput="saveApiKeys()" />
-                <button class="key-toggle" onclick="toggleKeyVis('openaiApiKey',this)" title="Mostrar/ocultar">👁</button>
-              </div>
-              <div class="key-hint" id="openaiKeyStatus"></div>
-              <p class="key-hint">Obtenha em <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a> · ~$0.04–0.08/imagem (DALL-E 3) · GPT Image 1 varia por qualidade.</p>
-            </div>
-          </div>
-
-          <div class="key-section">
-            <div class="key-section-title">
               <span>🆓 Pollinations.ai</span>
               <small>Flux grátis · Sem conta · Sem chave</small>
             </div>
@@ -1486,11 +1470,6 @@
                 <option value="pollinations:flux-realism">🆓 Pollinations Flux Realism — Grátis, fotorrealista</option>
                 <option value="pollinations:turbo">🆓 Pollinations Turbo — Grátis, rápido ⚡</option>
               </optgroup>
-              <optgroup label="── 🤖 OpenAI ──">
-                <option value="openai:gpt-image-1">✦ GPT Image 1 — Melhor da OpenAI ⭐</option>
-                <option value="openai:dall-e-3">DALL-E 3 — Ótimo para texto</option>
-                <option value="openai:dall-e-3-hd">DALL-E 3 HD — Alta qualidade</option>
-              </optgroup>
               <optgroup label="── fal.ai — Flux ──">
                 <option value="fal:flux-pro">✦ Flux Pro — Alta qualidade ⭐</option>
                 <option value="fal:flux-dev">Flux Dev — Equilibrado</option>
@@ -1535,13 +1514,12 @@
           <!-- Model descriptions card -->
           <div style="background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:14px 16px; font-size:.75rem; line-height:1.8; color:#999">
             <div style="font-weight:700; color:var(--white); margin-bottom:8px; font-size:.78rem">📖 Guia dos modelos de imagem</div>
-            <div>🆓 <strong style="color:#4caf50">Pollinations Flux / Realism / Turbo</strong> — grátis, sem conta. ⚠️ Ruim para texto em imagem.</div>
-            <div style="margin-top:6px">✦ <strong style="color:#c8a0ff">GPT Image 1</strong> — o mais novo e poderoso da OpenAI. Ótimo para texto. Requer OpenAI Key.</div>
-            <div>✦ <strong style="color:#c8a0ff">DALL-E 3</strong> — excelente para texto em imagem, consistente. Requer OpenAI Key.</div>
-            <div style="margin-top:6px">✦ <strong style="color:var(--gold)">Flux Pro</strong> — melhor estética geral. Requer fal.ai.</div>
-            <div>🎯 <strong style="color:var(--gold)">Ideogram v2</strong> — melhor para texto legível (preços, CTAs). Requer fal.ai.</div>
+            <div style="background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.15); border-radius:6px; padding:8px 10px; font-size:.72rem; color:#f87171; margin-bottom:8px">⚠️ <strong>OpenAI (DALL-E 3, GPT Image 1) e Hugging Face</strong> bloqueiam chamadas diretas de browser (CORS). Precisariam de um backend. Não disponíveis aqui.</div>
+            <div>🆓 <strong style="color:#4caf50">Pollinations Flux / Realism / Turbo</strong> — grátis, sem conta. ⚠️ Não renderiza texto em imagem.</div>
+            <div style="margin-top:6px">🎯 <strong style="color:var(--gold)">Ideogram v2</strong> — <em>melhor para texto legível em imagem</em> (preços, frases, CTAs). Requer fal.ai.</div>
+            <div>✦ <strong style="color:var(--gold)">Flux Pro / Dev</strong> — melhor estética e qualidade geral. Requer fal.ai.</div>
             <div>🎨 <strong style="color:var(--gold)">Recraft V3</strong> — branding e identidade visual. Requer fal.ai.</div>
-            <div style="margin-top:6px">🔷 <strong style="color:#80aaff">Gemini 3 Pro Image</strong> — multimodal, aceita referências visuais. Requer Gemini Key.</div>
+            <div style="margin-top:6px">🔷 <strong style="color:#80aaff">Gemini 3 Pro Image</strong> — multimodal, aceita referências, bom com texto. Requer Gemini Key.</div>
           </div>
 
         </div>
@@ -3172,27 +3150,22 @@ function switchSettingsTab(id, btn) {
 
 /* ── API Key management ── */
 function saveApiKeys() {
-  const g  = document.getElementById('geminiApiKey').value.trim();
-  const f  = document.getElementById('falApiKey').value.trim();
-  const oa = document.getElementById('openaiApiKey').value.trim();
-  if (g)  localStorage.setItem('artesIA_apiKey', g);       else localStorage.removeItem('artesIA_apiKey');
-  if (f)  localStorage.setItem('artesIA_falApiKey', f);    else localStorage.removeItem('artesIA_falApiKey');
-  if (oa) localStorage.setItem('artesIA_openaiApiKey', oa); else localStorage.removeItem('artesIA_openaiApiKey');
+  const g = document.getElementById('geminiApiKey').value.trim();
+  const f = document.getElementById('falApiKey').value.trim();
+  if (g) localStorage.setItem('artesIA_apiKey', g);    else localStorage.removeItem('artesIA_apiKey');
+  if (f) localStorage.setItem('artesIA_falApiKey', f); else localStorage.removeItem('artesIA_falApiKey');
   updateKeyStatuses();
 }
 function loadApiKeys() {
-  const g  = localStorage.getItem('artesIA_apiKey');
-  const f  = localStorage.getItem('artesIA_falApiKey');
-  const oa = localStorage.getItem('artesIA_openaiApiKey');
-  if (g)  document.getElementById('geminiApiKey').value  = g;
-  if (f)  document.getElementById('falApiKey').value     = f;
-  if (oa) document.getElementById('openaiApiKey').value  = oa;
+  const g = localStorage.getItem('artesIA_apiKey');
+  const f = localStorage.getItem('artesIA_falApiKey');
+  if (g) document.getElementById('geminiApiKey').value = g;
+  if (f) document.getElementById('falApiKey').value    = f;
   updateKeyStatuses();
 }
 function updateKeyStatuses() {
-  const g  = localStorage.getItem('artesIA_apiKey');
-  const f  = localStorage.getItem('artesIA_falApiKey');
-  const oa = localStorage.getItem('artesIA_openaiApiKey');
+  const g = localStorage.getItem('artesIA_apiKey');
+  const f = localStorage.getItem('artesIA_falApiKey');
   const set = (id, val) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -3202,7 +3175,6 @@ function updateKeyStatuses() {
   };
   set('geminiKeyStatus', g);
   set('falKeyStatus', f);
-  set('openaiKeyStatus', oa);
 }
 function toggleKeyVis(inputId, btn) {
   const el = document.getElementById(inputId);
@@ -3311,9 +3283,6 @@ const IMAGE_MODEL_INFO = {
   'pollinations:flux':             { label:'Pollinations Flux',         provider:'Grátis 🆓', note:'Sem chave, sem conta. Boa qualidade geral.' },
   'pollinations:flux-realism':     { label:'Pollinations Flux Realism', provider:'Grátis 🆓', note:'Sem chave. Melhor para pessoas e produtos fotorrealistas.' },
   'pollinations:turbo':            { label:'Pollinations Turbo',        provider:'Grátis 🆓', note:'Sem chave. SDXL Turbo — geração mais rápida.' },
-  'openai:gpt-image-1':            { label:'GPT Image 1',        provider:'OpenAI',  note:'Mais novo e poderoso da OpenAI. Excelente para texto em imagem.' },
-  'openai:dall-e-3':               { label:'DALL-E 3',           provider:'OpenAI',  note:'Qualidade alta, ótimo para texto em imagem.' },
-  'openai:dall-e-3-hd':            { label:'DALL-E 3 HD',        provider:'OpenAI',  note:'DALL-E 3 em qualidade máxima.' },
   'fal:flux-pro':                  { label:'Flux Pro',           provider:'fal.ai',  note:'Melhor qualidade geral, estética premium' },
   'fal:flux-dev':                  { label:'Flux Dev',           provider:'fal.ai',  note:'Equilibrado — qualidade e velocidade' },
   'fal:flux-schnell':              { label:'Flux Schnell',       provider:'fal.ai',  note:'Rápido, ideal para rascunhos' },
@@ -3592,84 +3561,12 @@ async function callPollinationsImage(prompt, aspectRatio, modelId) {
   return { base64, mimeType: blob.type || 'image/jpeg' };
 }
 
-/* ── OpenAI — DALL-E 3 e GPT Image 1 ── */
-function classifyOpenAIError(status, message) {
-  const msg = (message || '').toLowerCase();
-  if (status === 401 || msg.includes('invalid_api_key') || msg.includes('authentication') || msg.includes('incorrect api key')) {
-    return { type:'auth', label:'🔑 OpenAI: API Key inválida', suggestion:'Verifique sua chave em ⚙️ Configurações → API Keys → OpenAI.' };
-  }
-  if (status === 429 || msg.includes('rate_limit') || msg.includes('quota') || msg.includes('insufficient_quota')) {
-    return { type:'quota', label:'⚠️ OpenAI: Limite ou saldo insuficiente', suggestion:'Verifique seu saldo em platform.openai.com/usage ou aguarde o reset de limite.' };
-  }
-  if (msg.includes('content_policy') || msg.includes('safety') || msg.includes('billing')) {
-    return { type:'invalid', label:'⚙️ OpenAI: Requisição bloqueada', suggestion:'O prompt pode ter violado a política de conteúdo ou há problema de cobrança na conta.' };
-  }
-  return { type:'unknown', label:'❌ OpenAI: Erro desconhecido', suggestion:'Verifique sua API Key e tente novamente.' };
-}
-
-async function callOpenAIImage(prompt, openaiKey, aspectRatio, modelId) {
-  const isGptImage = modelId === 'openai:gpt-image-1';
-  const model      = isGptImage ? 'gpt-image-1' : 'dall-e-3';
-
-  const dalleSize = { '1:1':'1024x1024','9:16':'1024x1792','3:4':'1024x1792','16:9':'1792x1024','4:3':'1792x1024' };
-  const gptSize   = { '1:1':'1024x1024','9:16':'1024x1536','3:4':'1024x1536','16:9':'1536x1024','4:3':'1536x1024' };
-  const size      = (isGptImage ? gptSize : dalleSize)[aspectRatio] || '1024x1024';
-
-  const body = { model, prompt, n: 1, size, response_format: 'b64_json' };
-  if (!isGptImage) body.quality = modelId === 'openai:dall-e-3-hd' ? 'hd' : 'standard';
-
-  const signal   = _activeAbortController?.signal;
-  const t0       = Date.now();
-  const resp     = await fetch('https://api.openai.com/v1/images/generations', {
-    method:  'POST',
-    headers: { 'Authorization': `Bearer ${openaiKey}`, 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
-    signal
-  });
-  trackUsage('image');
-  const duration = Date.now() - t0;
-
-  if (!resp.ok) {
-    const errData = await resp.json().catch(() => ({}));
-    const msg     = errData?.error?.message || `HTTP ${resp.status}`;
-    addLog('error', { model: modelId, prompt: prompt.slice(0,200), status: msg, duration });
-    throw Object.assign(new Error(msg), { classified: classifyOpenAIError(resp.status, msg), status: resp.status });
-  }
-
-  const data = await resp.json();
-  const item = data.data?.[0];
-  if (!item) throw new Error('Nenhuma imagem retornada pela OpenAI.');
-
-  if (item.b64_json) {
-    addLog('image', { model: modelId, prompt: prompt.slice(0,200), status:'✓ Gerado com sucesso', duration });
-    return { base64: item.b64_json, mimeType: 'image/png' };
-  }
-  if (item.url) {
-    const imgResp = await fetch(item.url);
-    const blob    = await imgResp.blob();
-    const base64  = await blobToBase64(blob);
-    addLog('image', { model: modelId, prompt: prompt.slice(0,200), status:'✓ Gerado com sucesso', duration });
-    return { base64, mimeType: blob.type || 'image/png' };
-  }
-  throw new Error('Formato de resposta desconhecido da OpenAI.');
-}
-
-/* ── Unified image call (Gemini / OpenAI / fal.ai / Pollinations) ── */
+/* ── Unified image call (Gemini / fal.ai / Pollinations) ── */
 async function callImageModel(prompt, aspectRatio, extraParts) {
   const modelId = getSelectedImageModel();
 
   if (modelId.startsWith('pollinations:')) {
     return await callPollinationsImage(prompt, aspectRatio, modelId);
-  }
-
-  if (modelId.startsWith('openai:')) {
-    const openaiKey = localStorage.getItem('artesIA_openaiApiKey') || '';
-    if (!openaiKey) {
-      throw Object.assign(new Error('API Key da OpenAI não configurada.'), {
-        classified: { type:'auth', label:'🔑 OpenAI: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys → OpenAI e insira sua chave.' }
-      });
-    }
-    return await callOpenAIImage(prompt, openaiKey, aspectRatio, modelId);
   }
 
   if (modelId.startsWith('fal:')) {
@@ -4053,12 +3950,7 @@ async function generateImages() {
   const geminiKey = localStorage.getItem('artesIA_apiKey') || '';
   const falKey    = localStorage.getItem('artesIA_falApiKey') || '';
 
-  const openaiKey = localStorage.getItem('artesIA_openaiApiKey') || '';
-
   // Validate image provider key (Pollinations needs none)
-  if (modelId.startsWith('openai:') && !openaiKey) {
-    openSettings('keys'); alert('Configure sua chave OpenAI em ⚙️ Configurações → API Keys.'); return;
-  }
   if (modelId.startsWith('fal:') && !falKey) {
     openSettings('keys'); alert('Configure sua chave fal.ai em ⚙️ Configurações → API Keys.'); return;
   }
