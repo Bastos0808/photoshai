@@ -813,6 +813,206 @@
 
     /* ─── HIDDEN ─────────────────────────────────── */
     .hidden { display: none !important; }
+
+    /* ─── SETTINGS BUTTON (HEADER) ──────────────── */
+    .btn-settings {
+      position: absolute;
+      top: 24px;
+      right: 148px;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,.35);
+      color: var(--gold);
+      font-family: 'Poppins', sans-serif;
+      font-size: .8rem;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-settings:hover { background: rgba(201,168,76,.1); border-color: var(--gold); }
+    .log-badge {
+      display: none;
+      background: var(--gold);
+      color: #0a0a0a;
+      border-radius: 10px;
+      font-size: .62rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      margin-left: 2px;
+      line-height: 1.4;
+    }
+
+    /* ─── SETTINGS OVERLAY ───────────────────────── */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(5px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s;
+    }
+    .settings-overlay.open { opacity: 1; pointer-events: all; }
+    .settings-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: min(620px, 95vw);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 28px 80px rgba(0,0,0,.7);
+      transform: scale(.96) translateY(12px);
+      transition: transform .22s;
+    }
+    .settings-overlay.open .settings-panel { transform: scale(1) translateY(0); }
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 24px 0;
+      flex-shrink: 0;
+    }
+    .settings-header h3 { font-size: 1.05rem; font-weight: 700; }
+    .settings-close {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .9rem;
+      padding: 6px 12px;
+      transition: all .2s;
+    }
+    .settings-close:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ─── SETTINGS TABS ──────────────────────────── */
+    .settings-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 16px 24px 0;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .stab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      margin-bottom: -1px;
+      transition: all .18s;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .stab:hover { color: var(--white); }
+    .stab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .settings-body { overflow-y: auto; padding: 20px 24px 28px; flex: 1; }
+    .stab-content { display: none; }
+    .stab-content.active { display: block; }
+
+    /* ─── API KEY ROWS ───────────────────────────── */
+    .key-section { margin-bottom: 24px; }
+    .key-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .key-section-title span { font-size: .82rem; font-weight: 700; color: var(--white); }
+    .key-section-title small { font-size: .72rem; color: var(--muted); }
+    .key-row { margin-bottom: 10px; }
+    .key-row label { display: block; font-size: .78rem; font-weight: 600; margin-bottom: 5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .key-hint { font-size: .72rem; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+    .key-hint a { color: var(--gold); text-decoration: none; }
+    .key-hint a:hover { text-decoration: underline; }
+    .key-input-wrap { position: relative; }
+    .key-input-wrap .input { padding-right: 44px; }
+    .key-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; }
+    .key-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .7rem;
+      font-weight: 600;
+      margin-top: 5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .key-status.ok { color: var(--success); background: rgba(76,175,80,.1); }
+    .key-status.empty { color: var(--muted); }
+
+    /* ─── MODEL ROWS ─────────────────────────────── */
+    .model-row {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .model-row-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .model-row-header .icon { font-size: 1.2rem; }
+    .model-row-header .name { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); flex: 1; }
+    .model-desc { font-size: .71rem; color: var(--muted); margin-top: 7px; opacity: .75; line-height: 1.4; }
+
+    /* ─── LOG ENTRIES ────────────────────────────── */
+    .log-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .log-count { font-size: .75rem; color: var(--muted); flex: 1; }
+    .log-entry {
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: .78rem;
+      transition: background .15s;
+    }
+    .log-entry:hover { background: rgba(255,255,255,.04); }
+    .log-entry.log-error { border-color: rgba(239,68,68,.25); background: rgba(239,68,68,.05); }
+    .log-entry.log-image { border-left: 3px solid rgba(201,168,76,.4); }
+    .log-entry.log-text  { border-left: 3px solid rgba(100,160,255,.4); }
+    .log-entry-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .log-badge-type {
+      font-size: .65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .04em; padding: 1px 7px; border-radius: 4px;
+    }
+    .log-image .log-badge-type { background: rgba(201,168,76,.15); color: var(--gold); }
+    .log-text  .log-badge-type { background: rgba(100,160,255,.15); color: #80aaff; }
+    .log-error .log-badge-type { background: rgba(239,68,68,.15); color: #f87171; }
+    .log-model-name { color: var(--white); font-weight: 600; flex: 1; font-size: .75rem; }
+    .log-ts { color: var(--muted); font-size: .68rem; }
+    .log-dur { color: var(--muted); font-size: .68rem; margin-left: 4px; }
+    .log-prompt-text { color: #999; font-size: .72rem; font-style: italic; line-height: 1.4; margin-top: 3px; }
+    .log-status-text { font-size: .72rem; margin-top: 3px; }
+    .log-status-text.ok  { color: var(--success); }
+    .log-status-text.err { color: #f87171; }
+    #logEntries:empty::after {
+      content: 'Nenhuma atividade ainda nesta sessão.';
+      display: block; text-align: center; color: var(--muted);
+      padding: 36px 16px; font-size: .85rem;
+    }
+
+    @media (max-width: 500px) {
+      .btn-settings { right: auto; left: 24px; top: auto; bottom: 24px; position: fixed; }
+    }
   </style>
 </head>
 <body>
@@ -823,6 +1023,7 @@
     <h1>Criador de <span>Artes por IA</span></h1>
     <p>Gere prompts profissionais para qualquer formato de arte nas redes sociais</p>
   </div>
+  <button class="btn-settings" onclick="openSettings()">⚙️ Config <span class="log-badge" id="logBadge"></span></button>
   <button class="btn-new" onclick="resetProject()">&#8635; Novo Projeto</button>
 </header>
 
@@ -1070,64 +1271,16 @@
       <div class="num">6</div>
       <div>
         <h2>Gerar Imagem com IA</h2>
-        <p>Produza a arte diretamente com os modelos Gemini</p>
+        <p>Gemini, Flux, Ideogram, Recraft e mais — configure em <button onclick="openSettings()" style="background:none;border:none;color:var(--gold);cursor:pointer;font-family:inherit;font-size:inherit;padding:0;font-weight:600">⚙️ Configurações</button></p>
       </div>
     </div>
 
-    <!-- API Key -->
-    <div style="margin-bottom:18px">
-      <label class="field-label">🔑 Chave de API do Gemini</label>
-      <div style="position:relative">
-        <input type="password" id="geminiApiKey" class="input" placeholder="Cole sua API Key aqui..." style="padding-right:44px" onchange="saveApiKey()" onblur="saveApiKey()"/>
-        <button onclick="toggleApiKeyVisibility()" title="Mostrar/ocultar chave" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem" id="btnToggleKey">👁</button>
-      </div>
-      <span class="field-hint">Sua chave fica salva localmente e nunca é enviada para terceiros.</span>
-    </div>
-
-    <!-- Models -->
-    <div style="margin-bottom:18px">
-      <label class="field-label" style="margin-bottom:10px; display:block">🤖 Modelos de IA</label>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-
-        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 14px">
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px">
-            <span style="font-size:1.1rem">🖼</span>
-            <span style="font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)">Imagem</span>
-          </div>
-          <select id="imageModelSelect" class="input" onchange="saveModelPrefs()" style="margin:0; font-size:.85rem">
-            <optgroup label="── Gemini 3 ──">
-              <option value="gemini-3-pro-image-preview" selected>Gemini 3 Pro Image ⭐</option>
-              <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash Image ⚡</option>
-            </optgroup>
-            <optgroup label="── Gemini 2.5 ──">
-              <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
-            </optgroup>
-          </select>
-          <div style="font-size:.72rem; color:var(--muted); margin-top:6px; opacity:.7">Gera as imagens finais</div>
-        </div>
-
-        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 14px">
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px">
-            <span style="font-size:1.1rem">🧠</span>
-            <span style="font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)">Diretor de Arte</span>
-          </div>
-          <select id="textModelSelect" class="input" onchange="saveModelPrefs()" style="margin:0; font-size:.85rem">
-            <optgroup label="── Gemini 3 ──">
-              <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview ⭐</option>
-              <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-              <option value="gemini-3-flash-preview">Gemini 3 Flash Preview ⚡</option>
-              <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite</option>
-            </optgroup>
-            <optgroup label="── Gemini 2.5 ──">
-              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-            </optgroup>
-          </select>
-          <div style="font-size:.72rem; color:var(--muted); margin-top:6px; opacity:.7">Cria o prompt de direção de arte</div>
-        </div>
-
-      </div>
+    <!-- Active model indicator -->
+    <div id="activeModelBar" style="display:flex; align-items:center; gap:10px; margin-bottom:16px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:8px; padding:10px 14px; cursor:pointer" onclick="openSettings('models')">
+      <span style="font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)">Modelo ativo</span>
+      <span id="activeModelName" style="font-size:.82rem; color:var(--gold); font-weight:600; flex:1">—</span>
+      <span id="activeModelProvider" style="font-size:.7rem; color:var(--muted)"></span>
+      <span style="font-size:.75rem; color:var(--muted)">✏️ trocar</span>
     </div>
 
     <!-- Reference images upload — separated by type -->
@@ -1233,6 +1386,143 @@
     <div id="imageGenStatus" style="display:none; margin-top:14px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:8px; text-align:center; color:var(--muted); font-size:.88rem"></div>
     <div id="imageGenResults" style="margin-top:20px; display:flex; flex-direction:column; gap:20px"></div>
   </div>
+
+  <!-- ═══════════ SETTINGS MODAL ═══════════ -->
+  <div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOnBg(event)">
+    <div class="settings-panel">
+
+      <div class="settings-header">
+        <h3>⚙️ Configurações</h3>
+        <button class="settings-close" onclick="closeSettings()">✕ Fechar</button>
+      </div>
+
+      <div class="settings-tabs">
+        <button class="stab active" onclick="switchSettingsTab('keys',this)">🔑 API Keys</button>
+        <button class="stab" onclick="switchSettingsTab('models',this)">🤖 Modelos</button>
+        <button class="stab" onclick="switchSettingsTab('logs',this)">📊 Logs <span id="logCountTab" style="font-size:.65rem; color:var(--gold)"></span></button>
+      </div>
+
+      <div class="settings-body">
+
+        <!-- ── TAB: API KEYS ── -->
+        <div id="stab-keys" class="stab-content active">
+
+          <div class="key-section">
+            <div class="key-section-title">
+              <span>🔷 Google Gemini</span>
+              <small>Diretor de Arte + Geração de Imagem (modelos Gemini)</small>
+            </div>
+            <div class="key-row">
+              <label>Gemini API Key</label>
+              <div class="key-input-wrap">
+                <input type="password" id="geminiApiKey" class="input" placeholder="AIza..." style="padding-right:44px" oninput="saveApiKeys()" />
+                <button class="key-toggle" onclick="toggleKeyVis('geminiApiKey',this)" title="Mostrar/ocultar">👁</button>
+              </div>
+              <div class="key-hint" id="geminiKeyStatus"></div>
+              <p class="key-hint">Obtenha gratuitamente em <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> · Salvo apenas no seu navegador.</p>
+            </div>
+          </div>
+
+          <div class="key-section">
+            <div class="key-section-title">
+              <span>⚡ fal.ai</span>
+              <small>Flux Pro · Ideogram · Recraft · e mais</small>
+            </div>
+            <div class="key-row">
+              <label>fal.ai API Key</label>
+              <div class="key-input-wrap">
+                <input type="password" id="falApiKey" class="input" placeholder="fal_..." style="padding-right:44px" oninput="saveApiKeys()" />
+                <button class="key-toggle" onclick="toggleKeyVis('falApiKey',this)" title="Mostrar/ocultar">👁</button>
+              </div>
+              <div class="key-hint" id="falKeyStatus"></div>
+              <p class="key-hint">Crie em <a href="https://fal.ai/dashboard/keys" target="_blank">fal.ai/dashboard/keys</a> · Pague só pelo uso (~$0.01–0.05 por imagem).</p>
+            </div>
+          </div>
+
+          <div style="background:rgba(201,168,76,.06); border:1px solid rgba(201,168,76,.15); border-radius:8px; padding:12px 14px; font-size:.75rem; color:#c0a060; line-height:1.6;">
+            🔒 <strong>Privacidade:</strong> suas chaves são salvas apenas no <code>localStorage</code> do seu navegador e nunca são enviadas para nenhum servidor nosso.
+          </div>
+
+        </div>
+
+        <!-- ── TAB: MODELOS ── -->
+        <div id="stab-models" class="stab-content">
+
+          <div class="model-row">
+            <div class="model-row-header">
+              <span class="icon">🖼</span>
+              <span class="name">Modelo de Imagem</span>
+            </div>
+            <select id="imageModelSelect" class="input" onchange="saveModelPrefs(); updateActiveModelBar()" style="margin:0; font-size:.85rem">
+              <optgroup label="── fal.ai — Flux ──">
+                <option value="fal:flux-pro">✦ Flux Pro — Alta qualidade ⭐</option>
+                <option value="fal:flux-dev">Flux Dev — Equilibrado</option>
+                <option value="fal:flux-schnell">Flux Schnell — Rápido ⚡</option>
+              </optgroup>
+              <optgroup label="── fal.ai — Social Media ──">
+                <option value="fal:ideogram-v2">🎯 Ideogram v2 — Melhor para texto</option>
+                <option value="fal:recraft-v3">🎨 Recraft V3 — Design / Marca</option>
+              </optgroup>
+              <optgroup label="── Google Gemini 3 ──">
+                <option value="gemini-3-pro-image-preview" selected>Gemini 3 Pro Image</option>
+                <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash Image ⚡</option>
+              </optgroup>
+              <optgroup label="── Google Gemini 2.5 ──">
+                <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
+              </optgroup>
+            </select>
+            <div class="model-desc" id="imageModelDesc">Selecione o modelo para gerar as imagens finais.</div>
+          </div>
+
+          <div class="model-row">
+            <div class="model-row-header">
+              <span class="icon">🧠</span>
+              <span class="name">Diretor de Arte (Texto)</span>
+            </div>
+            <select id="textModelSelect" class="input" onchange="saveModelPrefs()" style="margin:0; font-size:.85rem">
+              <optgroup label="── Gemini 3 ──">
+                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview ⭐</option>
+                <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+                <option value="gemini-3-flash-preview">Gemini 3 Flash Preview ⚡</option>
+                <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite</option>
+              </optgroup>
+              <optgroup label="── Gemini 2.5 ──">
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+              </optgroup>
+            </select>
+            <div class="model-desc">Cria o prompt de direção de arte (sempre usa Gemini). Recomendado: Gemini 3.1 Pro Preview.</div>
+          </div>
+
+          <!-- Model descriptions card -->
+          <div style="background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:14px 16px; font-size:.75rem; line-height:1.7; color:#999">
+            <div style="font-weight:700; color:var(--white); margin-bottom:8px; font-size:.78rem">📖 Guia dos modelos de imagem</div>
+            <div>✦ <strong style="color:var(--gold)">Flux Pro</strong> — melhor qualidade geral, estética premium. Requer fal.ai.</div>
+            <div>🎯 <strong style="color:var(--gold)">Ideogram v2</strong> — melhor para artes <em>com texto legível</em> (preços, frases, CTAs). Requer fal.ai.</div>
+            <div>🎨 <strong style="color:var(--gold)">Recraft V3</strong> — ideal para branding, identidade visual, design comercial. Requer fal.ai.</div>
+            <div>⚡ <strong style="color:var(--gold)">Flux Schnell</strong> — 4× mais rápido, ótimo para rascunhos. Requer fal.ai.</div>
+            <div>🔷 <strong style="color:#80aaff">Gemini 3 Pro Image</strong> — multimodal, aceita imagens de referência. Requer Gemini Key.</div>
+          </div>
+
+        </div>
+
+        <!-- ── TAB: LOGS ── -->
+        <div id="stab-logs" class="stab-content">
+
+          <div class="log-toolbar">
+            <span class="log-count" id="logCountLabel">0 eventos</span>
+            <button class="btn btn-ghost btn-sm" onclick="exportLogs()" style="font-size:.75rem; padding:5px 12px">📋 Copiar</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearLogs()" style="font-size:.75rem; padding:5px 12px; border-color:rgba(239,68,68,.4); color:#f87171">🗑 Limpar</button>
+          </div>
+
+          <div id="logEntries"></div>
+
+        </div>
+
+      </div><!-- /settings-body -->
+    </div><!-- /settings-panel -->
+  </div><!-- /settings-overlay -->
 
   <!-- TIPS PANEL -->
   <div class="tips-panel hidden" id="tipsPanel">
@@ -2815,19 +3105,72 @@ document.getElementById('customW').addEventListener('input', updatePreview);
 document.getElementById('customH').addEventListener('input', updatePreview);
 
 /* ═══════════════════════════════════════════════════════════
-   IMAGE GENERATION — GEMINI IMAGEN 3
+   IMAGE GENERATION — MULTI-PROVIDER (Gemini + fal.ai)
 ═══════════════════════════════════════════════════════════ */
 
-// Save API key to localStorage when changed
-document.getElementById('geminiApiKey').addEventListener('change', () => {
-  localStorage.setItem('artesIA_apiKey', document.getElementById('geminiApiKey').value.trim());
-});
+/* ── Settings Modal ── */
+function openSettings(tab) {
+  document.getElementById('settingsOverlay').classList.add('open');
+  if (tab) {
+    const btn = document.querySelector(`.stab[onclick*="'${tab}'"]`);
+    if (btn) { switchSettingsTab(tab, btn); }
+  }
+  renderLogs();
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+function closeSettingsOnBg(e) {
+  if (e.target === document.getElementById('settingsOverlay')) closeSettings();
+}
+function switchSettingsTab(id, btn) {
+  document.querySelectorAll('.stab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.stab').forEach(el => el.classList.remove('active'));
+  document.getElementById('stab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'logs') renderLogs();
+}
 
-// Load saved API key
-(function loadApiKey() {
-  const saved = localStorage.getItem('artesIA_apiKey');
-  if (saved) document.getElementById('geminiApiKey').value = saved;
-})();
+/* ── API Key management ── */
+function saveApiKeys() {
+  const g = document.getElementById('geminiApiKey').value.trim();
+  const f = document.getElementById('falApiKey').value.trim();
+  if (g) localStorage.setItem('artesIA_apiKey', g);
+  else   localStorage.removeItem('artesIA_apiKey');
+  if (f) localStorage.setItem('artesIA_falApiKey', f);
+  else   localStorage.removeItem('artesIA_falApiKey');
+  updateKeyStatuses();
+}
+function loadApiKeys() {
+  const g = localStorage.getItem('artesIA_apiKey');
+  const f = localStorage.getItem('artesIA_falApiKey');
+  if (g) document.getElementById('geminiApiKey').value = g;
+  if (f) document.getElementById('falApiKey').value   = f;
+  updateKeyStatuses();
+}
+function updateKeyStatuses() {
+  const g = localStorage.getItem('artesIA_apiKey');
+  const f = localStorage.getItem('artesIA_falApiKey');
+  const gs = document.getElementById('geminiKeyStatus');
+  const fs = document.getElementById('falKeyStatus');
+  if (gs) gs.innerHTML = g
+    ? '<span class="key-status ok">✓ Chave configurada</span>'
+    : '<span class="key-status empty">⚠ Chave não configurada</span>';
+  if (fs) fs.innerHTML = f
+    ? '<span class="key-status ok">✓ Chave configurada</span>'
+    : '<span class="key-status empty">⚠ Chave não configurada</span>';
+}
+function toggleKeyVis(inputId, btn) {
+  const el = document.getElementById(inputId);
+  const isPass = el.type === 'password';
+  el.type = isPass ? 'text' : 'password';
+  btn.textContent = isPass ? '🙈' : '👁';
+}
+// Legacy compat
+function saveApiKey() { saveApiKeys(); }
+function toggleApiKeyVisibility() { toggleKeyVis('geminiApiKey', document.getElementById('btnToggleKey')); }
+
+loadApiKeys();
 
 // Map format IDs to Imagen 3 supported aspect ratios
 const FORMAT_ASPECT_RATIO = {
@@ -2898,15 +3241,6 @@ function getSelectedTextModel() {
   return document.getElementById('textModelSelect')?.value || 'gemini-3.1-pro-preview';
 }
 
-function toggleApiKeyVisibility() {
-  const input = document.getElementById('geminiApiKey');
-  const btn   = document.getElementById('btnToggleKey');
-  if (!input) return;
-  const isHidden = input.type === 'password';
-  input.type = isHidden ? 'text' : 'password';
-  if (btn) btn.textContent = isHidden ? '🙈' : '👁';
-}
-
 function saveModelPrefs() {
   localStorage.setItem('artesIA_imageModel', document.getElementById('imageModelSelect').value);
   localStorage.setItem('artesIA_textModel', document.getElementById('textModelSelect').value);
@@ -2914,6 +3248,8 @@ function saveModelPrefs() {
 
 /* ── Fallback model chains ── */
 const IMAGE_MODEL_FALLBACKS = [
+  'fal:flux-pro',
+  'fal:flux-dev',
   'gemini-3-pro-image-preview',
   'gemini-3.1-flash-image-preview',
   'gemini-2.5-flash-image'
@@ -2926,6 +3262,29 @@ const TEXT_MODEL_FALLBACKS = [
   'gemini-2.5-flash'
 ];
 
+/* ── Image model descriptions ── */
+const IMAGE_MODEL_INFO = {
+  'fal:flux-pro':                  { label:'Flux Pro',           provider:'fal.ai',  note:'Melhor qualidade geral, estética premium' },
+  'fal:flux-dev':                  { label:'Flux Dev',           provider:'fal.ai',  note:'Equilibrado — qualidade e velocidade' },
+  'fal:flux-schnell':              { label:'Flux Schnell',       provider:'fal.ai',  note:'Rápido, ideal para rascunhos' },
+  'fal:ideogram-v2':               { label:'Ideogram v2',        provider:'fal.ai',  note:'Melhor para texto legível em imagens' },
+  'fal:recraft-v3':                { label:'Recraft V3',         provider:'fal.ai',  note:'Design, branding, identidade visual' },
+  'gemini-3-pro-image-preview':    { label:'Gemini 3 Pro Image', provider:'Gemini',  note:'Multimodal, aceita referências visuais' },
+  'gemini-3.1-flash-image-preview':{ label:'Gemini 3.1 Flash',  provider:'Gemini',  note:'Rápido, aceita referências visuais' },
+  'gemini-2.5-flash-image':        { label:'Gemini 2.5 Flash',   provider:'Gemini',  note:'Gemini 2.5, geração de imagem' },
+};
+
+function updateActiveModelBar() {
+  const modelId = getSelectedImageModel();
+  const info = IMAGE_MODEL_INFO[modelId] || { label: modelId, provider: '', note: '' };
+  const nameEl = document.getElementById('activeModelName');
+  const provEl = document.getElementById('activeModelProvider');
+  const descEl = document.getElementById('imageModelDesc');
+  if (nameEl) nameEl.textContent = info.label;
+  if (provEl) provEl.textContent = info.provider ? `via ${info.provider}` : '';
+  if (descEl) descEl.textContent = info.note || 'Selecione o modelo para gerar as imagens finais.';
+}
+
 /* ── Cancellation ── */
 let _activeAbortController = null;
 
@@ -2934,6 +3293,62 @@ function cancelGeneration() {
     _activeAbortController.abort();
     _activeAbortController = null;
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SESSION LOG
+══════════════════════════════════════════════════════════ */
+const _sessionLog = [];
+
+function addLog(type, details) {
+  const entry = { id: Date.now(), ts: new Date().toLocaleTimeString('pt-BR'), type, ...details };
+  _sessionLog.unshift(entry);
+  // update badge
+  const badge = document.getElementById('logBadge');
+  if (badge) { badge.textContent = _sessionLog.length; badge.style.display = 'inline'; }
+  const cnt = document.getElementById('logCountTab');
+  if (cnt) cnt.textContent = `(${_sessionLog.length})`;
+  return entry;
+}
+
+function renderLogs() {
+  const container = document.getElementById('logEntries');
+  if (!container) return;
+  const lbl = document.getElementById('logCountLabel');
+  if (lbl) lbl.textContent = `${_sessionLog.length} evento${_sessionLog.length !== 1 ? 's' : ''}`;
+  if (_sessionLog.length === 0) { container.innerHTML = ''; return; }
+  container.innerHTML = _sessionLog.map(e => {
+    const typeLabel = e.type === 'image' ? '🖼 Imagem' : e.type === 'text' ? '🧠 Texto' : '❌ Erro';
+    return `<div class="log-entry log-${e.type}">
+      <div class="log-entry-header">
+        <span class="log-badge-type">${typeLabel}</span>
+        <span class="log-model-name">${escHtml(e.model || '—')}</span>
+        <span class="log-ts">${escHtml(e.ts)}</span>
+        ${e.duration ? `<span class="log-dur">⏱ ${e.duration}ms</span>` : ''}
+      </div>
+      ${e.prompt ? `<div class="log-prompt-text">"${escHtml(e.prompt.slice(0,150))}${e.prompt.length>150?'…':''}"</div>` : ''}
+      ${e.status ? `<div class="log-status-text ${e.type==='error'?'err':'ok'}">${escHtml(e.status)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function clearLogs() {
+  _sessionLog.length = 0;
+  const badge = document.getElementById('logBadge');
+  if (badge) badge.style.display = 'none';
+  const cnt = document.getElementById('logCountTab');
+  if (cnt) cnt.textContent = '';
+  renderLogs();
+}
+
+function exportLogs() {
+  if (!_sessionLog.length) { alert('Nenhum log para exportar.'); return; }
+  const text = _sessionLog.map(e =>
+    `[${e.ts}] ${(e.type||'').toUpperCase().padEnd(5)} | ${(e.model||'—').padEnd(30)} | ${e.status||'OK'} | ${e.duration ? e.duration+'ms' : ''} | ${e.prompt ? e.prompt.slice(0,120) : ''}`
+  ).join('\n');
+  navigator.clipboard.writeText(text)
+    .then(() => alert(`✅ ${_sessionLog.length} logs copiados para o clipboard!`))
+    .catch(() => prompt('Copie os logs abaixo:', text));
 }
 
 /* ── Usage tracking ── */
@@ -2988,23 +3403,136 @@ function classifyApiError(status, message) {
 }
 
 function loadModelPrefs() {
-  const img    = localStorage.getItem('artesIA_imageModel');
-  const txt    = localStorage.getItem('artesIA_textModel');
-  const apiKey = localStorage.getItem('artesIA_apiKey');
-  if (img)    document.getElementById('imageModelSelect').value = img;
-  if (txt)    document.getElementById('textModelSelect').value  = txt;
-  if (apiKey) document.getElementById('geminiApiKey').value     = apiKey;
+  const img = localStorage.getItem('artesIA_imageModel');
+  const txt = localStorage.getItem('artesIA_textModel');
+  if (img) {
+    const sel = document.getElementById('imageModelSelect');
+    if (sel) sel.value = img;
+  }
+  if (txt) {
+    const sel = document.getElementById('textModelSelect');
+    if (sel) sel.value = txt;
+  }
+  updateActiveModelBar();
 }
 
-function saveApiKey() {
-  const val = document.getElementById('geminiApiKey').value.trim();
-  if (val) localStorage.setItem('artesIA_apiKey', val);
+/* ── fal.ai — aspect ratio & model routing ── */
+const FAL_MODEL_PATHS = {
+  'fal:flux-pro':     'fal-ai/flux-pro',
+  'fal:flux-dev':     'fal-ai/flux/dev',
+  'fal:flux-schnell': 'fal-ai/flux/schnell',
+  'fal:ideogram-v2':  'fal-ai/ideogram/v2',
+  'fal:recraft-v3':   'fal-ai/recraft-v3',
+};
+
+function mapAspectToFalParams(aspectRatio, modelId) {
+  if (modelId === 'fal:ideogram-v2') {
+    const map = { '1:1':'ASPECT_1_1','9:16':'ASPECT_9_16','3:4':'ASPECT_3_4','16:9':'ASPECT_16_9','4:3':'ASPECT_4_3' };
+    return { aspect_ratio: map[aspectRatio] || 'ASPECT_1_1', style_type: 'DESIGN', magic_prompt_option: 'OFF' };
+  }
+  const sizeMap = {
+    '1:1':  { width:1024, height:1024 },
+    '9:16': { width:576,  height:1024 },
+    '3:4':  { width:768,  height:1024 },
+    '16:9': { width:1024, height:576  },
+    '4:3':  { width:1024, height:768  },
+  };
+  const size = sizeMap[aspectRatio] || sizeMap['1:1'];
+  if (modelId === 'fal:recraft-v3') {
+    return { image_size: { width: size.width, height: size.height }, style: 'digital_illustration' };
+  }
+  return { image_size: { width: size.width, height: size.height } };
+}
+
+function classifyFalError(status, message) {
+  const msg = (message || '').toLowerCase();
+  if (status === 401 || msg.includes('unauthorized') || msg.includes('invalid key') || msg.includes('authentication')) {
+    return { type:'auth', label:'🔑 fal.ai: API Key inválida', suggestion:'Verifique sua chave fal.ai em ⚙️ Configurações → API Keys → fal.ai.' };
+  }
+  if (status === 429 || msg.includes('rate limit') || msg.includes('quota')) {
+    return { type:'quota', label:'⚠️ fal.ai: Limite atingido', suggestion:'Aguarde alguns segundos ou troque de modelo.' };
+  }
+  if (status === 422 || msg.includes('validation')) {
+    return { type:'invalid', label:'⚙️ fal.ai: Parâmetro inválido', suggestion:'O modelo pode não suportar esse tamanho. Tente outro formato.' };
+  }
+  return { type:'unknown', label:'❌ fal.ai: Erro desconhecido', suggestion:'Verifique sua API Key e tente novamente.' };
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+    reader.onerror   = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function callFalImage(prompt, falApiKey, aspectRatio, modelId) {
+  const path = FAL_MODEL_PATHS[modelId];
+  if (!path) throw new Error(`Modelo fal.ai desconhecido: ${modelId}`);
+  const url    = `https://fal.run/${path}`;
+  const params = mapAspectToFalParams(aspectRatio, modelId);
+  const signal = _activeAbortController?.signal;
+  const t0     = Date.now();
+  const resp   = await fetch(url, {
+    method:  'POST',
+    headers: { 'Authorization': `Key ${falApiKey}`, 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ prompt, num_images: 1, ...params }),
+    signal
+  });
+  trackUsage('image');
+  const duration = Date.now() - t0;
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => ({}));
+    const msg = errData?.detail || errData?.message || `HTTP ${resp.status}`;
+    addLog('error', { model: modelId, prompt: prompt.slice(0,200), status: msg, duration });
+    const error = new Error(msg);
+    error.classified = classifyFalError(resp.status, msg);
+    error.status = resp.status;
+    throw error;
+  }
+  const data     = await resp.json();
+  const imageUrl = data.images?.[0]?.url;
+  if (!imageUrl) {
+    addLog('error', { model: modelId, prompt: prompt.slice(0,200), status: 'Sem imagem retornada', duration });
+    throw new Error('Nenhuma imagem retornada pelo fal.ai. Tente novamente.');
+  }
+  // Download and convert to base64
+  const imgResp = await fetch(imageUrl);
+  if (!imgResp.ok) throw new Error('Falha ao baixar imagem do fal.ai.');
+  const blob   = await imgResp.blob();
+  const base64 = await blobToBase64(blob);
+  addLog('image', { model: modelId, prompt: prompt.slice(0,200), status: '✓ Gerado com sucesso', duration });
+  return { base64, mimeType: blob.type || 'image/jpeg' };
+}
+
+/* ── Unified image call (Gemini OR fal.ai) ── */
+async function callImageModel(prompt, aspectRatio, extraParts) {
+  const modelId = getSelectedImageModel();
+  if (modelId.startsWith('fal:')) {
+    const falKey = localStorage.getItem('artesIA_falApiKey') || '';
+    if (!falKey) {
+      const err = new Error('API Key do fal.ai não configurada.');
+      err.classified = { type:'auth', label:'🔑 fal.ai: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave fal.ai.' };
+      throw err;
+    }
+    return await callFalImage(prompt, falKey, aspectRatio, modelId);
+  }
+  // Gemini fallback
+  const geminiKey = localStorage.getItem('artesIA_apiKey') || '';
+  if (!geminiKey) {
+    const err = new Error('API Key do Gemini não configurada.');
+    err.classified = { type:'auth', label:'🔑 Gemini: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave do Gemini.' };
+    throw err;
+  }
+  return await callGeminiImage(prompt, geminiKey, aspectRatio, extraParts);
 }
 
 async function callGeminiText(prompt, apiKey, modelOverride) {
   const model = modelOverride || getSelectedTextModel();
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url   = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const signal = _activeAbortController?.signal;
+  const t0 = Date.now();
   const resp = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3012,9 +3540,11 @@ async function callGeminiText(prompt, apiKey, modelOverride) {
     signal
   });
   trackUsage('text');
+  const duration = Date.now() - t0;
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
     const rawMsg = err?.error?.message || `HTTP ${resp.status}`;
+    addLog('error', { model, prompt: prompt.slice(0,200), status: rawMsg, duration });
     const classified = classifyApiError(resp.status, rawMsg);
     const error = new Error(rawMsg);
     error.classified = classified;
@@ -3022,16 +3552,19 @@ async function callGeminiText(prompt, apiKey, modelOverride) {
     throw error;
   }
   const data = await resp.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  addLog('text', { model, prompt: prompt.slice(0,200), status: '✓ Prompt gerado', duration });
+  return text;
 }
 
 /* ── Gemini image generation call (generateContent) ── */
 async function callGeminiImage(prompt, apiKey, aspectRatio, extraParts = [], modelOverride) {
-  const model = modelOverride || getSelectedImageModel();
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  const parts = [{ text: prompt }, ...extraParts];
+  const model  = modelOverride || getSelectedImageModel();
+  const url    = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const parts  = [{ text: prompt }, ...extraParts];
   const signal = _activeAbortController?.signal;
-  const resp = await fetch(url, {
+  const t0     = Date.now();
+  const resp   = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -3041,29 +3574,36 @@ async function callGeminiImage(prompt, apiKey, aspectRatio, extraParts = [], mod
     signal
   });
   trackUsage('image');
+  const duration = Date.now() - t0;
   if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
+    const err    = await resp.json().catch(() => ({}));
     const rawMsg = err?.error?.message || `HTTP ${resp.status}`;
+    addLog('error', { model, prompt: prompt.slice(0,200), status: rawMsg, duration });
     const classified = classifyApiError(resp.status, rawMsg);
     const error = new Error(rawMsg);
     error.classified = classified;
     error.status = resp.status;
     throw error;
   }
-  const data = await resp.json();
+  const data          = await resp.json();
   const responseParts = data?.candidates?.[0]?.content?.parts || [];
-  const imgPart = responseParts.find(p => p.inlineData);
-  if (!imgPart) throw new Error('Nenhuma imagem retornada. Tente outro modelo.');
+  const imgPart       = responseParts.find(p => p.inlineData);
+  if (!imgPart) {
+    addLog('error', { model, prompt: prompt.slice(0,200), status: 'Sem imagem retornada', duration });
+    throw new Error('Nenhuma imagem retornada. Tente outro modelo.');
+  }
+  addLog('image', { model, prompt: prompt.slice(0,200), status: '✓ Gerado com sucesso', duration });
   return { base64: imgPart.inlineData.data, mimeType: imgPart.inlineData.mimeType || 'image/png' };
 }
 
-/* ── Wrappers sem fallback — erro direto ao usuário ── */
+/* ── Wrappers roteados (Gemini OU fal.ai) ── */
 async function callGeminiImageWithFallback(prompt, apiKey, aspectRatio, extraParts, statusEl) {
-  return await callGeminiImage(prompt, apiKey, aspectRatio, extraParts);
+  return await callImageModel(prompt, aspectRatio, extraParts);
 }
 
 async function callGeminiTextWithFallback(prompt, apiKey, statusEl) {
-  return await callGeminiText(prompt, apiKey);
+  const key = apiKey || localStorage.getItem('artesIA_apiKey') || '';
+  return await callGeminiText(prompt, key);
 }
 
 /* ── Creative director: enriches a brief into a full image prompt ── */
@@ -3345,8 +3885,22 @@ Slide number indicator: ${idx + 1}/${total}`;
 }
 
 async function generateImages() {
-  const apiKey = document.getElementById('geminiApiKey').value.trim();
-  if (!apiKey) { alert('Insira sua API Key do Gemini.'); return; }
+  const modelId   = getSelectedImageModel();
+  const isFal     = modelId.startsWith('fal:');
+  const geminiKey = localStorage.getItem('artesIA_apiKey') || '';
+  const falKey    = localStorage.getItem('artesIA_falApiKey') || '';
+
+  if (isFal && !falKey) {
+    openSettings('keys');
+    alert('Configure sua chave fal.ai em ⚙️ Configurações → API Keys.');
+    return;
+  }
+  if (!geminiKey) {
+    openSettings('keys');
+    alert('Configure sua chave do Gemini em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte mesmo com fal.ai.)');
+    return;
+  }
+  const apiKey = geminiKey;  // used for text model calls
 
   const btn    = document.getElementById('btnGenerateImage');
   const btnCxl = document.getElementById('btnCancelGenerate');
@@ -3611,6 +4165,7 @@ function getRefImageParts() {
 // Init
 init();
 loadModelPrefs();
+updateActiveModelBar();
 </script>
 </body>
 </html>
