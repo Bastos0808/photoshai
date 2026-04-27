@@ -1434,7 +1434,11 @@
                 <input type="text" id="openaiWorkerUrl" class="input" placeholder="https://openai-proxy.seu-usuario.workers.dev" oninput="saveApiKeys()" />
               </div>
               <div class="key-hint" id="openaiWorkerStatus"></div>
-              <p class="key-hint">
+              <button type="button" onclick="testWorkerConnection()" style="margin-top:8px; background:rgba(201,168,76,.1); border:1px solid var(--gold-dark); color:var(--gold); font-family:inherit; font-size:.78rem; padding:6px 14px; border-radius:6px; cursor:pointer;">
+                🔌 Testar conexão com o Worker
+              </button>
+              <div id="workerTestResult" style="margin-top:6px; font-size:.78rem;"></div>
+              <p class="key-hint" style="margin-top:8px;">
                 A API Key da OpenAI fica <strong>guardada no Cloudflare</strong>, nunca exposta no browser.<br>
                 <a href="#" onclick="openWorkerGuide(); return false" style="color:var(--gold); font-weight:600">📖 Ver passo a passo para criar o Worker →</a>
               </p>
@@ -3206,6 +3210,30 @@ function updateKeyStatuses() {
   set('falKeyStatus',       f, 'Chave configurada');
   set('openaiWorkerStatus', w, 'Worker URL configurada');
 }
+async function testWorkerConnection() {
+  const url = localStorage.getItem('artesIA_openaiWorkerUrl') || document.getElementById('openaiWorkerUrl').value.trim();
+  const resultEl = document.getElementById('workerTestResult');
+  if (!url) {
+    resultEl.innerHTML = '<span style="color:#e05050;">⚠ Cole a URL do Worker primeiro.</span>';
+    return;
+  }
+  resultEl.innerHTML = '<span style="color:var(--muted);">⏳ Testando conexão…</span>';
+  try {
+    const resp = await fetch(url, { method: 'GET' });
+    const text = await resp.text().catch(() => '');
+    if (resp.ok || resp.status === 200) {
+      resultEl.innerHTML = '<span style="color:#4CAF50;">✅ Worker respondendo! Conexão OK.</span>';
+    } else if (resp.status === 405) {
+      // Método não permitido → worker existe, mas só aceita POST (esperado se worker antigo)
+      resultEl.innerHTML = '<span style="color:#4CAF50;">✅ Worker está online! (só aceita POST, normal)</span>';
+    } else {
+      resultEl.innerHTML = `<span style="color:#e05050;">❌ Worker respondeu com HTTP ${resp.status}. Verifique se foi implantado corretamente.</span>`;
+    }
+  } catch (e) {
+    resultEl.innerHTML = `<span style="color:#e05050;">❌ Sem resposta do Worker. Provável causa: Worker não implantado ou URL errada.<br><small style="opacity:.7">${e.message}</small></span>`;
+  }
+}
+
 function toggleKeyVis(inputId, btn) {
   const el = document.getElementById(inputId);
   const isPass = el.type === 'password';

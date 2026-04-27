@@ -21,6 +21,11 @@ export default {
       return corsResponse(null, 204)
     }
 
+    // Health check — GET retorna status OK para testar se o worker está no ar
+    if (request.method === 'GET') {
+      return corsResponse({ status: 'ok', message: 'PhotosHAI OpenAI Worker está no ar! ✅' }, 200)
+    }
+
     if (request.method !== 'POST') {
       return corsResponse({ error: 'Apenas POST é permitido.' }, 405)
     }
