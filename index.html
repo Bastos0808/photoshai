@@ -1280,6 +1280,7 @@
     <div id="activeModelBar" style="display:flex; align-items:center; gap:10px; margin-bottom:16px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:8px; padding:10px 14px; cursor:pointer" onclick="openSettings('models')">
       <span style="font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)">Modelo ativo</span>
       <span id="activeModelName" style="font-size:.82rem; color:var(--gold); font-weight:600; flex:1">—</span>
+      <span id="activeModelMode"></span>
       <span id="activeModelProvider" style="font-size:.7rem; color:var(--muted)"></span>
       <span style="font-size:.75rem; color:var(--muted)">✏️ trocar</span>
     </div>
@@ -3282,13 +3283,24 @@ const IMAGE_MODEL_INFO = {
 };
 
 function updateActiveModelBar() {
-  const modelId = getSelectedImageModel();
-  const info = IMAGE_MODEL_INFO[modelId] || { label: modelId, provider: '', note: '' };
+  const modelId  = getSelectedImageModel();
+  const info     = IMAGE_MODEL_INFO[modelId] || { label: modelId, provider: '', note: '' };
+  const hasAnyRef = !!(refImages.logo || refImages.person || refImages.background || refImages.graphic || refImages.style?.length);
+  const editMode  = modelId.startsWith('fal:') && falSupportsEdit(modelId) && hasAnyRef;
+  const textOnly  = modelId.startsWith('fal:') && !falSupportsEdit(modelId) && hasAnyRef;
+
   const nameEl = document.getElementById('activeModelName');
   const provEl = document.getElementById('activeModelProvider');
   const descEl = document.getElementById('imageModelDesc');
+  const modeEl = document.getElementById('activeModelMode');
+
   if (nameEl) nameEl.textContent = info.label;
   if (provEl) provEl.textContent = info.provider ? `via ${info.provider}` : '';
+  if (modeEl) {
+    if (editMode)   modeEl.innerHTML = '<span style="background:rgba(201,168,76,.18);color:var(--gold);font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em">🖼 EDIT MODE</span>';
+    else if (textOnly) modeEl.innerHTML = '<span style="background:rgba(255,200,0,.12);color:#f0c040;font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em">📝 TEXT REF</span>';
+    else modeEl.innerHTML = '';
+  }
   if (descEl) descEl.textContent = info.note || 'Selecione o modelo para gerar as imagens finais.';
 }
 
@@ -3570,13 +3582,25 @@ function loadModelPrefs() {
   updateActiveModelBar();
 }
 
-/* ── fal.ai — aspect ratio & model routing ── */
+/* ── fal.ai — model paths ── */
 const FAL_MODEL_PATHS = {
   'fal:nano-banana-pro': 'fal-ai/nano-banana-pro',
   'fal:nano-banana-2':   'fal-ai/nano-banana-2',
   'fal:ideogram-v2':     'fal-ai/ideogram/v2',
   'fal:recraft-v3':      'fal-ai/recraft-v3',
 };
+
+// Modelos com endpoint /edit que aceitam image_urls (base64 data URI ou URL pública)
+// Ideogram /edit exige mask (inpainting) — não serve para referências gerais
+// Recraft v3 não tem /edit
+const FAL_EDIT_PATHS = {
+  'fal:nano-banana-pro': 'fal-ai/nano-banana-pro/edit',
+  'fal:nano-banana-2':   'fal-ai/nano-banana-2/edit',
+};
+
+function falSupportsEdit(modelId) {
+  return !!FAL_EDIT_PATHS[modelId];
+}
 
 function mapAspectToFalParams(aspectRatio, modelId) {
   // ── Nano Banana Pro / Nano Banana 2 (Google Imagen) ──────────────────
@@ -3651,18 +3675,26 @@ function blobToBase64(blob) {
   });
 }
 
-async function callFalImage(prompt, falApiKey, aspectRatio, modelId) {
-  const path = FAL_MODEL_PATHS[modelId];
+async function callFalImage(prompt, falApiKey, aspectRatio, modelId, refDataUris = []) {
+  const hasRefs  = refDataUris.length > 0;
+  const editPath = FAL_EDIT_PATHS[modelId];
+  const usesEdit = hasRefs && !!editPath;
+
+  const path = usesEdit ? editPath : FAL_MODEL_PATHS[modelId];
   if (!path) throw new Error(`Modelo fal.ai desconhecido: ${modelId}`);
+
   const url    = `https://fal.run/${path}`;
   const params = mapAspectToFalParams(aspectRatio, modelId);
   const signal = _activeAbortController?.signal;
   const t0     = Date.now();
-  const resp   = await fetch(url, {
+
+  const body = { prompt, num_images: 1, sync_mode: true, ...params };
+  if (usesEdit) body.image_urls = refDataUris;
+
+  const resp = await fetch(url, {
     method:  'POST',
     headers: { 'Authorization': `Key ${falApiKey}`, 'Content-Type': 'application/json' },
-    // sync_mode: true → imagem retorna como data URI direto, sem roundtrip de download
-    body:    JSON.stringify({ prompt, num_images: 1, sync_mode: true, ...params }),
+    body:    JSON.stringify(body),
     signal
   });
   trackUsage('image');
@@ -3839,7 +3871,11 @@ async function callImageModel(prompt, aspectRatio, extraParts) {
         classified: { type:'auth', label:'🔑 fal.ai: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave fal.ai.' }
       });
     }
-    return await callFalImage(prompt, falKey, aspectRatio, modelId);
+    // Extrai imagens de referência (formato inlineData do Gemini) e converte para data URIs
+    const refDataUris = (extraParts || [])
+      .filter(p => p.inlineData)
+      .map(p => `data:${p.inlineData.mimeType};base64,${p.inlineData.data}`);
+    return await callFalImage(prompt, falKey, aspectRatio, modelId, refDataUris);
   }
 
   // Gemini
@@ -3937,6 +3973,45 @@ async function enrichPromptWithAI(brief, apiKey) {
   const hasLogoRef   = !!refImages.logo;
   const hasBgRef     = !!refImages.background;
   const hasGraphic   = !!refImages.graphic;
+  const hasAnyRef    = hasStyleRef || hasPersonRef || hasLogoRef || hasBgRef || hasGraphic;
+
+  const modelId      = getSelectedImageModel();
+  const isFal        = modelId.startsWith('fal:');
+  const falEditMode  = isFal && falSupportsEdit(modelId) && hasAnyRef;
+  const falTextOnly  = isFal && !falSupportsEdit(modelId) && hasAnyRef;
+
+  const buildRefBlock = () => {
+    if (falEditMode) {
+      const items = [];
+      if (hasBgRef)     items.push('• BACKGROUND IMAGE (passed via image_urls[0]): use as the scene/environment backdrop.');
+      if (hasPersonRef) items.push('• PERSON/CLIENT PHOTO (passed via image_urls): feature this person prominently, preserving their likeness.');
+      if (hasLogoRef)   items.push('• BRAND LOGO (passed via image_urls): CRITICAL — do NOT modify, recolor, filter or alter. Incorporate it EXACTLY as provided. Only decide its position: bottom-center, footer bar, inside a card, watermark-style.');
+      if (hasGraphic)   items.push('• GRAPHIC ELEMENT (passed via image_urls): incorporate this chart/mockup/icon as a layout element.');
+      if (hasStyleRef)  items.push('• STYLE REFERENCE (passed via image_urls): match the visual style, color palette, layout, and typography character.');
+      return `EDIT MODE: Reference images will be passed directly to the image model via image_urls.
+Write editing instructions referencing these images by role:
+${items.join('\n')}
+The model sees the actual images — write precise instructions about what to do with each one.`;
+    }
+    if (falTextOnly) {
+      const items = [];
+      if (hasLogoRef)   items.push('• LOGO: Describe its visual identity — typography style, colors, shapes — so the model represents the brand aesthetically (model cannot receive the actual image).');
+      if (hasPersonRef) items.push('• PERSON: Describe key visual traits — hair, style, expression, clothing — to represent them in the design.');
+      if (hasBgRef)     items.push('• BACKGROUND: Describe the scene, colors, mood, and atmosphere.');
+      if (hasGraphic)   items.push('• GRAPHIC ELEMENT: Describe its type, style, and visual character.');
+      if (hasStyleRef)  items.push('• STYLE REFERENCE: Describe the color palette, typography feel, layout structure, and mood.');
+      return `TEXT-ONLY MODE: Model "${modelId}" cannot receive images directly. Translate each reference into a vivid text description:
+${items.join('\n')}`;
+    }
+    // Gemini: imagens multimodais anexadas diretamente
+    return [
+      hasStyleRef  ? '⬆ STYLE REFERENCE IMAGE ATTACHED — match the visual style, color feel, layout approach, and typography character of the provided style reference.' : '',
+      hasPersonRef ? '⬆ PERSON/CLIENT PHOTO ATTACHED — feature this person prominently in the design, keeping their likeness accurate.' : '',
+      hasLogoRef   ? '⬆ LOGO ATTACHED — CRITICAL: DO NOT MODIFY, EDIT, ALTER, RECOLOR, OR APPLY FILTERS TO THIS LOGO. Include it EXACTLY as provided. Only decide its POSITION strategically: bottom-center, bottom-left, footer bar, inside a card, or watermark-style. The logo itself must remain pristine and unchanged — only its placement on the canvas is flexible.' : '',
+      hasBgRef     ? '⬆ BACKGROUND IMAGE ATTACHED — use this image as the background or scene.' : '',
+      hasGraphic   ? '⬆ GRAPHIC ELEMENT ATTACHED — incorporate this chart/mockup/icon as a visual element in the layout.' : '',
+    ].filter(Boolean).join('\n');
+  };
 
   const directorPrompt = `You are a senior social media designer and art director. You create professional, scroll-stopping social media posts that look like they were designed in Canva Pro or Adobe Express by an expert — clean, intentional, typographically strong. NOT cinematic AI art. NOT photorealistic scenes with dramatic fog and lighting. GRAPHIC DESIGN.
 
@@ -3945,11 +4020,7 @@ Your task: read the briefing and any attached reference images, then write a sin
 BRIEFING:
 ${brief}
 
-${hasStyleRef  ? '⬆ STYLE REFERENCE IMAGE ATTACHED — match the visual style, color feel, layout approach, and typography character of the provided style reference.' : ''}
-${hasPersonRef ? '⬆ PERSON/CLIENT PHOTO ATTACHED — feature this person prominently in the design, keeping their likeness accurate.' : ''}
-${hasLogoRef   ? '⬆ LOGO ATTACHED — CRITICAL: DO NOT MODIFY, EDIT, ALTER, RECOLOR, OR APPLY FILTERS TO THIS LOGO. Include it EXACTLY as provided. Only decide its POSITION strategically: bottom-center, bottom-left, footer bar, inside a card, or watermark-style. The logo itself must remain pristine and unchanged — only its placement on the canvas is flexible.' : ''}
-${hasBgRef     ? '⬆ BACKGROUND IMAGE ATTACHED — use this image as the background or scene.' : ''}
-${hasGraphic   ? '⬆ GRAPHIC ELEMENT ATTACHED — incorporate this chart/mockup/icon as a visual element in the layout.' : ''}
+${buildRefBlock()}
 
 ${buildTypographyRule()}
 
@@ -4403,6 +4474,7 @@ async function handleRefFile(input, slot) {
   refImages[slot] = await readImageFile(file);
   input.value = '';
   renderRefZone(slot);
+  updateActiveModelBar();
 }
 
 async function handleRefFiles(input, slot) {
@@ -4412,6 +4484,7 @@ async function handleRefFiles(input, slot) {
   refImages[slot] = imgs;
   input.value = '';
   renderRefZone(slot);
+  updateActiveModelBar();
 }
 
 function handleRefDrop(e, slot) {
@@ -4436,6 +4509,7 @@ function clearRefSlot(slot, e) {
   e.stopPropagation();
   refImages[slot] = slot === 'style' ? [] : null;
   renderRefZone(slot);
+  updateActiveModelBar();
 }
 
 function renderRefZone(slot) {
