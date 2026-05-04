@@ -4140,7 +4140,7 @@ async function enrichPromptWithAI(brief, apiKey) {
       const items = [];
       if (hasBgRef)     items.push('• BACKGROUND IMAGE (passed via image_urls[0]): use as the scene/environment backdrop.');
       if (hasPersonRef) items.push('• PERSON/CLIENT PHOTO (passed via image_urls): feature this person prominently, preserving their likeness.');
-      if (hasLogoRef)   items.push('• BRAND LOGO (passed via image_urls): CRITICAL — do NOT modify, recolor, filter or alter. Incorporate it EXACTLY as provided. Only decide its position: bottom-center, footer bar, inside a card, watermark-style.');
+      if (hasLogoRef)   items.push('• BRAND LOGO (passed via image_urls[0]): ⚠️ REPRODUCTION RULE — treat this logo as a flat sticker placed on top of the composition. Reproduce it with ZERO changes: same exact shapes, same exact colors, same exact proportions, same exact typography if any. Do NOT reinterpret, redraw, simplify, stylize, colorize, add glow, add shadow, or apply any artistic filter. Place it in a clean, uncluttered area (bottom-center or bottom-left preferred) with sufficient padding. The surrounding design must complement the logo, never overlap or compete with it.');
       if (hasGraphic)   items.push('• GRAPHIC ELEMENT (passed via image_urls): incorporate this chart/mockup/icon as a layout element.');
       if (hasStyleRef)  items.push('• STYLE REFERENCE (passed via image_urls): match the visual style, color palette, layout, and typography character.');
       return `EDIT MODE: Reference images will be passed directly to the image model via image_urls.
@@ -4162,7 +4162,7 @@ ${items.join('\n')}`;
     return [
       hasStyleRef  ? '⬆ STYLE REFERENCE IMAGE ATTACHED — match the visual style, color feel, layout approach, and typography character of the provided style reference.' : '',
       hasPersonRef ? '⬆ PERSON/CLIENT PHOTO ATTACHED — feature this person prominently in the design, keeping their likeness accurate.' : '',
-      hasLogoRef   ? '⬆ LOGO ATTACHED — CRITICAL: DO NOT MODIFY, EDIT, ALTER, RECOLOR, OR APPLY FILTERS TO THIS LOGO. Include it EXACTLY as provided. Only decide its POSITION strategically: bottom-center, bottom-left, footer bar, inside a card, or watermark-style. The logo itself must remain pristine and unchanged — only its placement on the canvas is flexible.' : '',
+      hasLogoRef   ? '⬆ BRAND LOGO ATTACHED — REPRODUCTION RULE: treat the logo as a flat sticker placed on top. Reproduce it with ZERO changes — same exact shapes, same exact colors, same exact proportions, same exact typography. Do NOT reinterpret, redraw, simplify, stylize, add glow, add shadow, recolor, or apply any effect. Place it in a clean uncluttered area (bottom-center or bottom-left, with padding). The design around it must complement it, never overlap or compete.' : '',
       hasBgRef     ? '⬆ BACKGROUND IMAGE ATTACHED — use this image as the background or scene.' : '',
       hasGraphic   ? '⬆ GRAPHIC ELEMENT ATTACHED — incorporate this chart/mockup/icon as a visual element in the layout.' : '',
     ].filter(Boolean).join('\n');
@@ -4184,9 +4184,11 @@ NEVER invent, translate, or rewrite the headline/subtitle/body text.
 The EXACT original words must appear in the image in the ORIGINAL LANGUAGE provided.
 
 ━━━ ABSOLUTE RULE: LOGO IS UNTOUCHABLE ━━━
-If a logo image is attached, include it EXACTLY as provided.
-DO NOT modify, edit, recolor, apply filters, change opacity, or alter any detail.
-Only choose its POSITION on the canvas strategically — the logo itself must remain pristine.
+If a logo image is attached, treat it as a flat sticker placed on top of the composition.
+REPRODUCE IT WITH ZERO CHANGES: same exact shapes, same exact colors, same exact proportions, same exact typography.
+DO NOT reinterpret, redraw, simplify, stylize, add glow, add shadow, recolor, or apply ANY artistic effect.
+Place it in a clean, uncluttered area — bottom-center or bottom-left with clear padding.
+Any alteration to the logo is a critical failure of this task.
 
 ━━━ DESIGN APPROACH — PREMIUM SOCIAL MEDIA GRAPHIC DESIGN ━━━
 
@@ -4846,7 +4848,7 @@ function getRefImageParts() {
   const roleDesc = {
     background: 'USE THIS IMAGE AS THE BACKGROUND or scene reference for the artwork.',
     person:     'THIS IS THE PERSON/CLIENT to feature in the artwork. Use their face, pose, or likeness.',
-    logo:       'THIS IS THE BRAND LOGO. DO NOT MODIFY, EDIT, FILTER, OR ALTER IT IN ANY WAY. Include it EXACTLY as provided — same colors, same design, same proportions. Only choose its POSITION strategically based on the layout: bottom-center, bottom-left, integrated into a footer bar, embedded in a card, or watermark-style if needed. The logo must remain pristine and unchanged. Position is flexible; the logo itself is not.',
+    logo:       'THIS IS THE BRAND LOGO — treat it as a flat sticker placed on top of the composition. REPRODUCE WITH ZERO CHANGES: same exact shapes, same exact colors, same exact proportions, same exact typography. DO NOT reinterpret, redraw, simplify, stylize, add glow, add shadow, recolor, or apply any effect whatsoever. Any alteration is a critical failure. Place it in a clean uncluttered area (bottom-center or bottom-left preferred) with sufficient padding so it is clearly visible and never overlapped by other elements.',
     graphic:    'THIS IS A GRAPHIC ELEMENT (chart, mockup, icon, UI screenshot). Incorporate it into the layout.',
     style:      'THIS IS A STYLE REFERENCE. Match the visual style, color palette, typography feel, and layout approach of this image.'
   };
