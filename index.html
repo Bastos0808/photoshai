@@ -3534,7 +3534,7 @@ function resetUsageStats() {
 
 /* ── Error classifier ── */
 function classifyApiError(status, message) {
-  const msg = (message || '').toLowerCase();
+  const msg = String(message ?? '').toLowerCase();
   if (status === 429 || msg.includes('quota') || msg.includes('resource_exhausted') || msg.includes('rate limit')) {
     return { type: 'quota', label: '⚠️ Limite de uso atingido', suggestion: 'Você atingiu o limite deste modelo. Troque para outro modelo no seletor acima e tente novamente.' };
   }
@@ -3607,7 +3607,7 @@ function mapAspectToFalParams(aspectRatio, modelId) {
 }
 
 function classifyFalError(status, message) {
-  const msg = (message || '').toLowerCase();
+  const msg = String(message ?? '').toLowerCase();
   if (status === 401 || msg.includes('unauthorized') || msg.includes('invalid key') || msg.includes('authentication')) {
     return { type:'auth', label:'🔑 fal.ai: API Key inválida', suggestion:'Verifique sua chave fal.ai em ⚙️ Configurações → API Keys → fal.ai.' };
   }
@@ -3646,7 +3646,11 @@ async function callFalImage(prompt, falApiKey, aspectRatio, modelId) {
   const duration = Date.now() - t0;
   if (!resp.ok) {
     const errData = await resp.json().catch(() => ({}));
-    const msg = errData?.detail || errData?.message || `HTTP ${resp.status}`;
+    // fal.ai (FastAPI) pode retornar detail como array de objetos — normaliza para string
+    const rawDetail = errData?.detail;
+    const msg = Array.isArray(rawDetail)
+      ? rawDetail.map(e => e?.msg || JSON.stringify(e)).join('; ')
+      : (typeof rawDetail === 'string' ? rawDetail : (errData?.message || `HTTP ${resp.status}`));
     addLog('error', { model: modelId, prompt: prompt.slice(0,200), status: msg, duration });
     const error = new Error(msg);
     error.classified = classifyFalError(resp.status, msg);
