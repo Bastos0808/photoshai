@@ -1425,41 +1425,8 @@
 
           <div class="key-section">
             <div class="key-section-title">
-              <span>🤖 OpenAI</span>
-              <small>GPT Image 1 · DALL-E 3 — via Cloudflare Worker (grátis)</small>
-            </div>
-            <div class="key-row">
-              <label>URL do Cloudflare Worker</label>
-              <div class="key-input-wrap">
-                <input type="text" id="openaiWorkerUrl" class="input" placeholder="https://openai-proxy.seu-usuario.workers.dev" oninput="saveApiKeys()" />
-              </div>
-              <div class="key-hint" id="openaiWorkerStatus"></div>
-              <button type="button" onclick="testWorkerConnection()" style="margin-top:8px; background:rgba(201,168,76,.1); border:1px solid var(--gold-dark); color:var(--gold); font-family:inherit; font-size:.78rem; padding:6px 14px; border-radius:6px; cursor:pointer;">
-                🔌 Testar conexão com o Worker
-              </button>
-              <div id="workerTestResult" style="margin-top:6px; font-size:.78rem;"></div>
-              <p class="key-hint" style="margin-top:8px;">
-                A API Key da OpenAI fica <strong>guardada no Cloudflare</strong>, nunca exposta no browser.<br>
-                <a href="#" onclick="openWorkerGuide(); return false" style="color:var(--gold); font-weight:600">📖 Ver passo a passo para criar o Worker →</a>
-              </p>
-            </div>
-          </div>
-
-          <div class="key-section">
-            <div class="key-section-title">
-              <span>🆓 Pollinations.ai</span>
-              <small>Flux grátis · Sem conta · Sem chave</small>
-            </div>
-            <div style="background:rgba(76,175,80,.07); border:1px solid rgba(76,175,80,.2); border-radius:8px; padding:10px 14px; font-size:.78rem; color:#a0d0a0; line-height:1.6">
-              ✅ <strong>Pronto para usar!</strong> Nenhuma configuração necessária. Selecione <em>Pollinations Flux</em> no seletor de modelos e gere direto.
-              <br><span style="opacity:.7; font-size:.72rem">Usa Flux por baixo. Imagens não são privadas — evite dados sensíveis no prompt.</span>
-            </div>
-          </div>
-
-          <div class="key-section">
-            <div class="key-section-title">
               <span>⚡ fal.ai</span>
-              <small>Flux Pro · Ideogram · Recraft · e mais</small>
+              <small>Nano Banana Pro · Ideogram · Recraft</small>
             </div>
             <div class="key-row">
               <label>fal.ai API Key</label>
@@ -1487,31 +1454,16 @@
               <span class="name">Modelo de Imagem</span>
             </div>
             <select id="imageModelSelect" class="input" onchange="saveModelPrefs(); updateActiveModelBar()" style="margin:0; font-size:.85rem">
-              <optgroup label="── 🆓 Pollinations (grátis, sem chave) ──">
-                <option value="pollinations:flux">🆓 Pollinations Flux — Grátis ⭐</option>
-                <option value="pollinations:flux-realism">🆓 Pollinations Flux Realism — Grátis, fotorrealista</option>
-                <option value="pollinations:turbo">🆓 Pollinations Turbo — Grátis, rápido ⚡</option>
-              </optgroup>
-              <optgroup label="── 🤖 OpenAI (via Worker) ──">
-                <option value="openai:gpt-image-1">✦ GPT Image 1 — Melhor da OpenAI ⭐</option>
-                <option value="openai:dall-e-3">DALL-E 3 — Ótimo para texto</option>
-                <option value="openai:dall-e-3-hd">DALL-E 3 HD — Alta qualidade</option>
-              </optgroup>
               <optgroup label="── fal.ai — Google Imagen ──">
-                <option value="fal:nano-banana-pro">🌟 Nano Banana Pro — Melhor da Google 2K ⭐</option>
+                <option value="fal:nano-banana-pro" selected>🌟 Nano Banana Pro — Melhor da Google 2K ⭐</option>
                 <option value="fal:nano-banana-2">⚡ Nano Banana 2 — Rápido + qualidade</option>
-              </optgroup>
-              <optgroup label="── fal.ai — Flux ──">
-                <option value="fal:flux-pro">✦ Flux Pro — Alta qualidade ⭐</option>
-                <option value="fal:flux-dev">Flux Dev — Equilibrado</option>
-                <option value="fal:flux-schnell">Flux Schnell — Rápido ⚡</option>
               </optgroup>
               <optgroup label="── fal.ai — Social Media ──">
                 <option value="fal:ideogram-v2">🎯 Ideogram v2 — Melhor para texto</option>
                 <option value="fal:recraft-v3">🎨 Recraft V3 — Design / Marca</option>
               </optgroup>
               <optgroup label="── Google Gemini 3 ──">
-                <option value="gemini-3-pro-image-preview" selected>Gemini 3 Pro Image</option>
+                <option value="gemini-3-pro-image-preview">Gemini 3 Pro Image</option>
                 <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash Image ⚡</option>
               </optgroup>
               <optgroup label="── Google Gemini 2.5 ──">
@@ -1545,13 +1497,12 @@
           <!-- Model descriptions card -->
           <div style="background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:14px 16px; font-size:.75rem; line-height:1.8; color:#999">
             <div style="font-weight:700; color:var(--white); margin-bottom:8px; font-size:.78rem">📖 Guia dos modelos de imagem</div>
-            <div>🆓 <strong style="color:#4caf50">Pollinations Flux / Realism / Turbo</strong> — grátis, sem conta. ⚠️ Não renderiza texto em imagem.</div>
-            <div style="margin-top:6px">✦ <strong style="color:#c8a0ff">GPT Image 1</strong> — melhor da OpenAI. Requer Cloudflare Worker + OpenAI Key.</div>
-            <div>✦ <strong style="color:#c8a0ff">DALL-E 3 / HD</strong> — excelente para texto em imagem. Requer Cloudflare Worker + OpenAI Key.</div>
+            <div>🌟 <strong style="color:var(--gold)">Nano Banana Pro</strong> — Google Imagen estado da arte, resolução 2K. Melhor custo-benefício. Requer fal.ai.</div>
+            <div>⚡ <strong style="color:var(--gold)">Nano Banana 2</strong> — Google Imagen rápido. Boa qualidade com menor latência. Requer fal.ai.</div>
             <div style="margin-top:6px">🎯 <strong style="color:var(--gold)">Ideogram v2</strong> — <em>melhor para texto legível em imagem</em> (preços, frases, CTAs). Requer fal.ai.</div>
-            <div>✦ <strong style="color:var(--gold)">Flux Pro / Dev</strong> — melhor estética e qualidade geral. Requer fal.ai.</div>
             <div>🎨 <strong style="color:var(--gold)">Recraft V3</strong> — branding e identidade visual. Requer fal.ai.</div>
-            <div style="margin-top:6px">🔷 <strong style="color:#80aaff">Gemini 3 Pro Image</strong> — multimodal, aceita referências, bom com texto. Requer Gemini Key.</div>
+            <div style="margin-top:6px">🔷 <strong style="color:#80aaff">Gemini 3 Pro Image</strong> — multimodal, aceita referências visuais. Requer Gemini Key.</div>
+            <div>🔷 <strong style="color:#80aaff">Gemini 3.1 Flash / 2.5 Flash</strong> — versões rápidas do Gemini. Requer Gemini Key.</div>
           </div>
 
         </div>
@@ -3184,25 +3135,20 @@ function switchSettingsTab(id, btn) {
 function saveApiKeys() {
   const g = document.getElementById('geminiApiKey').value.trim();
   const f = document.getElementById('falApiKey').value.trim();
-  const w = document.getElementById('openaiWorkerUrl').value.trim();
-  if (g) localStorage.setItem('artesIA_apiKey', g);           else localStorage.removeItem('artesIA_apiKey');
-  if (f) localStorage.setItem('artesIA_falApiKey', f);        else localStorage.removeItem('artesIA_falApiKey');
-  if (w) localStorage.setItem('artesIA_openaiWorkerUrl', w);  else localStorage.removeItem('artesIA_openaiWorkerUrl');
+  if (g) localStorage.setItem('artesIA_apiKey', g);    else localStorage.removeItem('artesIA_apiKey');
+  if (f) localStorage.setItem('artesIA_falApiKey', f); else localStorage.removeItem('artesIA_falApiKey');
   updateKeyStatuses();
 }
 function loadApiKeys() {
   const g = localStorage.getItem('artesIA_apiKey');
   const f = localStorage.getItem('artesIA_falApiKey');
-  const w = localStorage.getItem('artesIA_openaiWorkerUrl');
-  if (g) document.getElementById('geminiApiKey').value    = g;
-  if (f) document.getElementById('falApiKey').value       = f;
-  if (w) document.getElementById('openaiWorkerUrl').value = w;
+  if (g) document.getElementById('geminiApiKey').value = g;
+  if (f) document.getElementById('falApiKey').value    = f;
   updateKeyStatuses();
 }
 function updateKeyStatuses() {
   const g = localStorage.getItem('artesIA_apiKey');
   const f = localStorage.getItem('artesIA_falApiKey');
-  const w = localStorage.getItem('artesIA_openaiWorkerUrl');
   const set = (id, val, label) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -3210,32 +3156,8 @@ function updateKeyStatuses() {
       ? `<span class="key-status ok">✓ ${label || 'Configurado'}</span>`
       : `<span class="key-status empty">⚠ Não configurado</span>`;
   };
-  set('geminiKeyStatus',    g, 'Chave configurada');
-  set('falKeyStatus',       f, 'Chave configurada');
-  set('openaiWorkerStatus', w, 'Worker URL configurada');
-}
-async function testWorkerConnection() {
-  const url = localStorage.getItem('artesIA_openaiWorkerUrl') || document.getElementById('openaiWorkerUrl').value.trim();
-  const resultEl = document.getElementById('workerTestResult');
-  if (!url) {
-    resultEl.innerHTML = '<span style="color:#e05050;">⚠ Cole a URL do Worker primeiro.</span>';
-    return;
-  }
-  resultEl.innerHTML = '<span style="color:var(--muted);">⏳ Testando conexão…</span>';
-  try {
-    const resp = await fetch(url, { method: 'GET' });
-    const text = await resp.text().catch(() => '');
-    if (resp.ok || resp.status === 200) {
-      resultEl.innerHTML = '<span style="color:#4CAF50;">✅ Worker respondendo! Conexão OK.</span>';
-    } else if (resp.status === 405) {
-      // Método não permitido → worker existe, mas só aceita POST (esperado se worker antigo)
-      resultEl.innerHTML = '<span style="color:#4CAF50;">✅ Worker está online! (só aceita POST, normal)</span>';
-    } else {
-      resultEl.innerHTML = `<span style="color:#e05050;">❌ Worker respondeu com HTTP ${resp.status}. Verifique se foi implantado corretamente.</span>`;
-    }
-  } catch (e) {
-    resultEl.innerHTML = `<span style="color:#e05050;">❌ Sem resposta do Worker. Provável causa: Worker não implantado ou URL errada.<br><small style="opacity:.7">${e.message}</small></span>`;
-  }
+  set('geminiKeyStatus', g, 'Chave configurada');
+  set('falKeyStatus',    f, 'Chave configurada');
 }
 
 function toggleKeyVis(inputId, btn) {
@@ -3326,8 +3248,8 @@ function saveModelPrefs() {
 
 /* ── Fallback model chains ── */
 const IMAGE_MODEL_FALLBACKS = [
-  'fal:flux-pro',
-  'fal:flux-dev',
+  'fal:nano-banana-pro',
+  'fal:nano-banana-2',
   'gemini-3-pro-image-preview',
   'gemini-3.1-flash-image-preview',
   'gemini-2.5-flash-image'
@@ -3342,14 +3264,8 @@ const TEXT_MODEL_FALLBACKS = [
 
 /* ── Image model descriptions ── */
 const IMAGE_MODEL_INFO = {
-  'pollinations:flux':             { label:'Pollinations Flux',         provider:'Grátis 🆓', note:'Sem chave, sem conta. Boa qualidade geral.' },
-  'pollinations:flux-realism':     { label:'Pollinations Flux Realism', provider:'Grátis 🆓', note:'Sem chave. Melhor para pessoas e produtos fotorrealistas.' },
-  'pollinations:turbo':            { label:'Pollinations Turbo',        provider:'Grátis 🆓', note:'Sem chave. SDXL Turbo — geração mais rápida.' },
   'fal:nano-banana-pro':           { label:'Nano Banana Pro',    provider:'fal.ai',  note:'Google Imagen — estado da arte, resolução 2K. Melhor para realismo, tipografia e artes sociais.' },
   'fal:nano-banana-2':             { label:'Nano Banana 2',      provider:'fal.ai',  note:'Google Imagen rápido — ótima qualidade com geração mais veloz.' },
-  'fal:flux-pro':                  { label:'Flux Pro',           provider:'fal.ai',  note:'Melhor qualidade geral, estética premium' },
-  'fal:flux-dev':                  { label:'Flux Dev',           provider:'fal.ai',  note:'Equilibrado — qualidade e velocidade' },
-  'fal:flux-schnell':              { label:'Flux Schnell',       provider:'fal.ai',  note:'Rápido, ideal para rascunhos' },
   'fal:ideogram-v2':               { label:'Ideogram v2',        provider:'fal.ai',  note:'Melhor para texto legível em imagens' },
   'fal:recraft-v3':                { label:'Recraft V3',         provider:'fal.ai',  note:'Design, branding, identidade visual' },
   'gemini-3-pro-image-preview':    { label:'Gemini 3 Pro Image', provider:'Gemini',  note:'Multimodal, aceita referências visuais' },
@@ -3503,9 +3419,6 @@ function loadModelPrefs() {
 const FAL_MODEL_PATHS = {
   'fal:nano-banana-pro': 'fal-ai/nano-banana-pro',
   'fal:nano-banana-2':   'fal-ai/nano-banana-2',
-  'fal:flux-pro':        'fal-ai/flux-pro',
-  'fal:flux-dev':        'fal-ai/flux/dev',
-  'fal:flux-schnell':    'fal-ai/flux/schnell',
   'fal:ideogram-v2':     'fal-ai/ideogram/v2',
   'fal:recraft-v3':      'fal-ai/recraft-v3',
 };
@@ -3724,23 +3637,9 @@ async function callOpenAIViaWorker(prompt, workerUrl, aspectRatio, modelId) {
   return { base64: b64, mimeType: 'image/png' };
 }
 
-/* ── Unified image call (Gemini / fal.ai / Pollinations / OpenAI) ── */
+/* ── Unified image call (Gemini / fal.ai) ── */
 async function callImageModel(prompt, aspectRatio, extraParts) {
   const modelId = getSelectedImageModel();
-
-  if (modelId.startsWith('pollinations:')) {
-    return await callPollinationsImage(prompt, aspectRatio, modelId);
-  }
-
-  if (modelId.startsWith('openai:')) {
-    const workerUrl = localStorage.getItem('artesIA_openaiWorkerUrl') || '';
-    if (!workerUrl) {
-      throw Object.assign(new Error('URL do Cloudflare Worker não configurada.'), {
-        classified: { type:'auth', label:'🔑 OpenAI Worker: URL não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira a URL do seu Cloudflare Worker.' }
-      });
-    }
-    return await callOpenAIViaWorker(prompt, workerUrl, aspectRatio, modelId);
-  }
 
   if (modelId.startsWith('fal:')) {
     const falKey = localStorage.getItem('artesIA_falApiKey') || '';
@@ -4123,7 +4022,7 @@ async function generateImages() {
   const geminiKey = localStorage.getItem('artesIA_apiKey') || '';
   const falKey    = localStorage.getItem('artesIA_falApiKey') || '';
 
-  // Validate image provider key (Pollinations needs none)
+  // Validate image provider key
   if (modelId.startsWith('fal:') && !falKey) {
     openSettings('keys'); alert('Configure sua chave fal.ai em ⚙️ Configurações → API Keys.'); return;
   }
