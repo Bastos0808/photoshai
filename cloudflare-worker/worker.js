@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker — Proxy OpenAI Images API
+ * Cloudflare Worker — Proxy OpenAI API (imagens + chat)
  *
  * SETUP:
  * 1. Cole este código no editor do Cloudflare Worker
@@ -11,7 +11,11 @@
  * 5. Cole essa URL em ⚙️ Configurações → API Keys → OpenAI Worker URL
  *
  * A sua API Key NUNCA sai do Cloudflare — o browser não tem acesso a ela.
+ * O mesmo Worker serve para geração de imagens E para o Diretor de Arte com GPT.
  */
+
+const IMAGE_MODELS = new Set(['dall-e-3', 'gpt-image-1', 'dall-e-2'])
+const CHAT_MODELS  = new Set(['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'])
 
 export default {
   async fetch(request, env) {
@@ -21,7 +25,7 @@ export default {
       return corsResponse(null, 204)
     }
 
-    // Health check — GET retorna status OK para testar se o worker está no ar
+    // Health check
     if (request.method === 'GET') {
       return corsResponse({ status: 'ok', message: 'PhotosHAI OpenAI Worker está no ar! ✅' }, 200)
     }
@@ -30,7 +34,6 @@ export default {
       return corsResponse({ error: 'Apenas POST é permitido.' }, 405)
     }
 
-    // Parse body
     let body
     try {
       body = await request.json()
@@ -38,21 +41,25 @@ export default {
       return corsResponse({ error: 'Body JSON inválido.' }, 400)
     }
 
-    // Só permite modelos de imagem da OpenAI
-    const ALLOWED_MODELS = ['dall-e-3', 'gpt-image-1', 'dall-e-2']
-    if (!ALLOWED_MODELS.includes(body.model)) {
-      return corsResponse({ error: `Modelo não permitido: ${body.model}` }, 400)
-    }
-
-    // Checa se a secret está configurada
     if (!env.OPENAI_API_KEY) {
       return corsResponse({ error: 'Secret OPENAI_API_KEY não configurada no Worker.' }, 500)
     }
 
-    // Forward para OpenAI
+    const model = body.model || ''
+
+    // Roteamento por tipo de modelo
+    let endpoint
+    if (IMAGE_MODELS.has(model)) {
+      endpoint = 'https://api.openai.com/v1/images/generations'
+    } else if (CHAT_MODELS.has(model)) {
+      endpoint = 'https://api.openai.com/v1/chat/completions'
+    } else {
+      return corsResponse({ error: `Modelo não permitido: ${model}` }, 400)
+    }
+
     let openaiResp
     try {
-      openaiResp = await fetch('https://api.openai.com/v1/images/generations', {
+      openaiResp = await fetch(endpoint, {
         method:  'POST',
         headers: {
           'Content-Type':  'application/json',

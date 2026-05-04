@@ -1500,16 +1500,15 @@
           <div class="key-section">
             <div class="key-section-title">
               <span>🟢 OpenAI (GPT)</span>
-              <small>Diretor de Arte via GPT</small>
+              <small>Diretor de Arte via GPT — requer Cloudflare Worker</small>
             </div>
             <div class="key-row">
-              <label>OpenAI API Key</label>
+              <label>OpenAI Worker URL</label>
               <div class="key-input-wrap">
-                <input type="password" id="openaiTextApiKey" class="input" placeholder="sk-..." style="padding-right:44px" oninput="saveApiKeys()" />
-                <button class="key-toggle" onclick="toggleKeyVis('openaiTextApiKey',this)" title="Mostrar/ocultar">👁</button>
+                <input type="text" id="openaiWorkerUrl" class="input" placeholder="https://openai-proxy.SEU-USUARIO.workers.dev" oninput="saveApiKeys()" />
               </div>
               <div class="key-hint" id="openaiTextKeyStatus"></div>
-              <p class="key-hint">Crie em <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a> · Salvo apenas no seu navegador.</p>
+              <p class="key-hint">O mesmo Worker do Cloudflare já cobre imagens <strong>e</strong> o Diretor de Arte com GPT. Cole a URL do Worker aqui. A API Key fica segura no Cloudflare.</p>
             </div>
           </div>
 
@@ -3224,29 +3223,29 @@ function saveApiKeys() {
   const g  = document.getElementById('geminiApiKey').value.trim();
   const f  = document.getElementById('falApiKey').value.trim();
   const cl = document.getElementById('claudeApiKey').value.trim();
-  const ot = document.getElementById('openaiTextApiKey').value.trim();
-  if (g)  localStorage.setItem('artesIA_apiKey', g);         else localStorage.removeItem('artesIA_apiKey');
-  if (f)  localStorage.setItem('artesIA_falApiKey', f);      else localStorage.removeItem('artesIA_falApiKey');
-  if (cl) localStorage.setItem('artesIA_claudeApiKey', cl);  else localStorage.removeItem('artesIA_claudeApiKey');
-  if (ot) localStorage.setItem('artesIA_openaiTextKey', ot); else localStorage.removeItem('artesIA_openaiTextKey');
+  const ot = document.getElementById('openaiWorkerUrl').value.trim();
+  if (g)  localStorage.setItem('artesIA_apiKey', g);            else localStorage.removeItem('artesIA_apiKey');
+  if (f)  localStorage.setItem('artesIA_falApiKey', f);         else localStorage.removeItem('artesIA_falApiKey');
+  if (cl) localStorage.setItem('artesIA_claudeApiKey', cl);     else localStorage.removeItem('artesIA_claudeApiKey');
+  if (ot) localStorage.setItem('artesIA_openaiWorkerUrl', ot);  else localStorage.removeItem('artesIA_openaiWorkerUrl');
   updateKeyStatuses();
 }
 function loadApiKeys() {
   const g  = localStorage.getItem('artesIA_apiKey');
   const f  = localStorage.getItem('artesIA_falApiKey');
   const cl = localStorage.getItem('artesIA_claudeApiKey');
-  const ot = localStorage.getItem('artesIA_openaiTextKey');
-  if (g)  document.getElementById('geminiApiKey').value      = g;
-  if (f)  document.getElementById('falApiKey').value         = f;
-  if (cl) document.getElementById('claudeApiKey').value      = cl;
-  if (ot) document.getElementById('openaiTextApiKey').value  = ot;
+  const ot = localStorage.getItem('artesIA_openaiWorkerUrl');
+  if (g)  document.getElementById('geminiApiKey').value    = g;
+  if (f)  document.getElementById('falApiKey').value       = f;
+  if (cl) document.getElementById('claudeApiKey').value   = cl;
+  if (ot) document.getElementById('openaiWorkerUrl').value = ot;
   updateKeyStatuses();
 }
 function updateKeyStatuses() {
   const g  = localStorage.getItem('artesIA_apiKey');
   const f  = localStorage.getItem('artesIA_falApiKey');
   const cl = localStorage.getItem('artesIA_claudeApiKey');
-  const ot = localStorage.getItem('artesIA_openaiTextKey');
+  const ot = localStorage.getItem('artesIA_openaiWorkerUrl');
   const set = (id, val, label) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -3257,7 +3256,7 @@ function updateKeyStatuses() {
   set('geminiKeyStatus',      g,  'Chave configurada');
   set('falKeyStatus',         f,  'Chave configurada');
   set('claudeKeyStatus',      cl, 'Chave configurada');
-  set('openaiTextKeyStatus',  ot, 'Chave configurada');
+  set('openaiTextKeyStatus',  ot, 'Worker URL configurada');
 }
 
 function toggleKeyVis(inputId, btn) {
@@ -4080,16 +4079,16 @@ async function callClaudeText(prompt) {
 }
 
 async function callOpenAIText(prompt) {
-  const apiKey = localStorage.getItem('artesIA_openaiTextKey') || '';
-  if (!apiKey) throw Object.assign(new Error('OpenAI API Key não configurada.'), {
-    classified: { type:'auth', label:'🔑 OpenAI: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave da OpenAI.' }
+  const workerUrl = localStorage.getItem('artesIA_openaiWorkerUrl') || '';
+  if (!workerUrl) throw Object.assign(new Error('OpenAI Worker URL não configurada.'), {
+    classified: { type:'auth', label:'🔑 OpenAI: Worker URL não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira a URL do seu Cloudflare Worker.' }
   });
   const model  = getTextModelId();
   const signal = _activeAbortController?.signal;
   const t0     = Date.now();
-  const resp   = await fetch('https://api.openai.com/v1/chat/completions', {
+  const resp   = await fetch(workerUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] }),
     signal,
   });
@@ -4453,8 +4452,8 @@ async function generateImages() {
   if (txtProvider === 'claude' && !localStorage.getItem('artesIA_claudeApiKey')) {
     openSettings('keys'); alert('Configure sua Claude API Key em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte com Claude.)'); return;
   }
-  if (txtProvider === 'openai' && !localStorage.getItem('artesIA_openaiTextKey')) {
-    openSettings('keys'); alert('Configure sua OpenAI API Key em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte com GPT.)'); return;
+  if (txtProvider === 'openai' && !localStorage.getItem('artesIA_openaiWorkerUrl')) {
+    openSettings('keys'); alert('Configure a URL do Cloudflare Worker em ⚙️ Configurações → API Keys → OpenAI (GPT).\n(Necessária para o Diretor de Arte com GPT.)'); return;
   }
   if (txtProvider === 'gemini' && !geminiKey) {
     openSettings('keys'); alert('Configure sua chave do Gemini em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte com Gemini.)'); return;
