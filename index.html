@@ -584,7 +584,47 @@
       gap: 10px;
       padding: 12px 16px;
       border-top: 1px solid var(--border);
+      flex-wrap: wrap;
     }
+    .edit-panel {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 14px 16px;
+      background: rgba(255,255,255,.015);
+    }
+    .edit-panel.open { display: block; }
+    .edit-panel textarea {
+      width: 100%; box-sizing: border-box;
+      resize: vertical; min-height: 58px;
+    }
+    .edit-panel-title {
+      font-size: .75rem; font-weight: 700;
+      color: var(--gold); margin-bottom: 8px;
+    }
+    .edit-panel-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+    .version-strip {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-top: 12px; padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .version-thumb-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .version-thumb {
+      width: 56px; height: 56px; object-fit: cover;
+      border-radius: 5px; border: 1.5px solid var(--border);
+      cursor: pointer; transition: border-color .2s, opacity .2s;
+      opacity: .65;
+    }
+    .version-thumb:hover { opacity: 1; border-color: var(--gold); }
+    .version-restore-btn {
+      font-size: .6rem; padding: 2px 5px;
+      background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.25);
+      color: var(--gold); border-radius: 3px; cursor: pointer;
+    }
+    .version-restore-btn:hover { background: rgba(201,168,76,.2); }
+    .edit-status { font-size: .75rem; color: var(--muted); margin-top: 6px; }
+    .edit-status.err { color: #f87171; }
     .slide-checkbox-btn {
       display: inline-flex;
       align-items: center;
@@ -3366,6 +3406,7 @@ function updateActiveModelBar() {
 
 /* ── Cancellation ── */
 let _activeAbortController = null;
+const _imageHistory = new Map(); // cardId → [{ src, label }]
 
 function cancelGeneration() {
   if (_activeAbortController) {
@@ -4497,22 +4538,40 @@ async function generateImages() {
 }
 
 function appendImageResult(container, label, base64, mimeType, filename) {
-  const src = `data:${mimeType};base64,${base64}`;
+  const src  = `data:${mimeType};base64,${base64}`;
+  const cid  = 'card-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+  const modelId = getSelectedImageModel();
   const card = document.createElement('div');
   card.className = 'img-result-card';
+  card.id = cid;
+  card.dataset.model    = modelId;
+  card.dataset.filename = filename;
+  card.dataset.mime     = mimeType;
   card.innerHTML = `
     <div class="img-result-header">
       <span>🖼 ${escHtml(label)}</span>
       <span style="color:var(--success); font-size:.75rem">✓ Gerado</span>
     </div>
     <div class="img-result-body">
-      <img src="${src}" alt="${escHtml(label)}" />
+      <img id="img-${cid}" src="${src}" alt="${escHtml(label)}" />
     </div>
-    <div class="img-result-actions">
-      <a class="btn btn-gold btn-sm" href="${src}" download="${filename}.png">⬇ Baixar PNG</a>
-      <button class="btn btn-ghost btn-sm" onclick="copyImageToClipboard(this, '${src}')">📋 Copiar Imagem</button>
+    <div class="img-result-actions" id="act-${cid}">
+      <a class="btn btn-gold btn-sm" id="dl-${cid}" href="${src}" download="${filename}.png">⬇ Baixar PNG</a>
+      <button class="btn btn-ghost btn-sm" id="cp-${cid}" onclick="copyImageToClipboard(this, document.getElementById('img-${cid}').src)">📋 Copiar</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleEditPanel('${cid}')">✏️ Editar</button>
+    </div>
+    <div class="edit-panel" id="ep-${cid}">
+      <div class="edit-panel-title">✏️ Instrução de edição</div>
+      <textarea class="input" id="ei-${cid}" rows="2" placeholder="Ex: substitua o fundo por gradiente escuro, adicione brilho dourado no texto..."></textarea>
+      <div class="edit-panel-actions">
+        <button class="btn btn-gold btn-sm" onclick="applyImageEdit('${cid}')">▶ Aplicar</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleEditPanel('${cid}')">✕ Fechar</button>
+        <span class="edit-status" id="es-${cid}"></span>
+      </div>
+      <div class="version-strip" id="vs-${cid}" style="display:none"></div>
     </div>`;
   container.appendChild(card);
+  _imageHistory.set(cid, []);
 }
 
 function appendErrorResult(container, label, classifiedLabel, suggestion, rawMessage) {
@@ -4548,6 +4607,128 @@ function appendErrorResult(container, label, classifiedLabel, suggestion, rawMes
       </details>
     </div>`;
   container.appendChild(card);
+}
+
+function toggleEditPanel(cid) {
+  const ep = document.getElementById('ep-' + cid);
+  if (!ep) return;
+  ep.classList.toggle('open');
+  if (ep.classList.contains('open'))
+    document.getElementById('ei-' + cid)?.focus();
+}
+
+async function callEditImage(instruction, currentSrc, originalModelId) {
+  const [header, b64] = currentSrc.split(',');
+  const mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/png';
+
+  // fal.ai edit endpoint (Nano Banana Pro/2)
+  if (FAL_EDIT_PATHS[originalModelId]) {
+    const falKey = localStorage.getItem('artesIA_falApiKey') || '';
+    if (!falKey) throw new Error('Configure sua chave fal.ai em ⚙️ Configurações.');
+    const aspectRatio = getAspectRatioForFormat(state.selectedFormat,
+      ...Object.values(getGenerationDims()));
+    return await callFalImage(instruction, falKey, aspectRatio, originalModelId, [currentSrc]);
+  }
+
+  // Gemini image editing (inlineData)
+  const geminiKey = localStorage.getItem('artesIA_apiKey') || '';
+  if (geminiKey) {
+    const modelId    = originalModelId.startsWith('gemini') ? originalModelId : 'gemini-3.1-flash-image-preview';
+    const aspectRatio = getAspectRatioForFormat(state.selectedFormat,
+      ...Object.values(getGenerationDims()));
+    const extraParts = [{ inlineData: { mimeType, data: b64 } }];
+    return await callGeminiImage(instruction, geminiKey, aspectRatio, extraParts, modelId);
+  }
+
+  throw new Error('Nenhum modelo de edição disponível. Configure fal.ai ou Gemini em ⚙️ Configurações.');
+}
+
+async function applyImageEdit(cid) {
+  const card        = document.getElementById(cid);
+  const img         = document.getElementById('img-' + cid);
+  const statusEl    = document.getElementById('es-' + cid);
+  const instruction = document.getElementById('ei-' + cid)?.value?.trim();
+  const applyBtn    = card?.querySelector('.edit-panel .btn-gold');
+
+  if (!instruction) { statusEl.textContent = 'Escreva uma instrução antes de aplicar.'; return; }
+
+  const currentSrc    = img.src;
+  const originalModel = card.dataset.model || getSelectedImageModel();
+
+  statusEl.className = 'edit-status';
+  statusEl.textContent = '⏳ Editando...';
+  if (applyBtn) applyBtn.disabled = true;
+
+  try {
+    // Save current to history
+    const hist = _imageHistory.get(cid) || [];
+    hist.push({ src: currentSrc, label: `v${hist.length + 1}` });
+    _imageHistory.set(cid, hist);
+
+    const result  = await callEditImage(instruction, currentSrc, originalModel);
+    const newSrc  = `data:${result.mimeType};base64,${result.base64}`;
+
+    // Update card image + download link
+    img.src = newSrc;
+    const dlLink = document.getElementById('dl-' + cid);
+    if (dlLink) { dlLink.href = newSrc; dlLink.download = (card.dataset.filename || 'arte') + '.png'; }
+
+    // Update copy button
+    const cpBtn = document.getElementById('cp-' + cid);
+    if (cpBtn) cpBtn.onclick = () => copyImageToClipboard(cpBtn, newSrc);
+
+    statusEl.textContent = '✓ Edição aplicada!';
+    document.getElementById('ei-' + cid).value = '';
+    renderVersionStrip(cid);
+  } catch (err) {
+    statusEl.className = 'edit-status err';
+    statusEl.textContent = '❌ ' + (err.message || 'Erro na edição');
+    // Remove the history entry we just pushed since edit failed
+    const hist = _imageHistory.get(cid) || [];
+    hist.pop();
+    _imageHistory.set(cid, hist);
+  } finally {
+    if (applyBtn) applyBtn.disabled = false;
+  }
+}
+
+function renderVersionStrip(cid) {
+  const strip = document.getElementById('vs-' + cid);
+  if (!strip) return;
+  const hist = _imageHistory.get(cid) || [];
+  if (!hist.length) { strip.style.display = 'none'; return; }
+  strip.style.display = 'flex';
+  strip.innerHTML = '<span style="font-size:.7rem;color:var(--muted);align-self:center;flex-shrink:0">Versões anteriores:</span>' +
+    hist.map((v, i) => `
+      <div class="version-thumb-wrap">
+        <img class="version-thumb" src="${v.src}" title="${v.label}" onclick="restoreImageVersion('${cid}',${i})" />
+        <button class="version-restore-btn" onclick="restoreImageVersion('${cid}',${i})">↩ ${v.label}</button>
+      </div>`).join('');
+}
+
+function restoreImageVersion(cid, idx) {
+  const card   = document.getElementById(cid);
+  const img    = document.getElementById('img-' + cid);
+  const hist   = _imageHistory.get(cid) || [];
+  const target = hist[idx];
+  if (!target) return;
+
+  // Save current as a new history entry before restoring
+  hist.push({ src: img.src, label: `v${hist.length + 1}` });
+  // Replace target slot and restore
+  const restoredSrc = target.src;
+  hist.splice(idx, 1); // remove the restored version from history
+  _imageHistory.set(cid, hist);
+
+  img.src = restoredSrc;
+  const dlLink = document.getElementById('dl-' + cid);
+  if (dlLink) { dlLink.href = restoredSrc; dlLink.download = (card.dataset.filename || 'arte') + '.png'; }
+  const cpBtn = document.getElementById('cp-' + cid);
+  if (cpBtn) cpBtn.onclick = () => copyImageToClipboard(cpBtn, restoredSrc);
+
+  const statusEl = document.getElementById('es-' + cid);
+  if (statusEl) { statusEl.className = 'edit-status'; statusEl.textContent = `↩ ${target.label} restaurada`; }
+  renderVersionStrip(cid);
 }
 
 async function copyImageToClipboard(btn, src) {
