@@ -1412,7 +1412,7 @@
           <div class="key-section">
             <div class="key-section-title">
               <span>🔷 Google Gemini</span>
-              <small>Diretor de Arte + Geração de Imagem (modelos Gemini)</small>
+              <small>Geração de Imagem (modelos Gemini) · Diretor de Arte opcional</small>
             </div>
             <div class="key-row">
               <label>Gemini API Key</label>
@@ -1438,6 +1438,38 @@
               </div>
               <div class="key-hint" id="falKeyStatus"></div>
               <p class="key-hint">Crie em <a href="https://fal.ai/dashboard/keys" target="_blank">fal.ai/dashboard/keys</a> · Pague só pelo uso (~$0.01–0.05 por imagem).</p>
+            </div>
+          </div>
+
+          <div class="key-section">
+            <div class="key-section-title">
+              <span>🟣 Anthropic (Claude)</span>
+              <small>Diretor de Arte via Claude</small>
+            </div>
+            <div class="key-row">
+              <label>Claude API Key</label>
+              <div class="key-input-wrap">
+                <input type="password" id="claudeApiKey" class="input" placeholder="sk-ant-..." style="padding-right:44px" oninput="saveApiKeys()" />
+                <button class="key-toggle" onclick="toggleKeyVis('claudeApiKey',this)" title="Mostrar/ocultar">👁</button>
+              </div>
+              <div class="key-hint" id="claudeKeyStatus"></div>
+              <p class="key-hint">Crie em <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> · Salvo apenas no seu navegador.</p>
+            </div>
+          </div>
+
+          <div class="key-section">
+            <div class="key-section-title">
+              <span>🟢 OpenAI (GPT)</span>
+              <small>Diretor de Arte via GPT</small>
+            </div>
+            <div class="key-row">
+              <label>OpenAI API Key</label>
+              <div class="key-input-wrap">
+                <input type="password" id="openaiTextApiKey" class="input" placeholder="sk-..." style="padding-right:44px" oninput="saveApiKeys()" />
+                <button class="key-toggle" onclick="toggleKeyVis('openaiTextApiKey',this)" title="Mostrar/ocultar">👁</button>
+              </div>
+              <div class="key-hint" id="openaiTextKeyStatus"></div>
+              <p class="key-hint">Crie em <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a> · Salvo apenas no seu navegador.</p>
             </div>
           </div>
 
@@ -1480,8 +1512,17 @@
               <span class="name">Diretor de Arte (Texto)</span>
             </div>
             <select id="textModelSelect" class="input" onchange="saveModelPrefs()" style="margin:0; font-size:.85rem">
+              <optgroup label="── Claude (Anthropic) ──">
+                <option value="claude:claude-opus-4-7">Claude Opus 4.7 🏆</option>
+                <option value="claude:claude-sonnet-4-6">Claude Sonnet 4.6 ⭐</option>
+                <option value="claude:claude-haiku-4-5-20251001">Claude Haiku 4.5 ⚡</option>
+              </optgroup>
+              <optgroup label="── GPT (OpenAI) ──">
+                <option value="openai:gpt-4o">GPT-4o ⭐</option>
+                <option value="openai:gpt-4o-mini">GPT-4o Mini ⚡</option>
+              </optgroup>
               <optgroup label="── Gemini 3 ──">
-                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview ⭐</option>
+                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
                 <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
                 <option value="gemini-3-flash-preview">Gemini 3 Flash Preview ⚡</option>
                 <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite</option>
@@ -1492,7 +1533,7 @@
                 <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
               </optgroup>
             </select>
-            <div class="model-desc">Cria o prompt de direção de arte (sempre usa Gemini). Recomendado: Gemini 3.1 Pro Preview.</div>
+            <div class="model-desc">Cria o prompt de direção de arte. Recomendado: Claude Sonnet 4.6 ou GPT-4o.</div>
           </div>
 
           <!-- Model descriptions card -->
@@ -3140,22 +3181,32 @@ function switchSettingsTab(id, btn) {
 
 /* ── API Key management ── */
 function saveApiKeys() {
-  const g = document.getElementById('geminiApiKey').value.trim();
-  const f = document.getElementById('falApiKey').value.trim();
-  if (g) localStorage.setItem('artesIA_apiKey', g);    else localStorage.removeItem('artesIA_apiKey');
-  if (f) localStorage.setItem('artesIA_falApiKey', f); else localStorage.removeItem('artesIA_falApiKey');
+  const g  = document.getElementById('geminiApiKey').value.trim();
+  const f  = document.getElementById('falApiKey').value.trim();
+  const cl = document.getElementById('claudeApiKey').value.trim();
+  const ot = document.getElementById('openaiTextApiKey').value.trim();
+  if (g)  localStorage.setItem('artesIA_apiKey', g);         else localStorage.removeItem('artesIA_apiKey');
+  if (f)  localStorage.setItem('artesIA_falApiKey', f);      else localStorage.removeItem('artesIA_falApiKey');
+  if (cl) localStorage.setItem('artesIA_claudeApiKey', cl);  else localStorage.removeItem('artesIA_claudeApiKey');
+  if (ot) localStorage.setItem('artesIA_openaiTextKey', ot); else localStorage.removeItem('artesIA_openaiTextKey');
   updateKeyStatuses();
 }
 function loadApiKeys() {
-  const g = localStorage.getItem('artesIA_apiKey');
-  const f = localStorage.getItem('artesIA_falApiKey');
-  if (g) document.getElementById('geminiApiKey').value = g;
-  if (f) document.getElementById('falApiKey').value    = f;
+  const g  = localStorage.getItem('artesIA_apiKey');
+  const f  = localStorage.getItem('artesIA_falApiKey');
+  const cl = localStorage.getItem('artesIA_claudeApiKey');
+  const ot = localStorage.getItem('artesIA_openaiTextKey');
+  if (g)  document.getElementById('geminiApiKey').value      = g;
+  if (f)  document.getElementById('falApiKey').value         = f;
+  if (cl) document.getElementById('claudeApiKey').value      = cl;
+  if (ot) document.getElementById('openaiTextApiKey').value  = ot;
   updateKeyStatuses();
 }
 function updateKeyStatuses() {
-  const g = localStorage.getItem('artesIA_apiKey');
-  const f = localStorage.getItem('artesIA_falApiKey');
+  const g  = localStorage.getItem('artesIA_apiKey');
+  const f  = localStorage.getItem('artesIA_falApiKey');
+  const cl = localStorage.getItem('artesIA_claudeApiKey');
+  const ot = localStorage.getItem('artesIA_openaiTextKey');
   const set = (id, val, label) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -3163,8 +3214,10 @@ function updateKeyStatuses() {
       ? `<span class="key-status ok">✓ ${label || 'Configurado'}</span>`
       : `<span class="key-status empty">⚠ Não configurado</span>`;
   };
-  set('geminiKeyStatus', g, 'Chave configurada');
-  set('falKeyStatus',    f, 'Chave configurada');
+  set('geminiKeyStatus',      g,  'Chave configurada');
+  set('falKeyStatus',         f,  'Chave configurada');
+  set('claudeKeyStatus',      cl, 'Chave configurada');
+  set('openaiTextKeyStatus',  ot, 'Chave configurada');
 }
 
 function toggleKeyVis(inputId, btn) {
@@ -3245,7 +3298,17 @@ function getSelectedImageModel() {
 }
 
 function getSelectedTextModel() {
-  return document.getElementById('textModelSelect')?.value || 'gemini-3.1-pro-preview';
+  return document.getElementById('textModelSelect')?.value || 'claude:claude-sonnet-4-6';
+}
+function getTextModelProvider() {
+  const m = getSelectedTextModel();
+  if (m.startsWith('claude:'))  return 'claude';
+  if (m.startsWith('openai:'))  return 'openai';
+  return 'gemini';
+}
+function getTextModelId() {
+  const m = getSelectedTextModel();
+  return m.includes(':') ? m.split(':').slice(1).join(':') : m;
 }
 
 function saveModelPrefs() {
@@ -3526,8 +3589,10 @@ function trackUsage(type) {
   const errCnt  = document.getElementById('usageErrorCount');
   const tModel  = document.getElementById('textModelSelect')?.value || '';
   const iModel  = document.getElementById('imageModelSelect')?.value || '';
-  if (textEl)  textEl.textContent  = `🧠 Texto (${tModel.split('-').slice(-2).join('-')}): ${_usageStats.text} chamadas`;
-  if (imageEl) imageEl.textContent = `🖼 Imagem (${iModel.split('-').slice(-2).join('-')}): ${_usageStats.image} chamadas`;
+  const tLabel  = tModel.includes(':') ? tModel.split(':')[1].split('-').slice(-2).join('-') : tModel.split('-').slice(-2).join('-');
+  const iLabel  = iModel.includes(':') ? iModel.split(':')[1].split('-').slice(-2).join('-') : iModel.split('-').slice(-2).join('-');
+  if (textEl)  textEl.textContent  = `🧠 Texto (${tLabel}): ${_usageStats.text} chamadas`;
+  if (imageEl) imageEl.textContent = `🖼 Imagem (${iLabel}): ${_usageStats.image} chamadas`;
   if (errEl && errCnt) {
     errCnt.textContent = _usageStats.errors;
     errEl.style.display = _usageStats.errors > 0 ? 'inline' : 'none';
@@ -3938,9 +4003,81 @@ async function callGeminiImageWithFallback(prompt, apiKey, aspectRatio, extraPar
   return await callImageModel(prompt, aspectRatio, extraParts);
 }
 
-async function callGeminiTextWithFallback(prompt, apiKey, statusEl) {
-  const key = apiKey || localStorage.getItem('artesIA_apiKey') || '';
+async function callClaudeText(prompt) {
+  const apiKey = localStorage.getItem('artesIA_claudeApiKey') || '';
+  if (!apiKey) throw Object.assign(new Error('Claude API Key não configurada.'), {
+    classified: { type:'auth', label:'🔑 Claude: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave da Anthropic.' }
+  });
+  const model  = getTextModelId();
+  const signal = _activeAbortController?.signal;
+  const t0     = Date.now();
+  const resp   = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type':                          'application/json',
+      'x-api-key':                             apiKey,
+      'anthropic-version':                     '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'user', content: prompt }] }),
+    signal,
+  });
+  trackUsage('text');
+  const duration = Date.now() - t0;
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    const rawMsg = err?.error?.message || `HTTP ${resp.status}`;
+    addLog('error', { model, prompt: prompt.slice(0,200), status: rawMsg, duration });
+    const classified = classifyApiError(resp.status, rawMsg);
+    const error = new Error(rawMsg); error.classified = classified; error.status = resp.status;
+    throw error;
+  }
+  const data = await resp.json();
+  const text = data?.content?.[0]?.text || '';
+  addLog('text', { model, prompt: prompt.slice(0,200), status: '✓ Prompt gerado', duration });
+  return text;
+}
+
+async function callOpenAIText(prompt) {
+  const apiKey = localStorage.getItem('artesIA_openaiTextKey') || '';
+  if (!apiKey) throw Object.assign(new Error('OpenAI API Key não configurada.'), {
+    classified: { type:'auth', label:'🔑 OpenAI: Key não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira sua chave da OpenAI.' }
+  });
+  const model  = getTextModelId();
+  const signal = _activeAbortController?.signal;
+  const t0     = Date.now();
+  const resp   = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] }),
+    signal,
+  });
+  trackUsage('text');
+  const duration = Date.now() - t0;
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    const rawMsg = err?.error?.message || `HTTP ${resp.status}`;
+    addLog('error', { model, prompt: prompt.slice(0,200), status: rawMsg, duration });
+    const classified = classifyApiError(resp.status, rawMsg);
+    const error = new Error(rawMsg); error.classified = classified; error.status = resp.status;
+    throw error;
+  }
+  const data = await resp.json();
+  const text = data?.choices?.[0]?.message?.content || '';
+  addLog('text', { model, prompt: prompt.slice(0,200), status: '✓ Prompt gerado', duration });
+  return text;
+}
+
+async function callTextModel(prompt) {
+  const provider = getTextModelProvider();
+  if (provider === 'claude') return await callClaudeText(prompt);
+  if (provider === 'openai') return await callOpenAIText(prompt);
+  const key = localStorage.getItem('artesIA_apiKey') || '';
   return await callGeminiText(prompt, key);
+}
+
+async function callGeminiTextWithFallback(prompt, apiKey, statusEl) {
+  return await callTextModel(prompt);
 }
 
 /* ── Creative director: enriches a brief into a full image prompt ── */
@@ -4265,13 +4402,21 @@ async function generateImages() {
   if (modelId.startsWith('fal:') && !falKey) {
     openSettings('keys'); alert('Configure sua chave fal.ai em ⚙️ Configurações → API Keys.'); return;
   }
-  // Gemini key always required for the Art Director (text model)
-  if (!geminiKey) {
-    openSettings('keys');
-    alert('Configure sua chave do Gemini em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte, mesmo usando outro modelo de imagem.)');
-    return;
+  if (modelId.startsWith('gemini') && !geminiKey) {
+    openSettings('keys'); alert('Configure sua chave do Gemini em ⚙️ Configurações → API Keys.'); return;
   }
-  const apiKey = geminiKey;  // used for text model calls
+  // Validate Art Director (text model) key
+  const txtProvider = getTextModelProvider();
+  if (txtProvider === 'claude' && !localStorage.getItem('artesIA_claudeApiKey')) {
+    openSettings('keys'); alert('Configure sua Claude API Key em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte com Claude.)'); return;
+  }
+  if (txtProvider === 'openai' && !localStorage.getItem('artesIA_openaiTextKey')) {
+    openSettings('keys'); alert('Configure sua OpenAI API Key em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte com GPT.)'); return;
+  }
+  if (txtProvider === 'gemini' && !geminiKey) {
+    openSettings('keys'); alert('Configure sua chave do Gemini em ⚙️ Configurações → API Keys.\n(Necessária para o Diretor de Arte com Gemini.)'); return;
+  }
+  const apiKey = geminiKey;  // kept for Gemini image calls
 
   const btn    = document.getElementById('btnGenerateImage');
   const btnCxl = document.getElementById('btnCancelGenerate');
