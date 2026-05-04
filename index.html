@@ -3579,31 +3579,53 @@ const FAL_MODEL_PATHS = {
 };
 
 function mapAspectToFalParams(aspectRatio, modelId) {
-  // Nano Banana Pro / Nano Banana 2 — Google Imagen via fal.ai
-  // Aceita aspect_ratio como string direta ("9:16") e suporta resolução 2K
+  // ── Nano Banana Pro / Nano Banana 2 (Google Imagen) ──────────────────
+  // aspect_ratio aceita string direta ("9:16"), não precisa de mapeamento
+  // resolution default é '1K' ($0.15/img) — '2K' dobra o custo para $0.30
   if (modelId === 'fal:nano-banana-pro' || modelId === 'fal:nano-banana-2') {
-    // Mapeamento dos nossos IDs para os valores aceitos pelo modelo
-    const arMap = { '1:1':'1:1', '9:16':'9:16', '3:4':'3:4', '16:9':'16:9', '4:3':'4:3' };
-    const resolution = modelId === 'fal:nano-banana-pro' ? '2K' : '1K';
-    return { aspect_ratio: arMap[aspectRatio] || '1:1', resolution, output_format: 'png' };
+    const AR_MAP = {
+      '1:1':'1:1', '9:16':'9:16', '16:9':'16:9',
+      '3:4':'3:4', '4:3':'4:3', '3:2':'3:2', '2:3':'2:3',
+    };
+    return {
+      aspect_ratio: AR_MAP[aspectRatio] || '1:1',
+      resolution:   '1K',
+      output_format: 'png',
+    };
   }
 
+  // ── Ideogram v2 ──────────────────────────────────────────────────────
+  // API atual usa aspect_ratio como string direta e style (não style_type)
+  // expand_prompt: false equivale ao antigo magic_prompt_option: 'OFF'
   if (modelId === 'fal:ideogram-v2') {
-    const map = { '1:1':'ASPECT_1_1','9:16':'ASPECT_9_16','3:4':'ASPECT_3_4','16:9':'ASPECT_16_9','4:3':'ASPECT_4_3' };
-    return { aspect_ratio: map[aspectRatio] || 'ASPECT_1_1', style_type: 'DESIGN', magic_prompt_option: 'OFF' };
+    const AR_MAP = {
+      '1:1':'1:1', '9:16':'9:16', '16:9':'16:9',
+      '3:4':'3:4', '4:3':'4:3', '2:3':'2:3', '3:2':'3:2',
+    };
+    return {
+      aspect_ratio:   AR_MAP[aspectRatio] || '1:1',
+      style:          'design',
+      expand_prompt:  false,
+    };
   }
-  const sizeMap = {
-    '1:1':  { width:1024, height:1024 },
-    '9:16': { width:576,  height:1024 },
-    '3:4':  { width:768,  height:1024 },
-    '16:9': { width:1024, height:576  },
-    '4:3':  { width:1024, height:768  },
-  };
-  const size = sizeMap[aspectRatio] || sizeMap['1:1'];
+
+  // ── Recraft V3 ───────────────────────────────────────────────────────
+  // Aceita image_size como preset string ou {width, height}
   if (modelId === 'fal:recraft-v3') {
-    return { image_size: { width: size.width, height: size.height }, style: 'digital_illustration' };
+    const PRESET_MAP = {
+      '1:1':  'square_hd',
+      '9:16': 'portrait_16_9',
+      '3:4':  'portrait_4_3',
+      '16:9': 'landscape_16_9',
+      '4:3':  'landscape_4_3',
+    };
+    return {
+      image_size: PRESET_MAP[aspectRatio] || 'square_hd',
+      style:      'realistic_image',
+    };
   }
-  return { image_size: { width: size.width, height: size.height } };
+
+  return {};
 }
 
 function classifyFalError(status, message) {
@@ -3639,14 +3661,14 @@ async function callFalImage(prompt, falApiKey, aspectRatio, modelId) {
   const resp   = await fetch(url, {
     method:  'POST',
     headers: { 'Authorization': `Key ${falApiKey}`, 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ prompt, num_images: 1, ...params }),
+    // sync_mode: true → imagem retorna como data URI direto, sem roundtrip de download
+    body:    JSON.stringify({ prompt, num_images: 1, sync_mode: true, ...params }),
     signal
   });
   trackUsage('image');
   const duration = Date.now() - t0;
   if (!resp.ok) {
     const errData = await resp.json().catch(() => ({}));
-    // fal.ai (FastAPI) pode retornar detail como array de objetos — normaliza para string
     const rawDetail = errData?.detail;
     const msg = Array.isArray(rawDetail)
       ? rawDetail.map(e => e?.msg || JSON.stringify(e)).join('; ')
@@ -3663,13 +3685,23 @@ async function callFalImage(prompt, falApiKey, aspectRatio, modelId) {
     addLog('error', { model: modelId, prompt: prompt.slice(0,200), status: 'Sem imagem retornada', duration });
     throw new Error('Nenhuma imagem retornada pelo fal.ai. Tente novamente.');
   }
-  // Download and convert to base64
-  const imgResp = await fetch(imageUrl);
-  if (!imgResp.ok) throw new Error('Falha ao baixar imagem do fal.ai.');
-  const blob   = await imgResp.blob();
-  const base64 = await blobToBase64(blob);
+
+  let base64, mimeType;
+  if (imageUrl.startsWith('data:')) {
+    // sync_mode — data URI direto, sem download adicional
+    const [header, b64] = imageUrl.split(',');
+    base64   = b64;
+    mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/png';
+  } else {
+    // fallback: URL normal — baixa e converte
+    const imgResp = await fetch(imageUrl);
+    if (!imgResp.ok) throw new Error('Falha ao baixar imagem do fal.ai.');
+    const blob = await imgResp.blob();
+    base64   = await blobToBase64(blob);
+    mimeType = blob.type || 'image/jpeg';
+  }
   addLog('image', { model: modelId, prompt: prompt.slice(0,200), status: '✓ Gerado com sucesso', duration });
-  return { base64, mimeType: blob.type || 'image/jpeg' };
+  return { base64, mimeType };
 }
 
 /* ── Pollinations.ai (totalmente grátis, sem chave) ── */
