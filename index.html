@@ -1497,6 +1497,10 @@
                 <option value="openai:dall-e-3">DALL-E 3 — Ótimo para texto</option>
                 <option value="openai:dall-e-3-hd">DALL-E 3 HD — Alta qualidade</option>
               </optgroup>
+              <optgroup label="── fal.ai — Google Imagen ──">
+                <option value="fal:nano-banana-pro">🌟 Nano Banana Pro — Melhor da Google 2K ⭐</option>
+                <option value="fal:nano-banana-2">⚡ Nano Banana 2 — Rápido + qualidade</option>
+              </optgroup>
               <optgroup label="── fal.ai — Flux ──">
                 <option value="fal:flux-pro">✦ Flux Pro — Alta qualidade ⭐</option>
                 <option value="fal:flux-dev">Flux Dev — Equilibrado</option>
@@ -3341,6 +3345,8 @@ const IMAGE_MODEL_INFO = {
   'pollinations:flux':             { label:'Pollinations Flux',         provider:'Grátis 🆓', note:'Sem chave, sem conta. Boa qualidade geral.' },
   'pollinations:flux-realism':     { label:'Pollinations Flux Realism', provider:'Grátis 🆓', note:'Sem chave. Melhor para pessoas e produtos fotorrealistas.' },
   'pollinations:turbo':            { label:'Pollinations Turbo',        provider:'Grátis 🆓', note:'Sem chave. SDXL Turbo — geração mais rápida.' },
+  'fal:nano-banana-pro':           { label:'Nano Banana Pro',    provider:'fal.ai',  note:'Google Imagen — estado da arte, resolução 2K. Melhor para realismo, tipografia e artes sociais.' },
+  'fal:nano-banana-2':             { label:'Nano Banana 2',      provider:'fal.ai',  note:'Google Imagen rápido — ótima qualidade com geração mais veloz.' },
   'fal:flux-pro':                  { label:'Flux Pro',           provider:'fal.ai',  note:'Melhor qualidade geral, estética premium' },
   'fal:flux-dev':                  { label:'Flux Dev',           provider:'fal.ai',  note:'Equilibrado — qualidade e velocidade' },
   'fal:flux-schnell':              { label:'Flux Schnell',       provider:'fal.ai',  note:'Rápido, ideal para rascunhos' },
@@ -3495,14 +3501,25 @@ function loadModelPrefs() {
 
 /* ── fal.ai — aspect ratio & model routing ── */
 const FAL_MODEL_PATHS = {
-  'fal:flux-pro':     'fal-ai/flux-pro',
-  'fal:flux-dev':     'fal-ai/flux/dev',
-  'fal:flux-schnell': 'fal-ai/flux/schnell',
-  'fal:ideogram-v2':  'fal-ai/ideogram/v2',
-  'fal:recraft-v3':   'fal-ai/recraft-v3',
+  'fal:nano-banana-pro': 'fal-ai/nano-banana-pro',
+  'fal:nano-banana-2':   'fal-ai/nano-banana-2',
+  'fal:flux-pro':        'fal-ai/flux-pro',
+  'fal:flux-dev':        'fal-ai/flux/dev',
+  'fal:flux-schnell':    'fal-ai/flux/schnell',
+  'fal:ideogram-v2':     'fal-ai/ideogram/v2',
+  'fal:recraft-v3':      'fal-ai/recraft-v3',
 };
 
 function mapAspectToFalParams(aspectRatio, modelId) {
+  // Nano Banana Pro / Nano Banana 2 — Google Imagen via fal.ai
+  // Aceita aspect_ratio como string direta ("9:16") e suporta resolução 2K
+  if (modelId === 'fal:nano-banana-pro' || modelId === 'fal:nano-banana-2') {
+    // Mapeamento dos nossos IDs para os valores aceitos pelo modelo
+    const arMap = { '1:1':'1:1', '9:16':'9:16', '3:4':'3:4', '16:9':'16:9', '4:3':'4:3' };
+    const resolution = modelId === 'fal:nano-banana-pro' ? '2K' : '1K';
+    return { aspect_ratio: arMap[aspectRatio] || '1:1', resolution, output_format: 'png' };
+  }
+
   if (modelId === 'fal:ideogram-v2') {
     const map = { '1:1':'ASPECT_1_1','9:16':'ASPECT_9_16','3:4':'ASPECT_3_4','16:9':'ASPECT_16_9','4:3':'ASPECT_4_3' };
     return { aspect_ratio: map[aspectRatio] || 'ASPECT_1_1', style_type: 'DESIGN', magic_prompt_option: 'OFF' };
