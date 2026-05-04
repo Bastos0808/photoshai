@@ -1508,7 +1508,9 @@
                 <input type="text" id="openaiWorkerUrl" class="input" placeholder="https://openai-proxy.SEU-USUARIO.workers.dev" oninput="saveApiKeys()" />
               </div>
               <div class="key-hint" id="openaiTextKeyStatus"></div>
-              <p class="key-hint">O mesmo Worker do Cloudflare já cobre imagens <strong>e</strong> o Diretor de Arte com GPT. Cole a URL do Worker aqui. A API Key fica segura no Cloudflare.</p>
+              <p class="key-hint">O mesmo Worker do Cloudflare cobre imagens <strong>e</strong> o Diretor de Arte com GPT. Cole a URL do Worker aqui. A API Key fica segura no Cloudflare.</p>
+              <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="testOpenAIWorker()">🔌 Testar conexão com o Worker</button>
+              <div id="openaiWorkerTestResult" style="margin-top:6px; font-size:.75rem"></div>
             </div>
           </div>
 
@@ -4081,24 +4083,38 @@ async function callClaudeText(prompt) {
 async function callOpenAIText(prompt) {
   const workerUrl = localStorage.getItem('artesIA_openaiWorkerUrl') || '';
   if (!workerUrl) throw Object.assign(new Error('OpenAI Worker URL não configurada.'), {
-    classified: { type:'auth', label:'🔑 OpenAI: Worker URL não configurada', suggestion:'Abra ⚙️ Configurações → API Keys e insira a URL do seu Cloudflare Worker.' }
+    classified: { type:'auth', label:'🔑 OpenAI: Worker URL não configurada', suggestion:'Abra ⚙️ Configurações → API Keys → OpenAI e cole a URL do seu Cloudflare Worker. Não esqueça de fazer o deploy do novo worker.js.' }
   });
   const model  = getTextModelId();
   const signal = _activeAbortController?.signal;
   const t0     = Date.now();
-  const resp   = await fetch(workerUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] }),
-    signal,
-  });
+  let resp;
+  try {
+    resp = await fetch(workerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] }),
+      signal,
+    });
+  } catch (e) {
+    const isAbort = e.name === 'AbortError';
+    throw Object.assign(e, {
+      classified: isAbort
+        ? { type:'abort', label:'⛔ Geração cancelada', suggestion:'' }
+        : { type:'network', label:'🌐 Erro de conexão com o Worker OpenAI', suggestion:'Verifique se a URL do Worker está correta em ⚙️ Configurações → API Keys → OpenAI. Certifique-se de ter feito o deploy do novo worker.js no Cloudflare.' }
+    });
+  }
   trackUsage('text');
   const duration = Date.now() - t0;
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
-    const rawMsg = err?.error?.message || `HTTP ${resp.status}`;
+    // worker pode retornar {error: "string"} ou {error: {message: "string"}}
+    const rawMsg = (typeof err?.error === 'string' ? err.error : err?.error?.message) || `HTTP ${resp.status}`;
     addLog('error', { model, prompt: prompt.slice(0,200), status: rawMsg, duration });
     const classified = classifyApiError(resp.status, rawMsg);
+    if (rawMsg.includes('não permitido') || rawMsg.includes('not allowed')) {
+      classified.suggestion = 'O Worker precisa ser atualizado com o novo worker.js que suporta chat. Faça o deploy novamente no Cloudflare.';
+    }
     const error = new Error(rawMsg); error.classified = classified; error.status = resp.status;
     throw error;
   }
@@ -4106,6 +4122,27 @@ async function callOpenAIText(prompt) {
   const text = data?.choices?.[0]?.message?.content || '';
   addLog('text', { model, prompt: prompt.slice(0,200), status: '✓ Prompt gerado', duration });
   return text;
+}
+
+async function testOpenAIWorker() {
+  const workerUrl = localStorage.getItem('artesIA_openaiWorkerUrl') || '';
+  const resultEl  = document.getElementById('openaiWorkerTestResult');
+  if (!workerUrl) {
+    resultEl.innerHTML = '<span style="color:#f87171">⚠ Cole a URL do Worker primeiro.</span>';
+    return;
+  }
+  resultEl.innerHTML = '<span style="color:var(--muted)">⏳ Testando...</span>';
+  try {
+    const resp = await fetch(workerUrl, { method: 'GET' });
+    const data = await resp.json().catch(() => ({}));
+    if (resp.ok && data.status === 'ok') {
+      resultEl.innerHTML = `<span style="color:#4ade80">✅ ${data.message || 'Worker respondendo!'}</span>`;
+    } else {
+      resultEl.innerHTML = `<span style="color:#f87171">❌ Worker respondeu com erro: ${JSON.stringify(data)}</span>`;
+    }
+  } catch (e) {
+    resultEl.innerHTML = `<span style="color:#f87171">❌ Não foi possível conectar: ${e.message}. Verifique a URL e se o Worker está deployado.</span>`;
+  }
 }
 
 async function callTextModel(prompt) {
