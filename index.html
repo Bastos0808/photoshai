@@ -1000,6 +1000,7 @@
     .log-model-name { color: var(--white); font-weight: 600; flex: 1; font-size: .75rem; }
     .log-ts { color: var(--muted); font-size: .68rem; }
     .log-dur { color: var(--muted); font-size: .68rem; margin-left: 4px; }
+    .log-cost { color: #7dcea0; font-size: .68rem; font-weight: 700; margin-left: 6px; background: rgba(76,175,80,.1); border-radius: 4px; padding: 1px 5px; }
     .log-prompt-text { color: #999; font-size: .72rem; font-style: italic; line-height: 1.4; margin-top: 3px; }
     .log-status-text { font-size: .72rem; margin-top: 3px; }
     .log-status-text.ok  { color: var(--success); }
@@ -1510,11 +1511,22 @@
         <!-- ── TAB: LOGS ── -->
         <div id="stab-logs" class="stab-content">
 
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:.75rem; color:var(--muted);">
+            <span>💱 Câmbio USD →</span>
+            <span style="color:var(--white)">R$</span>
+            <input type="number" id="usdBrlRate" step="0.01" min="1" max="20" value="5.80"
+              style="width:70px; background:var(--input-bg); border:1px solid var(--border); color:var(--white); border-radius:6px; padding:3px 8px; font-size:.78rem; font-family:inherit;"
+              oninput="USD_TO_BRL = parseFloat(this.value)||5.80; localStorage.setItem('artesIA_usdBrl', USD_TO_BRL); renderLogs()" />
+            <span style="opacity:.5; font-size:.68rem">Ajuste conforme cotação atual</span>
+          </div>
+
           <div class="log-toolbar">
             <span class="log-count" id="logCountLabel">0 eventos</span>
             <button class="btn btn-ghost btn-sm" onclick="exportLogs()" style="font-size:.75rem; padding:5px 12px">📋 Copiar</button>
             <button class="btn btn-ghost btn-sm" onclick="clearLogs()" style="font-size:.75rem; padding:5px 12px; border-color:rgba(239,68,68,.4); color:#f87171">🗑 Limpar</button>
           </div>
+
+          <div id="logSessionCost" style="margin-bottom:12px; font-size:.78rem; color:var(--gold); background:rgba(201,168,76,.07); border:1px solid rgba(201,168,76,.18); border-radius:8px; padding:8px 12px; min-height:0; display:block;"></div>
 
           <div id="logEntries"></div>
 
@@ -3295,12 +3307,57 @@ function cancelGeneration() {
 }
 
 /* ══════════════════════════════════════════════════════════
+   CUSTOS DOS MODELOS (USD por imagem/chamada)
+   Fonte: fal.ai/pricing + ai.google.dev/gemini-api/docs/pricing
+   Atualizado: 2026-05
+══════════════════════════════════════════════════════════ */
+const MODEL_COST_USD = {
+  // fal.ai — Google Imagen
+  'fal:nano-banana-pro': 0.15,   // 2K resolution
+  'fal:nano-banana-2':   0.08,   // 1K resolution
+  // fal.ai — Social Media
+  'fal:ideogram-v2':     0.08,
+  'fal:recraft-v3':      0.04,
+  // Gemini image generation
+  'gemini-3-pro-image-preview':     0.134,
+  'gemini-3.1-flash-image-preview': 0.045,
+  'gemini-2.5-flash-image':         0.039,
+  // Gemini text (estimativa por chamada — varia por tokens)
+  'gemini-3.1-pro-preview':    0.004,
+  'gemini-3-pro-preview':      0.004,
+  'gemini-3-flash-preview':    0.001,
+  'gemini-3.1-flash-lite-preview': 0.0005,
+  'gemini-2.5-pro':            0.005,
+  'gemini-2.5-flash':          0.001,
+  'gemini-2.5-flash-lite':     0.0005,
+};
+
+// Taxa de câmbio USD → BRL (facilmente ajustável)
+let USD_TO_BRL = parseFloat(localStorage.getItem('artesIA_usdBrl') || '5.80');
+
+function modelCostBRL(modelId) {
+  const usd = MODEL_COST_USD[modelId];
+  if (!usd) return null;
+  return { usd, brl: usd * USD_TO_BRL };
+}
+
+function sessionTotalCostBRL() {
+  return _sessionLog.reduce((acc, e) => acc + (e.costBRL || 0), 0);
+}
+
+/* ══════════════════════════════════════════════════════════
    SESSION LOG
 ══════════════════════════════════════════════════════════ */
 const _sessionLog = [];
 
 function addLog(type, details) {
-  const entry = { id: Date.now(), ts: new Date().toLocaleTimeString('pt-BR'), type, ...details };
+  // Calcula custo se for chamada de IA
+  let costBRL = 0;
+  if (details.model) {
+    const c = modelCostBRL(details.model);
+    if (c) costBRL = c.brl;
+  }
+  const entry = { id: Date.now(), ts: new Date().toLocaleTimeString('pt-BR'), type, costBRL, ...details };
   _sessionLog.unshift(entry);
   // update badge
   const badge = document.getElementById('logBadge');
@@ -3313,17 +3370,34 @@ function addLog(type, details) {
 function renderLogs() {
   const container = document.getElementById('logEntries');
   if (!container) return;
+  // Sincroniza input de câmbio com valor atual
+  const rateInput = document.getElementById('usdBrlRate');
+  if (rateInput) rateInput.value = USD_TO_BRL.toFixed(2);
   const lbl = document.getElementById('logCountLabel');
   if (lbl) lbl.textContent = `${_sessionLog.length} evento${_sessionLog.length !== 1 ? 's' : ''}`;
+
+  // Total da sessão
+  const totalBRL = sessionTotalCostBRL();
+  const totalEl = document.getElementById('logSessionCost');
+  if (totalEl) {
+    totalEl.innerHTML = totalBRL > 0
+      ? `💰 Total da sessão: <strong>R$ ${totalBRL.toFixed(4)}</strong> <span style="opacity:.5;font-size:.7rem">(câmbio R$ ${USD_TO_BRL.toFixed(2)}/USD)</span>`
+      : '';
+  }
+
   if (_sessionLog.length === 0) { container.innerHTML = ''; return; }
   container.innerHTML = _sessionLog.map(e => {
     const typeLabel = e.type === 'image' ? '🖼 Imagem' : e.type === 'text' ? '🧠 Texto' : '❌ Erro';
+    const costStr = (e.costBRL && e.type !== 'error')
+      ? `<span class="log-cost">R$ ${e.costBRL.toFixed(4)}</span>`
+      : '';
     return `<div class="log-entry log-${e.type}">
       <div class="log-entry-header">
         <span class="log-badge-type">${typeLabel}</span>
         <span class="log-model-name">${escHtml(e.model || '—')}</span>
         <span class="log-ts">${escHtml(e.ts)}</span>
         ${e.duration ? `<span class="log-dur">⏱ ${e.duration}ms</span>` : ''}
+        ${costStr}
       </div>
       ${e.prompt ? `<div class="log-prompt-text">"${escHtml(e.prompt.slice(0,150))}${e.prompt.length>150?'…':''}"</div>` : ''}
       ${e.status ? `<div class="log-status-text ${e.type==='error'?'err':'ok'}">${escHtml(e.status)}</div>` : ''}
