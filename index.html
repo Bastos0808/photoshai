@@ -1511,13 +1511,9 @@
         <!-- ── TAB: LOGS ── -->
         <div id="stab-logs" class="stab-content">
 
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:.75rem; color:var(--muted);">
-            <span>💱 Câmbio USD →</span>
-            <span style="color:var(--white)">R$</span>
-            <input type="number" id="usdBrlRate" step="0.01" min="1" max="20" value="5.80"
-              style="width:70px; background:var(--input-bg); border:1px solid var(--border); color:var(--white); border-radius:6px; padding:3px 8px; font-size:.78rem; font-family:inherit;"
-              oninput="USD_TO_BRL = parseFloat(this.value)||5.80; localStorage.setItem('artesIA_usdBrl', USD_TO_BRL); renderLogs()" />
-            <span style="opacity:.5; font-size:.68rem">Ajuste conforme cotação atual</span>
+          <!-- Widget de cotação ao vivo -->
+          <div id="rateWidget" style="background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:.75rem; color:var(--muted); margin-bottom:14px;">
+            ⏳ Buscando cotação…
           </div>
 
           <div class="log-toolbar">
@@ -3140,7 +3136,7 @@ function switchSettingsTab(id, btn) {
   document.querySelectorAll('.stab').forEach(el => el.classList.remove('active'));
   document.getElementById('stab-' + id).classList.add('active');
   btn.classList.add('active');
-  if (id === 'logs') renderLogs();
+  if (id === 'logs') { _updateRateWidget(); renderLogs(); }
 }
 
 /* ── API Key management ── */
@@ -3332,17 +3328,103 @@ const MODEL_COST_USD = {
   'gemini-2.5-flash-lite':     0.0005,
 };
 
-// Taxa de câmbio USD → BRL (facilmente ajustável)
-let USD_TO_BRL = parseFloat(localStorage.getItem('artesIA_usdBrl') || '5.80');
+/* ══════════════════════════════════════════════════════════
+   CÂMBIO USD → BRL — Cotação em Tempo Real
+   Primary:  open.er-api.com (atualiza diariamente)
+   Fallback: api.frankfurter.dev
+   Cache:    localStorage por 24h
+══════════════════════════════════════════════════════════ */
+const _RATE_CACHE_KEY  = 'artesIA_rateCache';
+const _RATE_API_PRIMARY  = 'https://open.er-api.com/v6/latest/USD';
+const _RATE_API_FALLBACK = 'https://api.frankfurter.dev/v1/latest?from=USD&to=BRL';
 
-function modelCostBRL(modelId) {
-  const usd = MODEL_COST_USD[modelId];
-  if (!usd) return null;
-  return { usd, brl: usd * USD_TO_BRL };
+let USD_TO_BRL = 5.80;          // default até fetch completar
+let _rateStatus = 'loading';    // 'loading' | 'live' | 'cached' | 'error'
+let _rateUpdatedAt = null;      // string ISO da última atualização
+
+// Tenta carregar cache primeiro para não bloquear o UI
+(function _initRateFromCache() {
+  try {
+    const raw = localStorage.getItem(_RATE_CACHE_KEY);
+    if (!raw) return;
+    const c = JSON.parse(raw);
+    if (c?.rate) {
+      USD_TO_BRL    = c.rate;
+      _rateStatus   = 'cached';
+      _rateUpdatedAt = c.updatedAt || null;
+    }
+  } catch (_) {}
+})();
+
+async function fetchLiveRate() {
+  _rateStatus = 'loading';
+  _updateRateWidget();
+  try {
+    // Primary
+    let rate, updatedAt;
+    try {
+      const r    = await fetch(_RATE_API_PRIMARY, { cache: 'no-store' });
+      const data = await r.json();
+      rate      = data?.rates?.BRL;
+      updatedAt = data?.time_last_update_utc || new Date().toUTCString();
+    } catch (_) {
+      // Fallback
+      const r    = await fetch(_RATE_API_FALLBACK, { cache: 'no-store' });
+      const data = await r.json();
+      rate      = data?.rates?.BRL;
+      updatedAt = data?.date ? `${data.date}T00:00:00Z` : new Date().toISOString();
+    }
+    if (!rate || isNaN(rate)) throw new Error('Taxa inválida');
+
+    USD_TO_BRL    = rate;
+    _rateStatus   = 'live';
+    _rateUpdatedAt = updatedAt;
+
+    localStorage.setItem(_RATE_CACHE_KEY, JSON.stringify({
+      rate, updatedAt, fetchedAt: Date.now()
+    }));
+  } catch (e) {
+    _rateStatus = _rateUpdatedAt ? 'cached' : 'error';
+    console.warn('[Câmbio] Falha ao buscar cotação:', e.message);
+  }
+  _updateRateWidget();
+  renderLogs();
 }
 
-function sessionTotalCostBRL() {
-  return _sessionLog.reduce((acc, e) => acc + (e.costBRL || 0), 0);
+function _updateRateWidget() {
+  const el = document.getElementById('rateWidget');
+  if (!el) return;
+  const icons = { live:'🟢', cached:'🟡', loading:'⏳', error:'🔴' };
+  const labels = { live:'Cotação ao vivo', cached:'Cache (pode estar desatualizado)', loading:'Buscando cotação…', error:'Falha — usando valor padrão' };
+  const dateStr = _rateUpdatedAt
+    ? ` · Atualizado: ${new Date(_rateUpdatedAt).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}`
+    : '';
+  el.innerHTML = `
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <span>${icons[_rateStatus] || '⏳'}</span>
+      <span style="font-weight:700; color:var(--white); font-size:.85rem">USD 1 = R$ ${USD_TO_BRL.toFixed(4)}</span>
+      <span style="color:var(--muted); font-size:.7rem">${labels[_rateStatus] || ''}${dateStr}</span>
+      <button onclick="fetchLiveRate()" style="margin-left:auto; background:transparent; border:1px solid var(--border); color:var(--muted); font-size:.68rem; padding:3px 10px; border-radius:5px; cursor:pointer; font-family:inherit;">🔄 Atualizar</button>
+    </div>`;
+}
+
+// Verifica se cache expirou (>24h) e refaz o fetch
+(function _checkCacheExpiry() {
+  try {
+    const raw = localStorage.getItem(_RATE_CACHE_KEY);
+    if (!raw) { fetchLiveRate(); return; }
+    const c = JSON.parse(raw);
+    const age = Date.now() - (c?.fetchedAt || 0);
+    if (age > 24 * 60 * 60 * 1000) fetchLiveRate(); // 24h
+  } catch (_) { fetchLiveRate(); }
+})();
+
+function modelCostUSD(modelId) {
+  return MODEL_COST_USD[modelId] || 0;
+}
+
+function sessionTotalCostUSD() {
+  return _sessionLog.reduce((acc, e) => acc + (e.costUSD || 0), 0);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -3351,13 +3433,8 @@ function sessionTotalCostBRL() {
 const _sessionLog = [];
 
 function addLog(type, details) {
-  // Calcula custo se for chamada de IA
-  let costBRL = 0;
-  if (details.model) {
-    const c = modelCostBRL(details.model);
-    if (c) costBRL = c.brl;
-  }
-  const entry = { id: Date.now(), ts: new Date().toLocaleTimeString('pt-BR'), type, costBRL, ...details };
+  const costUSD = details.model ? (MODEL_COST_USD[details.model] || 0) : 0;
+  const entry = { id: Date.now(), ts: new Date().toLocaleTimeString('pt-BR'), type, costUSD, ...details };
   _sessionLog.unshift(entry);
   // update badge
   const badge = document.getElementById('logBadge');
@@ -3370,26 +3447,30 @@ function addLog(type, details) {
 function renderLogs() {
   const container = document.getElementById('logEntries');
   if (!container) return;
-  // Sincroniza input de câmbio com valor atual
-  const rateInput = document.getElementById('usdBrlRate');
-  if (rateInput) rateInput.value = USD_TO_BRL.toFixed(2);
+
+  // Atualiza widget de cotação
+  _updateRateWidget();
+
   const lbl = document.getElementById('logCountLabel');
   if (lbl) lbl.textContent = `${_sessionLog.length} evento${_sessionLog.length !== 1 ? 's' : ''}`;
 
-  // Total da sessão
-  const totalBRL = sessionTotalCostBRL();
-  const totalEl = document.getElementById('logSessionCost');
+  // Total da sessão convertido com taxa atual
+  const totalUSD = sessionTotalCostUSD();
+  const totalBRL = totalUSD * USD_TO_BRL;
+  const totalEl  = document.getElementById('logSessionCost');
   if (totalEl) {
-    totalEl.innerHTML = totalBRL > 0
-      ? `💰 Total da sessão: <strong>R$ ${totalBRL.toFixed(4)}</strong> <span style="opacity:.5;font-size:.7rem">(câmbio R$ ${USD_TO_BRL.toFixed(2)}/USD)</span>`
-      : '';
+    totalEl.innerHTML = totalUSD > 0
+      ? `💰 <strong>Total da sessão:</strong> R$ ${totalBRL.toFixed(4)} <span style="opacity:.6; font-size:.72rem">/ US$ ${totalUSD.toFixed(4)}</span>`
+      : '<span style="opacity:.5">Nenhum gasto computado ainda nesta sessão.</span>';
   }
 
   if (_sessionLog.length === 0) { container.innerHTML = ''; return; }
   container.innerHTML = _sessionLog.map(e => {
     const typeLabel = e.type === 'image' ? '🖼 Imagem' : e.type === 'text' ? '🧠 Texto' : '❌ Erro';
-    const costStr = (e.costBRL && e.type !== 'error')
-      ? `<span class="log-cost">R$ ${e.costBRL.toFixed(4)}</span>`
+    // Custo calculado com a taxa ATUAL (recalcula a cada renderização)
+    const costBRL = (e.costUSD || 0) * USD_TO_BRL;
+    const costStr = (e.costUSD && e.type !== 'error')
+      ? `<span class="log-cost" title="US$ ${e.costUSD.toFixed(4)}">R$ ${costBRL.toFixed(4)}</span>`
       : '';
     return `<div class="log-entry log-${e.type}">
       <div class="log-entry-header">
